@@ -119,6 +119,9 @@ const ENUM_PAIRS = {
 
 const BASE_IMAGE_PENDING = "scholarly.imagePending";
 
+/** FIDELITY_LIST=1 also prints every value assertion, e.g. for a review report. */
+const LIST = process.env.FIDELITY_LIST === "1";
+
 const missing = [];
 const checked = [];
 let annotationCount = 0;
@@ -658,6 +661,9 @@ for (const section of SECTIONS) {
   );
 }
 
+if (LIST) {
+  console.log([...checked].sort().join("\n"));
+}
 console.log(`\nchecked=${checked.length} missing=${missing.length}`);
 if (missing.length > 0) {
   console.error(missing.map((line) => `MISSING  ${line}`).join("\n"));
