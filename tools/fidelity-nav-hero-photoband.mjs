@@ -25,7 +25,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const PEN_SHA = "8c479d616e3b7832";
+const PEN_SHA = "f25b8e1fe0a02355";
 const PEN_CANDIDATES = [
   process.env.PEN_PATH,
   join(ROOT, "..", "ui.pen"),

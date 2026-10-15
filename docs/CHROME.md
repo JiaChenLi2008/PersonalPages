@@ -1,6 +1,6 @@
 # CHROME 与设计稿注解登记
 
-冻版基线：`ui.pen` size 134441 B、sha256 `8c479d616e3b7832…`、根 frame `r4IYo` 下 11 节（Nav | Hero | PhotoBand | Index | 01 学术成果 · Section | 02 助老活动 · Section | 03 音乐时光 · Section | 04 律动时刻 · Section | Columns | Values | Footer）、全稿 306 节点。本文两张表由脚本自设计稿批处理生成，非手工誊录。
+冻版基线：`ui.pen` size 137261 B、sha256 `f25b8e1fe0a02355…`、根 frame `r4IYo` 下 11 节（Nav | Hero | PhotoBand | Index | 01 学术成果 · Section | 02 助老活动 · Section | 03 音乐时光 · Section | 04 律动时刻 · Section | Columns | Values | Footer）、全稿 311 节点。本文两张表由脚本自设计稿批处理生成，非手工誊录。
 
 口径——设计稿上可见的文本，只可能是以下三类之一：
 
@@ -10,7 +10,7 @@
 
 比对归一化口径：设计稿文本与字典比对时仅折叠大小写与空白。设计稿把 `Scholarly Pursuits`/`Sound & Soul` 等稿件英文名以全大写渲染（`SCHOLARLY PURSUITS`/`SOUND & SOUL`），属 text-transform 渲染样式；字典保留稿件原文大小写，不改写。
 
-## 1. chrome 清单（26 条）
+## 1. chrome 清单（28 条）
 
 | # | 字典键 | text | lang | 设计位置 | 判定 |
 |---|---|---|---|---|---|
@@ -40,10 +40,12 @@
 | 24 | `elder.contentPending` | CONTENT PENDING | `en` | 02 助老活动 · Section · K | 板块占位符 |
 | 25 | `music.kicker` | 03 / 音乐时光 | `zh-Hans` | 03 音乐时光 · Section · Head | 板块 kicker |
 | 26 | `sport.kicker` | 04 / 律动时刻 | `zh-Hans` | 04 律动时刻 · Section · Head | 板块 kicker |
+| 27 | `nav.lang.zh` | 中 | `zh-Hans` | Nav · Row · Lang | 语言切换件选项 |
+| 28 | `nav.lang.en` | EN | `en` | Nav · Row · Lang | 语言切换件选项 |
 
-本表 26 条 = 字典中 `chrome:true` 条目总数，无一含 `src`（`node docs/verify-copy.mjs` 规则⑦逐条断言）。chrome 的 `text` 全部取自冻版设计稿对应节点，未新增、未改写、未翻译。
+本表 28 条 = 字典中 `chrome:true` 条目总数，无一含 `src`（`node docs/verify-copy.mjs` 规则⑦逐条断言）。chrome 的 `text` 全部取自冻版设计稿对应节点，未新增、未改写、未翻译。
 
-对齐复核：设计稿 140 个非 ※ 文本节点去重为 103 串，与字典 `text` 集合的差集为空（99 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 129 键（en=zh），其中 src-traced 103 条、chrome 26 条。
+对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 131 键（en=zh），其中 src-traced 103 条、chrome 28 条。
 
 ## 2. ※ 注解清单（7 条，不入典、不渲染）
 
