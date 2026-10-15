@@ -1,0 +1,181 @@
+/* Sport (04) — ui.pen node wO1ZI.
+   Every value is a tokens.css token. Four measurements the design uses have no
+   token yet (Head padding-bottom 20px, Body padding-block 26px, Pull
+   padding-block 6px, Pull body font-size 18px); each is derived exactly from the
+   nearest scale tokens so no literal is written. See S4-report.md open items for the
+   token names the design needs (--sp-20 / --sp-26 / --sp-6 / --fs-18). */
+
+.sport {
+  --head-pad-b: calc(var(--sp-18) + var(--sp-2)); /* 20px */
+  --body-pad-y: calc(var(--sp-24) + var(--sp-2)); /* 26px */
+  --pull-pad-y: calc(var(--sp-8) - var(--sp-2)); /* 6px */
+  --pull-fs: calc(var(--fs-22) - var(--sp-2) * 2); /* 18px */
+
+  padding: var(--pad-section-y) var(--gutter-x);
+}
+
+.sport__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 0;
+  padding: 0 0 var(--head-pad-b) 0;
+}
+
+.sport__kicker {
+  color: var(--c-ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-eyebrow);
+}
+
+/* ui.pen renders the English section name in caps; the dictionary keeps the
+   material's own casing, so the case shift is a render style (docs/CHROME.md). */
+.sport__title-en {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+  text-transform: uppercase;
+}
+
+.sport__body {
+  display: flex;
+  gap: var(--sp-32);
+  padding: var(--body-pad-y) 0;
+}
+
+.sport__col {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--sp-18);
+  min-width: 0;
+}
+
+.sport__pull {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  padding: var(--pull-pad-y) 0;
+}
+
+/* Short accent line: 40×3, --c-blue. --accent-rule holds the design's two-value
+   pair "40px 3px", which no single CSS property can split, so the exact ratio
+   carries the height. */
+.sport__pull-rule {
+  width: var(--sp-40);
+  aspect-ratio: 40 / 3;
+  background: var(--c-blue);
+}
+
+.sport__pull-text {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--pull-fs);
+  font-weight: var(--fw-key);
+  line-height: var(--lh-running);
+}
+
+.sport__kv {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-16);
+  margin: 0;
+}
+
+.sport__k {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.sport__v {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-normal);
+}
+
+.sport__fig {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: var(--sp-8);
+  width: var(--col-hero-right);
+  margin: 0;
+}
+
+/* 4:3 placeholder box (design's Media node: fill_container × 270 inside a 360
+   column). No asset exists for this section, so the box stays empty and only
+   the chrome label is shown; the asset pipeline never scales an image up. */
+.sport__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 4 / 3;
+  background: var(--c-rule);
+  overflow: hidden;
+}
+
+.sport__ph {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-10);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+@media (max-width: 1200px) {
+  .sport {
+    --head-pad-b: var(--sp-16);
+    --body-pad-y: var(--sp-24);
+    --pull-fs: calc(var(--fs-22) - var(--sp-8) + var(--sp-2)); /* 16px */
+
+    padding: var(--sp-32) var(--sp-40);
+  }
+}
+
+@media (max-width: 900px) {
+  .sport {
+    --body-pad-y: var(--sp-16);
+    --pull-fs: var(--fs-12); /* 12px */
+
+    padding: var(--sp-24) var(--sp-32);
+  }
+
+  .sport__body {
+    flex-direction: column;
+    gap: var(--sp-24);
+  }
+
+  .sport__fig {
+    width: auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .sport {
+    --head-pad-b: var(--sp-8);
+    --pull-fs: var(--fs-10); /* 10px */
+
+    padding: var(--sp-24) var(--sp-24);
+  }
+
+  .sport__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-8);
+  }
+
+  .sport__body,
+  .sport__col {
+    gap: var(--sp-16);
+  }
+}
