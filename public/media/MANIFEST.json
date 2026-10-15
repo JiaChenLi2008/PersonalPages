@@ -1,0 +1,202 @@
+{
+  "_sources": {
+    "image1.jpeg": {
+      "bytes": 5480434,
+      "format": "JPEG",
+      "h": 4284,
+      "w": 5712
+    },
+    "image2.jpeg": {
+      "bytes": 16097,
+      "format": "JPEG",
+      "h": 321,
+      "w": 427
+    },
+    "image3.jpeg": {
+      "bytes": 37722,
+      "format": "JPEG",
+      "h": 520,
+      "w": 693
+    }
+  },
+  "image1-1600.jpg": {
+    "aspect": 1.3333,
+    "bytes": 307251,
+    "crop": null,
+    "format": "jpg",
+    "h": 1200,
+    "quality": 85,
+    "src": "image1.jpeg",
+    "w": 1600
+  },
+  "image1-1600.webp": {
+    "aspect": 1.3333,
+    "bytes": 139944,
+    "crop": null,
+    "format": "webp",
+    "h": 1200,
+    "quality": 82,
+    "src": "image1.jpeg",
+    "w": 1600
+  },
+  "image1-16x9-1600.jpg": {
+    "aspect": 1.7778,
+    "bytes": 236597,
+    "crop": "16x9",
+    "format": "jpg",
+    "h": 900,
+    "quality": 85,
+    "src": "image1.jpeg",
+    "w": 1600
+  },
+  "image1-16x9-1600.webp": {
+    "aspect": 1.7778,
+    "bytes": 111658,
+    "crop": "16x9",
+    "format": "webp",
+    "h": 900,
+    "quality": 82,
+    "src": "image1.jpeg",
+    "w": 1600
+  },
+  "image1-1x1-1200.jpg": {
+    "aspect": 1.0,
+    "bytes": 257477,
+    "crop": "1x1",
+    "format": "jpg",
+    "h": 1200,
+    "quality": 85,
+    "src": "image1.jpeg",
+    "w": 1200
+  },
+  "image1-1x1-1200.webp": {
+    "aspect": 1.0,
+    "bytes": 125862,
+    "crop": "1x1",
+    "format": "webp",
+    "h": 1200,
+    "quality": 82,
+    "src": "image1.jpeg",
+    "w": 1200
+  },
+  "image1-21x9-2000.jpg": {
+    "aspect": 2.3337,
+    "bytes": 267314,
+    "crop": "21x9",
+    "format": "jpg",
+    "h": 857,
+    "quality": 85,
+    "src": "image1.jpeg",
+    "w": 2000
+  },
+  "image1-21x9-2000.webp": {
+    "aspect": 2.3337,
+    "bytes": 121802,
+    "crop": "21x9",
+    "format": "webp",
+    "h": 857,
+    "quality": 82,
+    "src": "image1.jpeg",
+    "w": 2000
+  },
+  "image1-400.jpg": {
+    "aspect": 1.3333,
+    "bytes": 31911,
+    "crop": null,
+    "format": "jpg",
+    "h": 300,
+    "quality": 85,
+    "src": "image1.jpeg",
+    "w": 400
+  },
+  "image1-400.webp": {
+    "aspect": 1.3333,
+    "bytes": 17666,
+    "crop": null,
+    "format": "webp",
+    "h": 300,
+    "quality": 82,
+    "src": "image1.jpeg",
+    "w": 400
+  },
+  "image1-800.jpg": {
+    "aspect": 1.3333,
+    "bytes": 99109,
+    "crop": null,
+    "format": "jpg",
+    "h": 600,
+    "quality": 85,
+    "src": "image1.jpeg",
+    "w": 800
+  },
+  "image1-800.webp": {
+    "aspect": 1.3333,
+    "bytes": 51040,
+    "crop": null,
+    "format": "webp",
+    "h": 600,
+    "quality": 82,
+    "src": "image1.jpeg",
+    "w": 800
+  },
+  "image2-400.jpg": {
+    "aspect": 1.3289,
+    "bytes": 23047,
+    "crop": null,
+    "format": "jpg",
+    "h": 301,
+    "quality": 85,
+    "src": "image2.jpeg",
+    "w": 400
+  },
+  "image2-400.webp": {
+    "aspect": 1.3289,
+    "bytes": 10542,
+    "crop": null,
+    "format": "webp",
+    "h": 301,
+    "quality": 82,
+    "src": "image2.jpeg",
+    "w": 400
+  },
+  "image3-400.jpg": {
+    "aspect": 1.3333,
+    "bytes": 25962,
+    "crop": null,
+    "format": "jpg",
+    "h": 300,
+    "quality": 85,
+    "src": "image3.jpeg",
+    "w": 400
+  },
+  "image3-400.webp": {
+    "aspect": 1.3333,
+    "bytes": 12464,
+    "crop": null,
+    "format": "webp",
+    "h": 300,
+    "quality": 82,
+    "src": "image3.jpeg",
+    "w": 400
+  },
+  "image3-600.jpg": {
+    "aspect": 1.3333,
+    "bytes": 47706,
+    "crop": null,
+    "format": "jpg",
+    "h": 450,
+    "quality": 85,
+    "src": "image3.jpeg",
+    "w": 600
+  },
+  "image3-600.webp": {
+    "aspect": 1.3333,
+    "bytes": 21940,
+    "crop": null,
+    "format": "webp",
+    "h": 450,
+    "quality": 82,
+    "src": "image3.jpeg",
+    "w": 600
+  }
+}
