@@ -1,0 +1,119 @@
+/* Method — ui.pen node t0l2bz, named Columns there (BLUEPRINT §2.6).
+   Desktop values are the design's own numbers, every one through a tokens.css
+   token; the responsive blocks are the implementation supplement of BLUEPRINT §3.
+   The one literal: the accent stroke's 3px height — tokens.css carries
+   --accent-rule as the pair 40px 3px, which no single size property can consume. */
+
+.method {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-24);
+  padding: var(--pad-section-y) var(--gutter-x);
+}
+
+.method [data-role="K"] {
+  margin: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-eyebrow);
+  color: var(--c-blue);
+}
+
+.method__title {
+  margin: 0;
+  font-family: var(--ff-sans-en);
+  font-size: var(--fs-64);
+  font-weight: var(--fw-black);
+  line-height: var(--lh-display-2);
+  letter-spacing: var(--ls-display-2);
+  color: var(--c-ink);
+  /* the dictionary text carries the design's hard line break */
+  white-space: pre-line;
+}
+
+.method__cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-32);
+}
+
+.method__col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+}
+
+.method__rule {
+  width: var(--sp-40);
+  height: 3px;
+  background: var(--c-blue);
+}
+
+.method__col-title {
+  margin: 0;
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-title);
+  color: var(--c-ink);
+}
+
+.method [data-role="D"] {
+  margin: 0;
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-normal);
+  line-height: var(--lh-body);
+  color: var(--c-ink-body);
+}
+
+@media (max-width: 1200px) {
+  .method {
+    padding: var(--sp-32) var(--sp-40);
+  }
+
+  .method__title {
+    font-size: 54px;
+  }
+
+  .method__cols {
+    gap: var(--sp-24);
+  }
+
+  .method__col-title {
+    font-size: 18px;
+  }
+}
+
+@media (max-width: 900px) {
+  .method {
+    padding: var(--sp-24) var(--sp-32);
+  }
+
+  .method__title {
+    font-size: 40px;
+  }
+
+  .method__cols {
+    grid-template-columns: 1fr;
+    gap: var(--sp-24);
+  }
+
+  .method__col-title {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .method {
+    padding: var(--sp-24) var(--sp-24);
+  }
+
+  .method__title {
+    font-size: 32px;
+  }
+
+  .method__cols {
+    gap: var(--sp-16);
+  }
+}

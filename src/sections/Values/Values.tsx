@@ -1,6 +1,56 @@
-import { Section } from "../../components/primitives/Section";
+import type { ReactNode } from "react";
+import { Reveal } from "../../components/primitives/Reveal";
+import { useLocale, type Locale } from "../../i18n";
+import { useCopy, type CopyKey } from "../../i18n/copy";
+import "./Values.css";
 
-/** Values cards land here in a later lane. */
+/**
+ * Text nodes carry data-role — the marker components/primitives/TextRole stamps —
+ * on plain elements, because the same nodes must also carry the `lang` attribute
+ * (BLUEPRINT §6.4), which the frozen TextRole props do not accept.
+ */
+
+const PAGE_LANG: Record<Locale, string> = { en: "en", zh: "zh-Hans" };
+
+type ValueCard = {
+  title: CopyKey;
+  delay: 0 | 1 | 2 | 3;
+};
+
+/** The four cards of ui.pen `Values`, in page order. */
+const CARDS: ValueCard[] = [
+  { title: "values.card1", delay: 0 },
+  { title: "values.card2", delay: 1 },
+  { title: "values.card3", delay: 2 },
+  { title: "values.card4", delay: 3 },
+];
+
+/** Values: four full-bleed cards, each a heading over the shared VALUE label. */
 export function Values() {
-  return <Section name="values" />;
+  const copy = useCopy();
+  const { locale } = useLocale();
+
+  /** Dictionary text; text whose language differs from the page language keeps its own lang. */
+  const t = (key: CopyKey): ReactNode => {
+    const value = copy.text(key);
+    const textLang = copy.langOf(key);
+    return textLang === PAGE_LANG[locale] ? value : <span lang={textLang}>{value}</span>;
+  };
+
+  return (
+    <section id="values" data-section="values" className="values">
+      <ul className="values__cards" role="list">
+        {CARDS.map((card) => (
+          <Reveal as="li" key={card.title} delay={card.delay} className="values__card">
+            <p className="values__label" data-role="K">
+              {t("values.label")}
+            </p>
+            <h2 className="values__title" data-role="T">
+              {t(card.title)}
+            </h2>
+          </Reveal>
+        ))}
+      </ul>
+    </section>
+  );
 }

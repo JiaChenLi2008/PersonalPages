@@ -1,0 +1,92 @@
+/* Footer — ui.pen node jSRy5 (BLUEPRINT §2.8).
+   Desktop values are the design's own numbers, every one through a tokens.css
+   token; the responsive blocks are the implementation supplement of BLUEPRINT §3. */
+
+.footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-22);
+  padding: var(--pad-footer);
+  background: var(--c-ink);
+}
+
+.footer__top {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+
+.footer__contact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.footer [data-role="T"] {
+  margin: 0;
+  font-family: var(--ff-sans-en);
+  font-size: var(--fs-48);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--ls-display-2);
+  color: var(--c-white);
+}
+
+.footer [data-role="E"] {
+  margin: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-normal);
+  color: var(--c-sand);
+}
+
+.footer [data-role="R"] {
+  margin: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  line-height: var(--lh-running);
+  text-align: right;
+  color: var(--c-muted-on-dark);
+  /* the dictionary text carries the design's hard line break */
+  white-space: pre-line;
+}
+
+@media (max-width: 1200px) {
+  .footer {
+    padding: var(--sp-32) var(--sp-40);
+  }
+
+  .footer [data-role="T"] {
+    font-size: 40px;
+  }
+}
+
+@media (max-width: 900px) {
+  .footer {
+    padding: var(--sp-24) var(--sp-32);
+  }
+
+  .footer__top {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-16);
+  }
+
+  .footer [data-role="T"] {
+    font-size: 30px;
+  }
+}
+
+@media (max-width: 600px) {
+  .footer {
+    padding: var(--sp-16) var(--sp-24);
+  }
+
+  .footer [data-role="T"] {
+    font-size: 24px;
+  }
+
+  .footer [data-role="R"] {
+    text-align: left;
+  }
+}
