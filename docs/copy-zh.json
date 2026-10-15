@@ -14,6 +14,8 @@
   "nav.item4.zh": {"text":"律动时刻","src":"layout-brief.md#段[9]","lang":"zh-Hans"},
   "nav.item4.en": {"text":"Move & Groove","src":"layout-brief.md#段[9]","lang":"en","fallback":true},
   "nav.item4.no": {"text":"4","chrome":true,"lang":"en","fallback":true},
+  "nav.lang.zh": {"text":"中","chrome":true,"lang":"zh-Hans"},
+  "nav.lang.en": {"text":"EN","chrome":true,"lang":"en","fallback":true},
   "hero.eyebrow": {"text":"APPLICANT / 2027 FALL / 01","src":"design-system.md#Hero","lang":"en","fallback":true},
   "hero.h1": {"text":"LIFE,\nIN FOCUS.","src":"design-system.md#Hero","lang":"en","fallback":true},
   "hero.h1cn": {"text":"生命的焦点：科研、打击乐与球场","src":"design-system.md#Hero","lang":"zh-Hans"},
