@@ -1,0 +1,136 @@
+/* Nav (ui.pen NFyPa): one --nav-h row plus the full-bleed page baseline.
+   Values are the node's own, via tokens.css (BLUEPRINT §2.2). */
+
+html {
+  /* Anchor jumps glide and land below the sticky bar; global.css forces `auto`
+     under prefers-reduced-motion (BLUEPRINT §4 #2, §2.11). */
+  scroll-behavior: smooth;
+  scroll-padding-top: var(--nav-h);
+}
+
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  /* The row scrolls over section content, so it paints the page paper itself. */
+  background: var(--c-paper);
+}
+
+.nav__row {
+  display: flex;
+  height: var(--nav-h);
+  padding: 0 var(--gutter-x);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nav__brand {
+  display: flex;
+  gap: var(--sp-16);
+  align-items: center;
+}
+
+.nav__mark {
+  width: var(--mark);
+  height: var(--mark);
+  background: var(--c-blue);
+}
+
+.nav__name {
+  font-family: var(--ff-sans-en);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-key);
+  letter-spacing: var(--ls-label);
+  color: var(--c-ink);
+}
+
+.nav__cn {
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-none);
+  color: var(--c-muted);
+}
+
+.nav__links {
+  display: flex;
+  gap: var(--sp-30);
+  align-items: center;
+}
+
+.nav__link {
+  display: flex;
+  gap: var(--sp-8);
+  align-items: center;
+  color: var(--c-ink);
+  text-decoration: none;
+  transition: color var(--dur-3) var(--ease-out);
+}
+
+/* Current section (BLUEPRINT §4 #2): number and label both flip to blue. */
+.nav__link[aria-current="true"],
+.nav__link[aria-current="true"] .nav__no {
+  color: var(--c-blue);
+}
+
+.nav__no,
+.nav__mail {
+  font-family: var(--ff-mono);
+  font-weight: var(--fw-normal);
+}
+
+.nav__no {
+  font-size: var(--fs-11);
+  color: var(--c-blue);
+}
+
+.nav__label {
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  font-weight: var(--fw-normal);
+}
+
+.nav__mail {
+  font-size: var(--fs-12);
+  color: var(--c-ink);
+}
+
+.nav__rule {
+  height: var(--rule-h);
+  background: var(--c-rule-strong);
+}
+
+/* Responsive tiers: BLUEPRINT §3.1 (gutter, --nav-h) and §3.3 (two-row row, links gap). */
+@media (max-width: 1200px) {
+  .nav__row {
+    height: 64px;
+    padding: 0 40px;
+  }
+
+  .nav__links {
+    gap: var(--sp-24);
+  }
+}
+
+@media (max-width: 900px) {
+  .nav__row {
+    height: auto;
+    min-height: 48px;
+    padding: 0 32px;
+    flex-wrap: wrap;
+    row-gap: var(--sp-8);
+  }
+
+  /* Brand and mail keep the first row; the four links wrap to their own. */
+  .nav__links {
+    order: 1;
+    flex-basis: 100%;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav__row {
+    min-height: 40px;
+    padding: 0 24px;
+  }
+}
