@@ -1,0 +1,37 @@
+/* Shared motion layer: scroll reveal.
+   Timing comes from the motion tokens in tokens.css; no component animates
+   on its own outside this file. */
+
+.reveal {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-shift, 12px), 0);
+  transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out);
+}
+
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+.reveal[data-delay="1"] {
+  --reveal-delay: var(--reveal-delay-1);
+  transition-delay: var(--reveal-delay);
+}
+
+.reveal[data-delay="2"] {
+  --reveal-delay: var(--reveal-delay-2);
+  transition-delay: var(--reveal-delay);
+}
+
+.reveal[data-delay="3"] {
+  --reveal-delay: var(--reveal-delay-3);
+  transition-delay: var(--reveal-delay);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

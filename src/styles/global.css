@@ -1,0 +1,34 @@
+/* Global base styles. Section layout and typography mapping land in later lanes. */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  background: var(--c-paper);
+  color: var(--c-ink-body);
+}
+
+/* Visible focus for keyboard users (language switch and anchor links). */
+:focus-visible {
+  outline: var(--rule-h-strong) solid var(--c-blue);
+  outline-offset: var(--sp-2);
+}
+
+/* Hard fallback: no motion at all when the user asks for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
+}

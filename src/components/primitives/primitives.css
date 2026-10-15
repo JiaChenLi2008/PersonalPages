@@ -1,0 +1,23 @@
+/* Primitive styling: stroke weights and the reveal default only.
+   Section layout and typography scaling land with the section lanes. */
+
+[data-rule] {
+  border: 0;
+  margin: 0;
+  width: 100%;
+}
+
+[data-rule="hairline"] {
+  height: var(--rule-h);
+  background: var(--c-rule);
+}
+
+[data-rule="page"] {
+  height: var(--rule-h);
+  background: var(--c-rule-strong);
+}
+
+[data-rule="baseline"] {
+  height: var(--rule-h-strong);
+  background: var(--c-rule-strong);
+}

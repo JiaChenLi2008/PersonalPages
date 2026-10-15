@@ -1,0 +1,114 @@
+/* Design tokens — Style H (Swiss grid).
+   Every value under "design brief" is copied verbatim from the design-system
+   brief (design-system.md §9, measured from ui.pen); never round or approximate them.
+   tokens.css is the single source of truth for literal values: no other file
+   may hardcode a hex colour or a raw size that exists here as a token. */
+
+:root {
+  /* ---- Colour (design brief) ---- */
+  --c-paper: #F7F5F0;
+  --c-ink: #111111;
+  --c-ink-body: #333333;
+  --c-rule: #D8D4CC;
+  --c-rule-strong: #111111;
+  --c-muted: #6E6E6E;
+  --c-muted-on-dark: #9A9A9A;
+  --c-label-on-color: #B9B9B9;
+  --c-white: #FFFFFF;
+  --c-blue: #1B4BC4;
+  --c-green: #0E7A46;
+  --c-sand: #C9B896;
+  --c-brown: #4A3C22;
+  --c-blue-ink: #1B4BC4;
+
+  /* ---- Type scale: font size (design brief) ---- */
+  --fs-10: 10px;
+  --fs-11: 11px;
+  --fs-12: 12px;
+  --fs-13: 13px;
+  --fs-14: 14px;
+  --fs-15: 15px;
+  --fs-22: 22px;
+  --fs-26: 26px;
+  --fs-30: 30px;
+  --fs-34: 34px;
+  --fs-42: 42px;
+  --fs-48: 48px;
+  --fs-64: 64px;
+  --fs-118: 118px;
+
+  /* ---- Font family / weight (design brief) ---- */
+  --ff-sans-en: "Inter", system-ui, sans-serif;
+  --ff-sans-cn: "Noto Sans SC", system-ui, sans-serif;
+  --ff-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --fw-normal: 400;
+  --fw-key: 700;
+  --fw-title: 800;
+  --fw-black: 900;
+
+  /* ---- Line height (design brief) ---- */
+  --lh-display: 0.92;
+  --lh-display-2: 0.95;
+  --lh-cn-title: 1.35;
+  --lh-running: 1.70;
+  --lh-body: 1.90;
+  --lh-body-hero: 1.95;
+
+  /* ---- Letter spacing (design brief) ---- */
+  --ls-display: -5px;
+  --ls-display-2: -2px;
+  --ls-none: 0;
+  --ls-label: 1px;
+  --ls-figcap: 2px;
+  --ls-caps: 3px;
+  --ls-eyebrow: 4px;
+
+  /* ---- Spacing scale (design brief) ---- */
+  --sp-2: 2px;
+  --sp-8: 8px;
+  --sp-10: 10px;
+  --sp-12: 12px;
+  --sp-14: 14px;
+  --sp-16: 16px;
+  --sp-18: 18px;
+  --sp-22: 22px;
+  --sp-24: 24px;
+  --sp-28: 28px;
+  --sp-30: 30px;
+  --sp-32: 32px;
+  --sp-36: 36px;
+  --sp-40: 40px;
+  --sp-48: 48px;
+  --sp-56: 56px;
+
+  /* ---- Layout, padding, strokes (design brief) ---- */
+  --page-w: 1440px;
+  --gutter-x: 48px;
+  --pad-section-y: 40px;
+  --pad-hero: 56px 48px 40px 48px;
+  --pad-footer: 36px 48px;
+  --pad-card: 28px 24px;
+  --pad-row: 22px 0;
+  --pad-btn: 16px 32px;
+  --pad-cap: 12px 48px;
+  --nav-h: 80px;
+  --col-hero-right: 360px;
+  --card-h: 260px;
+  --thumb: 148px;
+  --num-block: 64px;
+  --mark: 14px;
+  --rule-h: 1px;
+  --rule-h-strong: 2px;
+  --accent-rule: 40px 3px;
+  --hero-photo-h: 560px;
+
+  /* ---- Motion (implementation supplement: not in the design brief) ---- */
+  --dur-1: 200ms;
+  --dur-2: 400ms;
+  --dur-3: 600ms;
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --reveal-shift: 12px;
+  --reveal-delay-1: 80ms;
+  --reveal-delay-2: 160ms;
+  --reveal-delay-3: 240ms;
+}
