@@ -6,6 +6,8 @@ on:
   workflow_dispatch:
 
 # GitHub Pages needs read access to the repo plus a Pages deployment token.
+# Action majors below are the current ones on github.com/actions (verified via
+# each repository's releases/latest redirect); they all carry the inputs used here.
 permissions:
   contents: read
   pages: write
@@ -20,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: "22"
           cache: npm
@@ -31,20 +33,28 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      # Cheap static gates first, so a broken deploy config fails fast.
       - name: Verify design tokens
         run: node tools/verify-tokens.mjs
+
+      - name: Verify deploy configuration
+        run: node tools/verify-deploy.mjs
 
       - name: Build
         # vite.config.ts sets base: "./", so project subpaths need no BASE override.
         run: npm run build
 
+      # Reads dist/assets/*.js, so it has to run after the build step above.
+      - name: Verify copy wiring in the bundle
+        run: node tools/verify-copy-wiring.mjs
+
       - name: Configure Pages
-        uses: actions/configure-pages@v5
+        uses: actions/configure-pages@v6
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
-          path: dist
+          path: ./dist
 
   deploy:
     needs: build
@@ -55,4 +65,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
