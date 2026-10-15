@@ -129,6 +129,7 @@
   --pad-card-t1200: 24px 24px;
   --pad-card-t900: 16px 16px;
   --pad-card-t600: 16px 16px;
+  --pad-row-t1200: 16px 0; /* BLUEPRINT §3.1 --pad-row @≤1200px */
   --pad-row-t900: 16px 0;
   --pad-row-t600: 8px 0;
   --pad-cap-t1200: 12px 40px;

@@ -12,6 +12,9 @@ body {
 }
 
 body {
+  /* The three design families are declared per text role; this is the page-level
+     default, so no text can fall back to the browser serif. */
+  font-family: var(--ff-sans-cn), var(--ff-sans-en);
   background: var(--c-paper);
   color: var(--c-ink-body);
 }

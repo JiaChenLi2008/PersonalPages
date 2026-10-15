@@ -25,7 +25,7 @@ export function Footer() {
   };
 
   return (
-    <footer data-section="footer" aria-labelledby="footer-title" className="footer">
+    <footer id="footer" data-section="footer" aria-labelledby="footer-title" className="footer">
       <Reveal className="footer__top">
         <div className="footer__contact">
           <h2 id="footer-title" className="footer__cta" data-role="T">
