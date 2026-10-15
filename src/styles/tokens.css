@@ -102,6 +102,83 @@
   --accent-rule: 40px 3px;
   --hero-photo-h: 560px;
 
+  /* ---- Sizes the design brief states inside a shorthand or a node
+     (implementation supplement: single-size halves, same numbers) ---- */
+  --pad-index-head: 20px; /* BLUEPRINT §2.5 Index.Head padding 0 0 20px 0 */
+  --accent-rule-w: 40px; /* BLUEPRINT §2.6 --accent-rule 40×3 */
+  --accent-rule-h: 3px; /* BLUEPRINT §2.6 --accent-rule 40×3 */
+
+  /* ---- Responsive tiers (implementation supplement: BLUEPRINT §3.1–§3.3,
+     derived there by ratio from the single 1440 artboard). Name suffix -tNNNN
+     is the tier's breakpoint: the value that token takes at (max-width: NNNNpx).
+     A tier token is consumed inside the matching section @media block, so its
+     value is fixed rather than inherited from a media-scoped redeclaration. ---- */
+  /* BLUEPRINT §3.1 */
+  --gutter-x-t1200: 40px;
+  --gutter-x-t900: 32px;
+  --gutter-x-t600: 24px;
+  --pad-section-y-t1200: 32px;
+  --pad-section-y-t900: 24px;
+  --pad-section-y-t600: 24px;
+  --pad-hero-t1200: 48px 40px 32px 40px;
+  --pad-hero-t900: 32px 32px 24px 32px;
+  --pad-hero-t600: 32px 24px 24px 24px;
+  --pad-footer-t1200: 32px 40px;
+  --pad-footer-t900: 24px 32px;
+  --pad-footer-t600: 16px 24px;
+  --pad-card-t1200: 24px 24px;
+  --pad-card-t900: 16px 16px;
+  --pad-card-t600: 16px 16px;
+  --pad-row-t900: 16px 0;
+  --pad-row-t600: 8px 0;
+  --pad-cap-t1200: 12px 40px;
+  --pad-cap-t900: 8px 32px;
+  --pad-cap-t600: 8px 16px;
+  --nav-h-t1200: 64px;
+  --nav-h-t900: 48px;
+  --nav-h-t600: 40px;
+
+  /* BLUEPRINT §3.2 (the ≤15px sizes do not shrink; those tiers are not listed) */
+  --fs-118-t1200: 98px;
+  --fs-118-t900: 74px;
+  --fs-118-t600: 60px;
+  --fs-64-t1200: 54px;
+  --fs-64-t900: 40px;
+  --fs-64-t600: 32px;
+  --fs-48-t1200: 40px;
+  --fs-48-t900: 30px;
+  --fs-48-t600: 24px;
+  --fs-42-t1200: 36px;
+  --fs-42-t900: 26px;
+  --fs-42-t600: 22px;
+  --fs-34-t1200: 28px;
+  --fs-34-t900: 22px;
+  --fs-34-t600: 18px;
+  --fs-30-t1200: 26px;
+  --fs-30-t900: 20px;
+  --fs-30-t600: 18px;
+  --fs-26-t1200: 22px;
+  --fs-26-t900: 18px;
+  --fs-26-t600: 18px;
+  --fs-22-t1200: 18px;
+  --fs-22-t900: 16px;
+  --fs-22-t600: 16px;
+
+  /* BLUEPRINT §3.3 */
+  --col-hero-right-t1200: 304px;
+  --band-h-t1200: 464px;
+  --band-h-t900: 352px;
+  --band-h-t600: 232px;
+  --num-block-t1200: 56px;
+  --num-block-t900: 40px;
+  --num-block-t600: 32px;
+  --thumb-t1200: 120px;
+  --thumb-t900: 96px;
+  --thumb-t600: 72px;
+  --card-h-t1200: 216px;
+  --card-h-t900: 160px;
+  --card-h-t600: 128px;
+
   /* ---- Motion (implementation supplement: not in the design brief) ---- */
   --dur-1: 200ms;
   --dur-2: 400ms;

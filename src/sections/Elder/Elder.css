@@ -69,7 +69,7 @@
     --head-pad-b: var(--sp-16);
     --body-pad-y: var(--sp-24);
 
-    padding: var(--sp-32) var(--sp-40);
+    padding: var(--pad-section-y-t1200) var(--gutter-x-t1200);
   }
 }
 
@@ -77,7 +77,7 @@
   .elder {
     --body-pad-y: var(--sp-16);
 
-    padding: var(--sp-24) var(--sp-32);
+    padding: var(--pad-section-y-t900) var(--gutter-x-t900);
   }
 }
 
@@ -85,7 +85,7 @@
   .elder {
     --head-pad-b: var(--sp-8);
 
-    padding: var(--sp-24) var(--sp-24);
+    padding: var(--pad-section-y-t600) var(--gutter-x-t600);
   }
 
   .elder__head {
