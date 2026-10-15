@@ -1,0 +1,103 @@
+/* Values — ui.pen node F9LxTP (BLUEPRINT §2.7).
+   Desktop values are the design's own numbers, every one through a tokens.css
+   token; the responsive blocks are the implementation supplement of BLUEPRINT §3.
+   Each card's fill and ink pair comes from its design node, applied by nth-child. */
+
+.values__cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.values__card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--sp-10);
+  height: var(--card-h);
+  padding: var(--pad-card);
+  background: var(--card-fill);
+}
+
+.values__card:nth-child(1) {
+  --card-fill: var(--c-brown);
+  --card-label-ink: var(--c-label-on-color);
+  --card-title-ink: var(--c-white);
+}
+
+.values__card:nth-child(2) {
+  --card-fill: var(--c-blue);
+  --card-label-ink: var(--c-label-on-color);
+  --card-title-ink: var(--c-white);
+}
+
+.values__card:nth-child(3) {
+  --card-fill: var(--c-green);
+  --card-label-ink: var(--c-label-on-color);
+  --card-title-ink: var(--c-white);
+}
+
+.values__card:nth-child(4) {
+  --card-fill: var(--c-sand);
+  --card-label-ink: var(--c-brown);
+  --card-title-ink: var(--c-ink);
+}
+
+.values__label {
+  margin: 0;
+  font-family: var(--ff-mono);
+  font-size: var(--fs-10);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-caps);
+  color: var(--card-label-ink);
+}
+
+.values__title {
+  margin: 0;
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-42);
+  font-weight: var(--fw-black);
+  color: var(--card-title-ink);
+}
+
+@media (max-width: 1200px) {
+  .values__card {
+    height: 216px;
+    padding: var(--sp-24) var(--sp-24);
+  }
+
+  .values__title {
+    font-size: 36px;
+  }
+}
+
+@media (max-width: 900px) {
+  .values__cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .values__card {
+    height: 160px;
+    padding: var(--sp-16) var(--sp-16);
+  }
+
+  .values__title {
+    font-size: 26px;
+  }
+}
+
+@media (max-width: 600px) {
+  .values__cards {
+    grid-template-columns: 1fr;
+  }
+
+  .values__card {
+    height: 128px;
+  }
+
+  .values__title {
+    font-size: 22px;
+  }
+}
