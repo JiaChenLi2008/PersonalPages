@@ -1,0 +1,416 @@
+/* Scholarly (01, `SCHOLARLY PURSUITS`) — the ui.pen frame `ppRfL` subtree.
+   Every value below is the frozen design value at the 1440 board: colours only
+   through styles/tokens.css vars, sizes through a token whenever one carries the
+   same value (32px gap -> var(--sp-32)) and literally when tokens.css has none
+   (20px, 26px, 6px, font-size 18px, line-height 1.8/1.6/1.5, the 420px HIR slot).
+   Nothing is rounded and nothing is approximated. */
+
+.scholarly {
+  padding: var(--pad-section-y) var(--gutter-x);
+}
+
+/* Head `R3XJ39`: kicker left, English title right, both on the baseline. */
+.scholarly__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  padding-bottom: 20px;
+}
+
+.scholarly__kicker {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-eyebrow);
+}
+
+/* The board renders the English title uppercased; the dictionary keeps the
+   manuscript's sentence case (docs/CHROME.md, comparison rules). */
+.scholarly__title {
+  margin: 0;
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+  text-transform: uppercase;
+}
+
+/* ---- sub-block shell (01.1–01.4): SubHead + hairline + body ---- */
+.scholarly__sub {
+  padding: 26px 0;
+}
+
+.scholarly__subhead {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-14);
+  padding-bottom: var(--sp-12);
+}
+
+.scholarly__num {
+  margin: 0;
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.scholarly__subtitle {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-title);
+}
+
+.scholarly__body {
+  padding-top: 20px;
+}
+
+.scholarly__body--igem {
+  display: flex;
+  gap: var(--sp-32);
+}
+
+.scholarly__body--jhu,
+.scholarly__body--immuno,
+.scholarly__body--hir {
+  display: flex;
+  flex-direction: column;
+}
+
+.scholarly__body--jhu {
+  gap: var(--sp-16);
+}
+
+.scholarly__body--immuno {
+  gap: var(--sp-16);
+}
+
+.scholarly__body--hir {
+  gap: var(--sp-18);
+}
+
+/* ---- 01.1 iGEM `gE6yx`: text column left, 360px figure column right ---- */
+.scholarly__igemCol {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--sp-18);
+  min-width: 0;
+}
+
+.scholarly__k {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-key);
+}
+
+.scholarly__d {
+  margin: 0;
+  color: var(--c-ink-body);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
+.scholarly__cta,
+.scholarly__ctaUrl {
+  margin: 0;
+  color: var(--c-blue);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
+.scholarly__url {
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  letter-spacing: var(--ls-none);
+}
+
+.scholarly__figcol {
+  display: flex;
+  flex: 0 0 var(--col-hero-right);
+  flex-direction: column;
+  gap: var(--sp-16);
+}
+
+.scholarly__fig {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  margin: 0;
+}
+
+/* Media slot `Media`: the grey ratio box, filled by a real photo when the
+   section owns one and by the `image pending` label otherwise (BLUEPRINT §5/§6.3). */
+.scholarly__media {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--c-rule);
+}
+
+.scholarly__media--4x3 {
+  aspect-ratio: 4 / 3;
+}
+
+/* `T0FU1` is named 21:9 but its frozen geometry is 1344×420, and BLUEPRINT §5 #8
+   leaves this slot's ratio open, so the design's own height is what is built. */
+.scholarly__media--hir {
+  height: 420px;
+}
+
+.scholarly__photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.scholarly__pending {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-10);
+  letter-spacing: var(--ls-figcap);
+}
+
+.scholarly__cap {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  letter-spacing: var(--ls-label);
+}
+
+/* ---- 01.2 JHU `EYW9F` + 01.3 Immunotherapy `H1VYtj` + 01.4 HIR `FMu2N` ----
+   The reveal pair: the trigger is a real <button> (Enter/Space and focus for
+   free), the panel stays in the DOM and starts `hidden`, so revealing it only
+   grows the block downwards — nothing above it moves. No transition is used, so
+   reduced motion needs no extra rule. */
+.scholarly__cards {
+  display: flex;
+  gap: var(--sp-32);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.scholarly__card {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--sp-14);
+  min-width: 0;
+}
+
+/* The design has no hover/focus state for the puzzle piece yet (DESIGN-GAPS #7);
+   `cursor: pointer` is the implementation supplement, focus ring comes from global.css. */
+.scholarly__puzzle {
+  padding: 0;
+  border: 0;
+  cursor: pointer;
+}
+
+.scholarly__q {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  margin: 0;
+}
+
+.scholarly__onum {
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.scholarly__qtext {
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-key);
+  line-height: 1.6;
+}
+
+.scholarly__qtext--hir {
+  font-size: 18px;
+}
+
+.scholarly__question {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-14);
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: start;
+  cursor: pointer;
+}
+
+.scholarly__panel {
+  border: var(--rule-h) solid var(--c-rule);
+}
+
+/* The panel's own class must not outrank the `hidden` attribute. */
+.scholarly__panel[hidden] {
+  display: none;
+}
+
+.scholarly__panel--qa {
+  padding: var(--sp-14) var(--sp-16);
+}
+
+.scholarly__panel--hir {
+  padding: var(--sp-16) var(--sp-18);
+}
+
+.scholarly__panelLabel {
+  margin: 0 0 var(--sp-8);
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.scholarly__answer {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+}
+
+.scholarly__answer--qa {
+  line-height: 1.8;
+}
+
+.scholarly__answer--hir {
+  line-height: var(--lh-body);
+}
+
+.scholarly__hint {
+  margin: 0;
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-10);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-caps);
+}
+
+/* ---- 01.3 three columns ---- */
+.scholarly__cols {
+  display: flex;
+  gap: var(--sp-32);
+}
+
+.scholarly__col {
+  display: flex;
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: var(--sp-14);
+  min-width: 0;
+}
+
+/* `--accent-rule` is the two-value token `40px 3px`, which no single property
+   can consume, so the pair is written out here. */
+.scholarly__accent {
+  width: 40px;
+  height: 3px;
+  background: var(--c-blue);
+}
+
+/* ---- 01.4 HIR ---- */
+.scholarly__pull {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  padding: 6px 0;
+}
+
+.scholarly__pullText {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: 18px;
+  font-weight: var(--fw-key);
+  line-height: var(--lh-running);
+}
+
+.scholarly__docCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-24);
+  padding: 20px var(--sp-24);
+  border: var(--rule-h) solid var(--c-ink);
+}
+
+.scholarly__docL {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--sp-8);
+  min-width: 0;
+}
+
+.scholarly__docTitle {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: 18px;
+  font-weight: var(--fw-title);
+  line-height: 1.5;
+}
+
+.scholarly__meta {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.scholarly__link {
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+/* BLUEPRINT §3 has no `scholarly` row (narrow-screen behaviour for uncovered
+   blocks stays open until the design covers it), so only the §3 folding rule and
+   its derived gap steps 32 -> 24 -> 16 are applied. */
+@media (max-width: 900px) {
+  .scholarly__body--igem,
+  .scholarly__cards,
+  .scholarly__cols {
+    flex-direction: column;
+    gap: var(--sp-24);
+  }
+
+  .scholarly__figcol {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 600px) {
+  .scholarly__body--igem,
+  .scholarly__cards,
+  .scholarly__cols {
+    gap: var(--sp-16);
+  }
+}
