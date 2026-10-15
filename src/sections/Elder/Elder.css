@@ -1,0 +1,96 @@
+/* Elder (02) — ui.pen node s18X3i.
+   Every value is a tokens.css token. Two measurements the design uses have no
+   token yet (Head padding-bottom 20px, Body padding-block 26px); each is derived
+   exactly from the nearest scale tokens so no literal is written. See S4-report.md
+   open items for the token names the design needs (--sp-20 / --sp-26). */
+
+.elder {
+  --head-pad-b: calc(var(--sp-18) + var(--sp-2)); /* 20px */
+  --body-pad-y: calc(var(--sp-24) + var(--sp-2)); /* 26px */
+
+  padding: var(--pad-section-y) var(--gutter-x);
+}
+
+.elder__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin: 0;
+  padding: 0 0 var(--head-pad-b) 0;
+}
+
+.elder__kicker {
+  color: var(--c-ink);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-eyebrow);
+}
+
+/* ui.pen renders the English section name in caps; the dictionary keeps the
+   material's own casing, so the case shift is a render style (docs/CHROME.md). */
+.elder__title-en {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+  text-transform: uppercase;
+}
+
+.elder__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-12);
+  padding: var(--body-pad-y) 0;
+}
+
+/* Pending panel: the design's Note node is an authoring annotation, not site copy
+   (docs/CHROME.md §2), so the panel carries the chrome placeholder line only. */
+.elder__panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  padding: var(--sp-36) var(--sp-24);
+  border: var(--rule-h) solid var(--c-rule);
+}
+
+.elder__pending {
+  margin: 0;
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-10);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-caps);
+}
+
+@media (max-width: 1200px) {
+  .elder {
+    --head-pad-b: var(--sp-16);
+    --body-pad-y: var(--sp-24);
+
+    padding: var(--sp-32) var(--sp-40);
+  }
+}
+
+@media (max-width: 900px) {
+  .elder {
+    --body-pad-y: var(--sp-16);
+
+    padding: var(--sp-24) var(--sp-32);
+  }
+}
+
+@media (max-width: 600px) {
+  .elder {
+    --head-pad-b: var(--sp-8);
+
+    padding: var(--sp-24) var(--sp-24);
+  }
+
+  .elder__head {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-8);
+  }
+}
