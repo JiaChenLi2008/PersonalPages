@@ -53,17 +53,17 @@
 
 @media (max-width: 1200px) {
   .footer {
-    padding: var(--sp-32) var(--sp-40);
+    padding: var(--pad-footer-t1200);
   }
 
   .footer [data-role="T"] {
-    font-size: 40px;
+    font-size: var(--fs-48-t1200);
   }
 }
 
 @media (max-width: 900px) {
   .footer {
-    padding: var(--sp-24) var(--sp-32);
+    padding: var(--pad-footer-t900);
   }
 
   .footer__top {
@@ -73,17 +73,17 @@
   }
 
   .footer [data-role="T"] {
-    font-size: 30px;
+    font-size: var(--fs-48-t900);
   }
 }
 
 @media (max-width: 600px) {
   .footer {
-    padding: var(--sp-16) var(--sp-24);
+    padding: var(--pad-footer-t600);
   }
 
   .footer [data-role="T"] {
-    font-size: 24px;
+    font-size: var(--fs-48-t600);
   }
 
   .footer [data-role="R"] {

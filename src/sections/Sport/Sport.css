@@ -63,10 +63,10 @@
 }
 
 /* Short accent line: 40×3, --c-blue. --accent-rule holds the design's two-value
-   pair "40px 3px", which no single CSS property can split, so the exact ratio
-   carries the height. */
+   pair "40px 3px": --accent-rule-w gives the width and aspect-ratio repeats the
+   3px height as a ratio, since a ratio cannot be written from the two tokens. */
 .sport__pull-rule {
-  width: var(--sp-40);
+  width: var(--accent-rule-w);
   aspect-ratio: 40 / 3;
   background: var(--c-blue);
 }
@@ -138,7 +138,7 @@
     --body-pad-y: var(--sp-24);
     --pull-fs: calc(var(--fs-22) - var(--sp-8) + var(--sp-2)); /* 16px */
 
-    padding: var(--sp-32) var(--sp-40);
+    padding: var(--pad-section-y-t1200) var(--gutter-x-t1200);
   }
 }
 
@@ -147,7 +147,7 @@
     --body-pad-y: var(--sp-16);
     --pull-fs: var(--fs-12); /* 12px */
 
-    padding: var(--sp-24) var(--sp-32);
+    padding: var(--pad-section-y-t900) var(--gutter-x-t900);
   }
 
   .sport__body {
@@ -165,7 +165,7 @@
     --head-pad-b: var(--sp-8);
     --pull-fs: var(--fs-10); /* 10px */
 
-    padding: var(--sp-24) var(--sp-24);
+    padding: var(--pad-section-y-t600) var(--gutter-x-t600);
   }
 
   .sport__head {

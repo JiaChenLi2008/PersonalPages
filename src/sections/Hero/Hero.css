@@ -128,7 +128,7 @@
 /* Responsive tiers: BLUEPRINT §3.1 (pad-hero), §3.2 (--fs-118, --fs-30), §3.3 (grid). */
 @media (max-width: 1200px) {
   .hero {
-    padding: 48px 40px 32px;
+    padding: var(--pad-hero-t1200);
   }
 
   .hero__grid {
@@ -136,21 +136,21 @@
   }
 
   .hero__right {
-    width: 304px;
+    width: var(--col-hero-right-t1200);
   }
 
   .hero__title-en {
-    font-size: 98px;
+    font-size: var(--fs-118-t1200);
   }
 
   .hero__title-cn {
-    font-size: 26px;
+    font-size: var(--fs-30-t1200);
   }
 }
 
 @media (max-width: 900px) {
   .hero {
-    padding: 32px 32px 24px;
+    padding: var(--pad-hero-t900);
   }
 
   /* One column: the key-value block moves under the display block. */
@@ -164,24 +164,24 @@
   }
 
   .hero__title-en {
-    font-size: 74px;
+    font-size: var(--fs-118-t900);
   }
 
   .hero__title-cn {
-    font-size: 20px;
+    font-size: var(--fs-30-t900);
   }
 }
 
 @media (max-width: 600px) {
   .hero {
-    padding: 32px 24px 24px;
+    padding: var(--pad-hero-t600);
   }
 
   .hero__title-en {
-    font-size: 60px;
+    font-size: var(--fs-118-t600);
   }
 
   .hero__title-cn {
-    font-size: 18px;
+    font-size: var(--fs-30-t600);
   }
 }

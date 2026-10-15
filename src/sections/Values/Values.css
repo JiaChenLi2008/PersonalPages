@@ -64,12 +64,12 @@
 
 @media (max-width: 1200px) {
   .values__card {
-    height: 216px;
-    padding: var(--sp-24) var(--sp-24);
+    height: var(--card-h-t1200);
+    padding: var(--pad-card-t1200);
   }
 
   .values__title {
-    font-size: 36px;
+    font-size: var(--fs-42-t1200);
   }
 }
 
@@ -79,12 +79,12 @@
   }
 
   .values__card {
-    height: 160px;
-    padding: var(--sp-16) var(--sp-16);
+    height: var(--card-h-t900);
+    padding: var(--pad-card-t900);
   }
 
   .values__title {
-    font-size: 26px;
+    font-size: var(--fs-42-t900);
   }
 }
 
@@ -94,10 +94,10 @@
   }
 
   .values__card {
-    height: 128px;
+    height: var(--card-h-t600);
   }
 
   .values__title {
-    font-size: 22px;
+    font-size: var(--fs-42-t600);
   }
 }

@@ -50,33 +50,33 @@
 /* Responsive tiers: BLUEPRINT §3.1 (pad-cap) and §3.3 (band height, caption stacking). */
 @media (max-width: 1200px) {
   .photo-band__media {
-    height: 464px;
+    height: var(--band-h-t1200);
   }
 
   .photo-band__cap {
-    padding: 12px 40px;
+    padding: var(--pad-cap-t1200);
   }
 }
 
 @media (max-width: 900px) {
   .photo-band__media {
-    height: 352px;
+    height: var(--band-h-t900);
   }
 
   .photo-band__cap {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--sp-8);
-    padding: 8px 32px;
+    padding: var(--pad-cap-t900);
   }
 }
 
 @media (max-width: 600px) {
   .photo-band__media {
-    height: 232px;
+    height: var(--band-h-t600);
   }
 
   .photo-band__cap {
-    padding: 8px 16px;
+    padding: var(--pad-cap-t600);
   }
 }
