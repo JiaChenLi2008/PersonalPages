@@ -115,9 +115,12 @@ const GROUPS = [
     source: "implementation supplement (node sizes, responsive tiers, motion layer)",
     tokens: {
       /* BLUEPRINT §2.5 / §2.6: sizes the design brief states inside a shorthand. */
+      /* BLUEPRINT §2.5 Index.Head padding 0 0 20px 0 */
       "--pad-index-head": "20px",
       "--accent-rule-w": "40px",
       "--accent-rule-h": "3px",
+      /* ui.pen v2 Lang › Div (hpbuF) 1×12 */
+      "--lang-div-h": "12px",
       /* BLUEPRINT §3.1: global tiers, derived there by ratio from the 1440 artboard. */
       "--gutter-x-t1200": "40px",
       "--gutter-x-t900": "32px",
