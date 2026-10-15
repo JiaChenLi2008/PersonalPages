@@ -7,6 +7,8 @@
 //   ③ lang 合法；fallback: true 必伴随 lang: "en"
 //   ④ text 非空且不含占位 TODO 字样
 //   ⑤ src 指针可定位者，从只读输入文件重新抽出原文，与 text 逐字相等
+//   ⑦ chrome 条目必须 chrome:true 且不得带 src；非 chrome 条目必须带 src
+//   ⑧ 任何 text 不得以 ※ 开头（※ 是设计稿注解，不入字典、不渲染，见 docs/CHROME.md）
 //   ⑥ copy-zh.json 中 fallback 条目的 text 必须与 copy-en.json 同键同文
 //
 // 退出码：0 通过；1 有任一问题（逐条打印）。
@@ -179,7 +181,7 @@ if (onlyEn.length) fail(`[keys] copy-zh.json 缺少 ${onlyEn.length} 个键：${
 if (onlyZh.length) fail(`[keys] copy-en.json 缺少 ${onlyZh.length} 个键：${onlyZh.join(', ')}`);
 
 // ---------- ②③④⑤ 逐条 ----------
-const ALLOWED = new Set(['text', 'src', 'lang', 'fallback', 'pending']);
+const ALLOWED = new Set(['text', 'src', 'lang', 'fallback', 'pending', 'chrome']);
 const pendingKeys = [];
 let checked = 0;
 for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
@@ -188,7 +190,10 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
     if (v === null || typeof v !== 'object' || Array.isArray(v)) { fail(`[shape] ${at} 的值不是对象`); continue; }
     for (const key of Object.keys(v)) if (!ALLOWED.has(key)) fail(`[shape] ${at} 含未知字段 "${key}"`);
     if (typeof v.text !== 'string') fail(`[shape] ${at}.text 缺失或不是字符串`);
-    if (typeof v.src !== 'string' || v.src.trim() === '') fail(`[shape] ${at}.src 缺失或为空`);
+    if ('chrome' in v && typeof v.chrome !== 'boolean') fail(`[shape] ${at}.chrome 不是布尔`);
+    if (v.chrome === true) {
+      if ('src' in v) fail(`[chrome] ${at} 是 chrome 条目却带 src=${JSON.stringify(v.src)}（chrome 条目不得带 src）`);
+    } else if (typeof v.src !== 'string' || v.src.trim() === '') fail(`[shape] ${at}.src 缺失或为空`);
     if (v.lang !== 'en' && v.lang !== 'zh-Hans') fail(`[lang] ${at}.lang 非法：${JSON.stringify(v.lang)}（只允许 "en" / "zh-Hans"）`);
     if ('fallback' in v && typeof v.fallback !== 'boolean') fail(`[shape] ${at}.fallback 不是布尔`);
     if (v.fallback === true && v.lang !== 'en') fail(`[fallback] ${at} 声明 fallback:true 但 lang=${JSON.stringify(v.lang)}（回落项必须 lang:"en"）`);
@@ -196,9 +201,10 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
     if (typeof v.text !== 'string') continue;
     if (v.text.trim() === '') fail(`[text] ${at}.text 为空`);
     if (/TODO|FIXME|XXX/.test(v.text)) fail(`[text] ${at}.text 含占位字样：${JSON.stringify(v.text)}`);
+    if (v.text.trimStart().startsWith('※')) fail(`[annotation] ${at}.text 以 ※ 开头（设计稿注解不得入字典）：${JSON.stringify(v.text)}`);
     if (v.pending === true) { if (file === 'copy-zh.json') pendingKeys.push(k); continue; }
-    // ⑤ 逐字溯源
-    if (typeof v.src !== 'string' || v.src === '') continue;
+    // ⑤ 逐字溯源（chrome 条目无 src，不参与溯源）
+    if (v.chrome === true || typeof v.src !== 'string' || v.src === '') continue;
     const loc = locate(v.src);
     if (loc.error) { fail(`[src] ${at} ${loc.error}`); continue; }
     checked++;
@@ -246,6 +252,7 @@ for (const e of errors) console.error('✗ ' + e);
 console.log(`root=${ROOT}`);
 console.log(`keys en=${ek.length} zh=${zk.length} | 逐字溯源断言 ${checked} 条 | fallback ${fb} 条 | pending ${pendingKeys.length} 条` +
   (pendingKeys.length ? ` (${pendingKeys.join(', ')})` : ''));
+console.log(`chrome ${Object.values(en).filter((v) => v.chrome === true).length} 条（无 src，登记于 docs/CHROME.md）`);
 if (errors.length) {
   console.error(`FAIL：${errors.length} 条问题`);
   process.exit(1);
