@@ -9,8 +9,10 @@
  *
  *   §3.1 / §3.2 — token rows. The family (--gutter-x, --fs-64, …) fixes the
  *                 properties allowed to carry the value (padding, font-size, …);
- *                 a tier value must appear in some section `@media (max-width: Npx)`
- *                 block as a declaration of one of those properties.
+ *                 a tier value must appear in one of the section stylesheets that
+ *                 consume that token, as a declaration of one of those properties
+ *                 inside a `@media (max-width: Npx)` block. A token no stylesheet
+ *                 consumes fails: the row would otherwise never be checked.
  *   §3.3       — per-block rows. The numbers are anchored to the wording the
  *                 table uses (色块 / 方图 / `h`= / ≥ / gap / padding N/0, plus
  *                 `--token` and `Npx`) and must appear in that block's own CSS at
@@ -226,12 +228,32 @@ function expect(label, tier, wanted, pool, props) {
 /* Each section's declarations, and the whole pool, for §3.1/§3.2 (global rows). */
 const bySection = new Map();
 const pool = [];
+const stylesheets = [];
 for (const section of SECTIONS) {
-  const declarationsOfSection = section.files.flatMap((file) =>
-    declarations(readFileSync(join(section.dir, file), "utf8"), join(section.dir, file)),
-  );
+  const files = section.files.map((file) => {
+    const path = join(section.dir, file);
+    const css = readFileSync(path, "utf8");
+    return { path, css, declarations: declarations(css, path) };
+  });
+  stylesheets.push(...files);
+  const declarationsOfSection = files.flatMap((file) => file.declarations);
   bySection.set(section.name, declarationsOfSection);
   pool.push(...declarationsOfSection);
+}
+
+/**
+ * The declarations a §3.1/§3.2 row can be checked against: a token row is global,
+ * but only a stylesheet that consumes the token — `var(--name)` or one of its tier
+ * forms `var(--name-tNNNN)` — can be asked to carry its value. Demanding it of
+ * every section (as this check first did) is unsatisfiable for a token one section
+ * consumes, such as --pad-row, and would keep the gate red forever. A token no
+ * stylesheet consumes is reported as missing, never passed silently.
+ */
+function consumers(name) {
+  const used = new RegExp(`var\\(\\s*${name}(?:-t\\d+)?\\s*[,)]`);
+  return stylesheets
+    .filter((stylesheet) => used.test(stylesheet.css))
+    .flatMap((stylesheet) => stylesheet.declarations);
 }
 
 for (const tier of TIERS) {
@@ -258,16 +280,23 @@ for (const [heading, label] of [
     if (names.length === 0) continue;
     const values = rowValues(cells);
     if (values.every((value) => value === null)) continue;
-    for (const tier of TIERS) {
-      const value = values[TIERS.indexOf(tier) + 1];
-      if (value === null || value === undefined) continue;
-      for (const name of names) {
-        const family = familyProps(name);
-        if (family === null) {
-          problems.push(`${label} ${name}: no property family is known to this check`);
-          continue;
-        }
-        expect(`${label} ${name}`, tier, valueNumbers(value), pool, family.props);
+    for (const name of names) {
+      const family = familyProps(name);
+      if (family === null) {
+        problems.push(`${label} ${name}: no property family is known to this check`);
+        continue;
+      }
+      const scoped = consumers(name);
+      if (scoped.length === 0) {
+        problems.push(
+          `${label} ${name}: no section stylesheet consumes this token (var(${name})), so its tier values cannot be checked`,
+        );
+        continue;
+      }
+      for (const tier of TIERS) {
+        const value = values[TIERS.indexOf(tier) + 1];
+        if (value === null || value === undefined) continue;
+        expect(`${label} ${name}`, tier, valueNumbers(value), scoped, family.props);
       }
     }
   }

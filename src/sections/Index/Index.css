@@ -158,6 +158,10 @@
     padding: var(--pad-section-y-t1200) var(--gutter-x-t1200);
   }
 
+  .index__row {
+    padding: var(--pad-row-t1200);
+  }
+
   .index__num {
     width: var(--num-block-t1200);
     height: var(--num-block-t1200);
