@@ -1,0 +1,82 @@
+/* PhotoBand (ui.pen V3Yy1): media slot at --hero-photo-h, then the solid caption bar.
+   Values are the node's own, via tokens.css (BLUEPRINT §2.4). */
+
+.photo-band__figure {
+  margin: 0;
+}
+
+.photo-band__media {
+  display: grid;
+  place-items: center;
+  height: var(--hero-photo-h);
+  overflow: hidden;
+  /* No placeholder surface exists in the node (it holds a photo): the hairline grey stands in. */
+  background: var(--c-rule);
+}
+
+.photo-band__pending {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-none);
+  color: var(--c-ink);
+}
+
+.photo-band__cap {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-24);
+  padding: var(--pad-cap);
+  background: var(--c-ink);
+}
+
+.photo-band__figcap,
+.photo-band__altnote {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+}
+
+.photo-band__figcap {
+  letter-spacing: var(--ls-figcap);
+  color: var(--c-white);
+}
+
+.photo-band__altnote {
+  letter-spacing: var(--ls-none);
+  color: var(--c-muted-on-dark);
+}
+
+/* Responsive tiers: BLUEPRINT §3.1 (pad-cap) and §3.3 (band height, caption stacking). */
+@media (max-width: 1200px) {
+  .photo-band__media {
+    height: 464px;
+  }
+
+  .photo-band__cap {
+    padding: 12px 40px;
+  }
+}
+
+@media (max-width: 900px) {
+  .photo-band__media {
+    height: 352px;
+  }
+
+  .photo-band__cap {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-8);
+    padding: 8px 32px;
+  }
+}
+
+@media (max-width: 600px) {
+  .photo-band__media {
+    height: 232px;
+  }
+
+  .photo-band__cap {
+    padding: 8px 16px;
+  }
+}
