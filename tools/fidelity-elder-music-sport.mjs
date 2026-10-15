@@ -133,7 +133,13 @@ function fail(label, detail) {
 // ---------------------------------------------------------------- ui.pen guard
 
 function readPen() {
-  const raw = readFileSync(PEN_PATH);
+  let raw;
+  try {
+    raw = readFileSync(PEN_PATH);
+  } catch (error) {
+    console.error(`FAIL: frozen design not readable (${error.code}): ${PEN_PATH}`);
+    process.exit(1);
+  }
   const sha = createHash("sha256").update(raw).digest("hex");
   if (sha.slice(0, 16) !== PEN_SHA16 || raw.byteLength !== PEN_BYTES) {
     console.error(
