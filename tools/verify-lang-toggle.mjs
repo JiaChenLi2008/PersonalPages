@@ -238,6 +238,303 @@ console.log(
   `pairs_checked=${PAIRS.length} single=${single} dual=${dual} missing=${missing}`,
 );
 
+/* ---------- 4. browser interaction assertions (CDP) ---------- */
+
+/* The toggle's state machine only exists in a browser, so these two scenarios drive the
+ * real page through the host Chrome's CDP endpoint (`CDP` env, default 127.0.0.1:9222;
+ * WSL reaches it directly and node >= 22 supplies the WebSocket — no dependency is added).
+ * The page is served by an in-process Vite dev server rooted at this tree, so the run
+ * exercises these sources rather than a stale `dist`. Every checkpoint prints the raw
+ * values it read, so the same script before and after a fix compares line by line:
+ *
+ *   scenario 1 (Back/Forward): ?lang=zh-Hans -> Nav anchor (new history entry) -> EN
+ *     (replaceState on the current entry) -> Back: <html lang>, document.title, the first
+ *     nav label and the toggle's aria-pressed must all follow the URL's lang=zh-Hans;
+ *     Forward must put all four back on lang=en.
+ *   scenario 2 (same-value click): storage zh-Hans + ?lang=en -> clicking the already
+ *     pressed EN must persist `en`; a later query-less `/` must then render en.
+ *
+ * An unreachable CDP endpoint is an environment problem, never a silent pass: the script
+ * says so and exits 2. */
+
+const CDP_HTTP = process.env.CDP ?? "http://127.0.0.1:9222";
+const DEV_PORT = 8807;
+const failuresBeforeBrowser = failures.length;
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/** What the four surfaces must say, per language, taken from the dictionaries. */
+const WANT = {
+  title: { "zh-Hans": text("hero.h1cn"), en: text("hero.h1").replace(/\s*\n\s*/g, " ") },
+  navFirst: { "zh-Hans": text("nav.item1.zh"), en: text("nav.item1.en") },
+  toggle: {
+    "zh-Hans": `${text("nav.lang.zh")}:true ${text("nav.lang.en")}:false`,
+    en: `${text("nav.lang.zh")}:false ${text("nav.lang.en")}:true`,
+  },
+};
+
+/** Raw values of every surface the two scenarios compare, read in one round trip. */
+const PROBE = `(() => {
+  const label = (el) => (el === null ? null : el.textContent.trim());
+  const option = (button) => label(button) + ":" + button.getAttribute("aria-pressed");
+  let stored = null;
+  try { stored = localStorage.getItem("jc-lang"); } catch (error) { stored = "unavailable"; }
+  return {
+    url: location.href,
+    query: new URLSearchParams(location.search).get("lang"),
+    htmlLang: document.documentElement.lang,
+    title: document.title,
+    navFirst: label(document.querySelector(".nav__links .nav__label")),
+    options: [...document.querySelectorAll(".nav__lang-btn")].map(option).join(" "),
+    stored,
+    historyLength: history.length,
+  };
+})()`;
+
+const snapshot = (tab) => tab.evaluate(PROBE);
+
+function environmentUnavailable(detail) {
+  console.error(`环境不可用 (environment unavailable): ${detail}`);
+  console.error("Run the host Chrome with --remote-debugging-port=9222 (or set CDP=<url>) and retry.");
+  process.exit(2);
+}
+
+/** One CDP connection: `send(method, params, sessionId)` for any method on any session. */
+async function openCdp(endpoint) {
+  let version;
+  try {
+    const response = await fetch(`${endpoint}/json/version`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    version = await response.json();
+  } catch (error) {
+    environmentUnavailable(`no CDP endpoint at ${endpoint} (${error.message})`);
+  }
+  const socket = new WebSocket(version.webSocketDebuggerUrl);
+  const opened = await new Promise((resolve) => {
+    socket.onopen = () => resolve(true);
+    socket.onerror = () => resolve(false);
+  });
+  if (!opened) {
+    environmentUnavailable(`websocket handshake failed at ${version.webSocketDebuggerUrl}`);
+  }
+  const pending = new Map();
+  let sequence = 0;
+  socket.onmessage = (message) => {
+    const data = JSON.parse(message.data);
+    const waiter = pending.get(data.id);
+    if (waiter === undefined) {
+      return;
+    }
+    pending.delete(data.id);
+    clearTimeout(waiter.timer);
+    if (data.error === undefined) {
+      waiter.resolve(data.result);
+    } else {
+      waiter.reject(new Error(JSON.stringify(data.error)));
+    }
+  };
+  const send = (method, params = {}, sessionId) =>
+    new Promise((resolve, reject) => {
+      const id = ++sequence;
+      const timer = setTimeout(() => {
+        pending.delete(id);
+        reject(new Error(`CDP timeout: ${method}`));
+      }, 45000);
+      pending.set(id, { resolve, reject, timer });
+      socket.send(JSON.stringify({ id, method, params, sessionId }));
+    });
+  return { send, close: () => socket.close() };
+}
+
+/** A fresh tab per scenario: no inherited history, no inherited scroll position. */
+async function openTab(send) {
+  const { targetId } = await send("Target.createTarget", { url: "about:blank" });
+  const { sessionId } = await send("Target.attachToTarget", { targetId, flatten: true });
+  const call = (method, params) => send(method, params, sessionId);
+  await call("Page.enable");
+  await call("Runtime.enable");
+  const evaluate = async (expression) => {
+    const answer = await call("Runtime.evaluate", {
+      expression,
+      returnByValue: true,
+      awaitPromise: true,
+    });
+    if (answer.exceptionDetails !== undefined) {
+      throw new Error(answer.exceptionDetails.exception?.description ?? answer.exceptionDetails.text);
+    }
+    return answer.result.value;
+  };
+  return { call, evaluate, close: () => send("Target.closeTarget", { targetId }) };
+}
+
+/** Bounded wait for an in-page condition; a context destroyed by a navigation retries. */
+async function settle(tab, condition, what) {
+  for (let attempt = 0; attempt < 100; attempt += 1) {
+    if ((await tab.evaluate(condition).catch(() => false)) === true) {
+      await sleep(150);
+      return;
+    }
+    await sleep(150);
+  }
+  fail(`${what}: timed out waiting for the page`);
+}
+
+/** Full navigation: `__w7nav` proves the document is new, the href proves where it went. */
+async function gotoUrl(tab, url) {
+  await tab.evaluate("window.__w7nav = true").catch(() => undefined);
+  await tab.call("Page.navigate", { url });
+  await settle(
+    tab,
+    `window.__w7nav !== true && location.href === ${JSON.stringify(url)} ` +
+      `&& document.readyState === "complete" && !!document.querySelector(".nav__lang-btn")`,
+    `navigate ${url}`,
+  );
+}
+
+async function clickSelector(tab, selector) {
+  const clicked = await tab.evaluate(
+    `(() => { const el = document.querySelector(${JSON.stringify(selector)});` +
+      ` if (el === null) return false; el.click(); return true; })()`,
+  );
+  if (clicked !== true) {
+    fail(`element not found: ${selector}`);
+  }
+}
+
+/** history.back()/forward() plus a bounded wait for the popstate it should fire. */
+async function walk(tab, direction) {
+  const outcome = await tab.evaluate(`(() => new Promise((resolve) => {
+    let settled = false;
+    const done = (how) => { if (!settled) { settled = true; resolve(how); } };
+    addEventListener("popstate", () => setTimeout(() => done("popstate"), 200), { once: true });
+    history.${direction}();
+    setTimeout(() => done("timeout"), 4000);
+  }))()`);
+  if (outcome !== "popstate") {
+    fail(`history.${direction}() did not fire popstate (${outcome})`);
+  }
+  await sleep(200);
+}
+
+/** One line of raw values, then one assertion per surface against the expected language. */
+function report(label, probe) {
+  console.log(
+    `${label}: url=${probe.url} query=${JSON.stringify(probe.query)} html.lang=${probe.htmlLang} ` +
+      `title=${JSON.stringify(probe.title)} navFirst=${JSON.stringify(probe.navFirst)} ` +
+      `toggle=[${probe.options}] stored=${JSON.stringify(probe.stored)} ` +
+      `history.length=${probe.historyLength}`,
+  );
+}
+
+function expectEqual(label, actual, wanted) {
+  if (actual !== wanted) {
+    fail(`${label}: ${JSON.stringify(actual)} != ${JSON.stringify(wanted)}`);
+  }
+}
+
+function expectSurfaces(label, probe, lang) {
+  expectEqual(`${label}: html.lang`, probe.htmlLang, lang);
+  expectEqual(`${label}: document.title`, probe.title, WANT.title[lang]);
+  expectEqual(`${label}: first nav label`, probe.navFirst, WANT.navFirst[lang]);
+  expectEqual(`${label}: toggle label+aria-pressed`, probe.options, WANT.toggle[lang]);
+}
+
+const cdp = await openCdp(CDP_HTTP);
+const { createServer } = await import("vite");
+const devServer = await createServer({
+  root: REPO,
+  logLevel: "error",
+  clearScreen: false,
+  server: { host: "127.0.0.1", port: DEV_PORT, strictPort: false },
+});
+await devServer.listen();
+const base = (devServer.resolvedUrls?.local?.[0] ?? `http://127.0.0.1:${DEV_PORT}/`).replace(
+  /\/$/,
+  "",
+);
+console.log(`browser interaction: ${base} (in-process vite dev server over this tree)`);
+
+try {
+  /* scenario 1: Back/Forward must re-resolve the language from the visited URL */
+  const tab = await openTab(cdp.send);
+  try {
+    await gotoUrl(tab, `${base}/?lang=zh-Hans`);
+    await tab.evaluate(`localStorage.removeItem("jc-lang")`); // deterministic start
+    let probe = await snapshot(tab);
+    report("  s1 open /?lang=zh-Hans", probe);
+    expectSurfaces("s1 open", probe, "zh-Hans");
+    const zhUrl = probe.url;
+    const historyOpened = probe.historyLength;
+
+    await clickSelector(tab, '.nav__links a[href="#scholarly"]');
+    await settle(tab, `location.hash === "#scholarly"`, "nav anchor click");
+    probe = await snapshot(tab);
+    report("  s1 after Nav anchor", probe);
+    const historyAfterAnchor = probe.historyLength;
+    expectEqual("s1 Nav anchor pushed an entry", historyAfterAnchor, historyOpened + 1);
+
+    await clickSelector(tab, ".nav__lang-btn--en");
+    await settle(tab, `document.documentElement.lang === "en"`, "click EN");
+    probe = await snapshot(tab);
+    report("  s1 after clicking EN", probe);
+    const enUrl = probe.url;
+    expectSurfaces("s1 after EN", probe, "en");
+    expectEqual("s1 after EN: URL carries lang", probe.query, "en");
+
+    await walk(tab, "back");
+    probe = await snapshot(tab);
+    report("  s1 Back to /?lang=zh-Hans", probe);
+    expectEqual("s1 Back: landed on the previous entry", probe.url, zhUrl);
+    expectSurfaces("s1 Back", probe, "zh-Hans");
+    expectEqual("s1 Back: history.length untouched", probe.historyLength, historyAfterAnchor);
+
+    await walk(tab, "forward");
+    probe = await snapshot(tab);
+    report("  s1 Forward to /?lang=en", probe);
+    expectEqual("s1 Forward: landed on the EN entry", probe.url, enUrl);
+    expectSurfaces("s1 Forward", probe, "en");
+    expectEqual("s1 Forward: history.length untouched", probe.historyLength, historyAfterAnchor);
+  } finally {
+    await tab.close();
+  }
+
+  /* scenario 2: clicking the already-pressed language still persists the explicit choice */
+  const tab2 = await openTab(cdp.send);
+  try {
+    await gotoUrl(tab2, `${base}/?lang=zh-Hans`);
+    await tab2.evaluate(`localStorage.setItem("jc-lang", "zh-Hans")`);
+    await gotoUrl(tab2, `${base}/?lang=en`);
+    let probe = await snapshot(tab2);
+    report("  s2 /?lang=en with stored zh-Hans", probe);
+    expectSurfaces("s2 open", probe, "en");
+    expectEqual("s2 open: the query wins over storage", probe.stored, "zh-Hans");
+
+    await clickSelector(tab2, ".nav__lang-btn--en");
+    await sleep(300);
+    probe = await snapshot(tab2);
+    report("  s2 after clicking the pressed EN", probe);
+    expectEqual("s2 same-value click: stored choice", probe.stored, "en");
+
+    await gotoUrl(tab2, `${base}/`);
+    probe = await snapshot(tab2);
+    report("  s2 query-less /", probe);
+    expectSurfaces("s2 query-less", probe, "en");
+    expectEqual("s2 query-less: storage still holds the choice", probe.stored, "en");
+  } finally {
+    await tab2.close();
+  }
+} finally {
+  await devServer.close();
+  cdp.close();
+}
+
+const browserFailures = failures.length - failuresBeforeBrowser;
+console.log(
+  `browser interaction: scenario 1 (Back/Forward) + scenario 2 (same-value click): ` +
+    `${browserFailures} failure(s)`,
+);
+
 /* ---------- report ---------- */
 
 if (failures.length > 0) {
