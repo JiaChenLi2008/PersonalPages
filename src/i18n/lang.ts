@@ -66,6 +66,29 @@ function apply(lang: Lang): void {
 
 apply(current);
 
+/** Adopt a re-resolved language: idempotent, so a popstate that changes nothing is silent. */
+function adopt(lang: Lang): void {
+  if (lang === current) {
+    return;
+  }
+  current = lang;
+  apply(lang);
+  for (const listener of listeners) {
+    listener();
+  }
+}
+
+/* Back/Forward re-resolves the language from the URL the browser just walked to, using the
+   same order as the initial load. This path must never rewrite the URL: replaceState (or
+   pushState) inside a popstate handler eats the next Back and desynchronises the entry. */
+function syncFromLocation(): void {
+  adopt(resolveLang());
+}
+
+if (typeof window !== "undefined") {
+  window.addEventListener("popstate", syncFromLocation);
+}
+
 export function getLang(): Lang {
   return current;
 }
@@ -79,21 +102,23 @@ export function subscribeLang(listener: () => void): () => void {
 
 /** Switch the page language in place and tell every subscriber. */
 export function setLang(lang: Lang): void {
-  if (lang === current) {
-    return;
-  }
-  current = lang;
-  apply(lang);
+  /* A click is an explicit choice and is remembered even when it repeats the current
+     language, so a later query-less visit resolves to the same one (P1-B). */
   if (typeof window !== "undefined") {
     try {
       window.localStorage.setItem(STORAGE_KEY, lang);
     } catch {
       // Private mode: the chosen language still holds for this page view.
     }
-    const url = new URL(window.location.href);
-    url.searchParams.set(QUERY_KEY, lang);
-    window.history.replaceState(null, "", url);
   }
+  if (lang === current) {
+    return;
+  }
+  current = lang;
+  apply(lang);
+  const url = new URL(window.location.href);
+  url.searchParams.set(QUERY_KEY, lang);
+  window.history.replaceState(null, "", url);
   for (const listener of listeners) {
     listener();
   }
