@@ -15,9 +15,10 @@
  *   3. the iGEM CTA is a real link to the project site, opened in a new tab with
  *      rel="noopener noreferrer"
  *   4. the HIR card links to the copied essay PDF
- *   5. fallback copy carries lang="en" and the Chinese CTA carries lang="zh-Hans"
- *      (BLUEPRINT §6.4), the three real photos carry their answer text as alt plus
- *      loading/decoding/width/height (BLUEPRINT §6.3)
+ *   5. the default product is the en page: the section carries its own language only —
+ *      no CJK character, and every lang mark is "en" (BLUEPRINT §6.4: one language per
+ *      page, element-level lang only for text in another language) — while the three real
+ *      photos carry their answer text as alt plus loading/decoding/width/height (§6.3)
  *   6. no ※ design annotation and no hex colour reaches the markup
  *   7. every aria-label whose text is a dictionary entry declares that entry's own
  *      language: a screen reader must not read the English JHU riddles as Chinese
@@ -127,7 +128,11 @@ if (h2.id !== "scholarly-title") {
   fail(`h2 id ${JSON.stringify(h2.id)} != "scholarly-title" (aria-labelledby target)`);
 }
 if (h2.lang !== "en") {
-  fail(`h2 lang ${JSON.stringify(h2.lang)} != "en" (scholarly.title.en is a fallback entry)`);
+  fail(`h2 lang ${JSON.stringify(h2.lang)} != "en" (the section title is written in the page's language)`);
+}
+const h2Text = en["scholarly.title.en"].text;
+if (!html.includes(`>${h2Text}</h2>`)) {
+  fail(`the h2 does not render scholarly.title.en verbatim (${JSON.stringify(h2Text)})`);
 }
 
 /* ---------- 2. reveal triggers and their panels ---------- */
@@ -198,12 +203,22 @@ if (pdf === undefined) {
 
 /* ---------- 5. language and photo attributes ---------- */
 
-const langAttrs = [...html.matchAll(/lang="([^"]+)"/g)].map((match) => match[1]);
-if (!langAttrs.includes("en")) {
-  fail('no lang="en" element: fallback copy must declare its own language (BLUEPRINT §6.4.3)');
+/* The default product is the en page (lang.ts DEFAULT_LANG), so the section renders one
+   language: its own. Both halves of the old "both languages coexist" criterion are kept
+   at the same strength — the other language must not appear at all, and the text that does
+   appear must be the en dictionary's (§7 checks the accessible names the same way). */
+if (documentElement.lang !== "en") {
+  fail(`lang.ts wrote <html lang>=${JSON.stringify(documentElement.lang)} at import time, expected "en"`);
 }
-if (!langAttrs.includes("zh-Hans")) {
-  fail('no lang="zh-Hans" element: the manuscript Chinese CTA must declare its language (§6.4.4)');
+const cjk = html.match(/[\u2e80-\u2eff\u3000-\u303f\u3400-\u4dbf\u4e00-\u9fff\uf900-\ufaff\ufe30-\ufe4f\uff00-\uffef]/gu) ?? [];
+if (cjk.length > 0) {
+  fail(`the en section renders ${cjk.length} CJK character(s): ${JSON.stringify([...new Set(cjk)].join(""))}`);
+}
+const langAttrs = [...new Set([...html.matchAll(/lang="([^"]+)"/g)].map((match) => match[1]))].sort();
+if (JSON.stringify(langAttrs) !== JSON.stringify(["en"])) {
+  fail(
+    `lang attributes ${JSON.stringify(langAttrs)} != ["en"]: every marked string is in the page's language`,
+  );
 }
 
 const photos = tagsOf("img");
@@ -314,7 +329,8 @@ if (failures.length > 0) {
 console.log(
   `PASS: SSR markup (${html.length} B, ${HTML_OUT}) — h2=1 h3=4 h4=2 h1=0, ` +
     `${triggers.length} reveal triggers all collapsed with a live panel id, ` +
-    `${panels.length} hidden regions, ${photos.length} lazy photos, lang en+zh-Hans present`,
+    `${panels.length} hidden regions, ${photos.length} lazy photos, ` +
+    `en only (no CJK, lang=["en"])`,
 );
 console.log(
   `PASS: ${named.length} dictionary-sourced aria-label(s) carry their entry's language ` +

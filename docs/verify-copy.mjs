@@ -4,12 +4,16 @@
 // 校验 docs/copy-en.json 与 docs/copy-zh.json：
 //   ① 两字典键集合一致
 //   ② 每值必备字段齐全且类型正确
-//   ③ lang 合法；fallback: true 必伴随 lang: "en"
+//   ③ lang 合法（"en" / "zh-Hans"）
 //   ④ text 非空且不含占位 TODO 字样
-//   ⑤ src 指针可定位者，从只读输入文件重新抽出原文，与 text 逐字相等
+//   ⑤ 溯源：src 指针必须可定位；材料语言那一侧的 text 必须与原文区间逐字相等
+//   ⑥ 译文侧（材料语言 ≠ 该侧语言）：同一 src 槽位 + 原文侧逐字相符 + 两侧文本互异
+//      —— 单语纯度下每个显示槽位两侧都要有本语言文本（BLUEPRINT §6.4 / lang-purity-ruling.md），
+//      所以「照抄原文」与「只写一侧」一样是缺陷；译文语义由翻译方针的人工抽检负责，机器只查结构。
+//   ⑥' 材料原文本身中英混排/全半角标点混用的槽位（下 MIXED_MATERIAL 逐条登记）：两侧按译文方针
+//      §3/§5 各写本语言文本后都不可能逐字等于原文，改用「至少一侧含 ≥8 字连续原文片段」作下限。
 //   ⑦ chrome 条目必须 chrome:true 且不得带 src；非 chrome 条目必须带 src
 //   ⑧ 任何 text 不得以 ※ 开头（※ 是设计稿注解，不入字典、不渲染，见 docs/CHROME.md）
-//   ⑥ copy-zh.json 中 fallback 条目的 text 必须与 copy-en.json 同键同文
 //
 // 退出码：0 通过；1 有任一问题（逐条打印）；2 缺仓外只读输入（单行 UNAVAILABLE，非断言失败）。
 //
@@ -169,6 +173,30 @@ const firstDiff = (a, b) => {
 };
 const ctx = (s, i) => s.slice(Math.max(0, i - 24), i + 24).replace(/\n/g, '\\n');
 
+/** 该原文区间（或 ui.pen 节点子树）是否逐字包含 text；字面 \\n 写法同样接受。 */
+const regionCarries = (loc, text) => {
+  const escaped = text.replace(/\n/g, '\\n');
+  return loc.blocks !== undefined
+    ? loc.blocks.some((b) => b.includes(text) || b.includes(escaped))
+    : loc.texts.includes(text) || loc.texts.includes(escaped);
+};
+
+/** 逐字差异诊断：本侧 text 与该区间最接近的原文片段。 */
+function verbatimDiff(loc, text) {
+  const host = loc.blocks !== undefined
+    ? (loc.blocks.find((b) => b.includes(text.slice(0, 12))) || loc.blocks[0])
+    : loc.texts.join(' | ');
+  // 取 text 与原文区间的最长公共前缀，定位到最接近的原文位置；否则回落到区间开头。
+  let L = text.length;
+  while (L > 0 && !host.includes(text.slice(0, L))) L--;
+  const p = L > 0 ? host.indexOf(text.slice(0, L)) : -1;
+  const expected = p >= 0 ? host.slice(p, p + text.length + 24) : host.slice(0, 120);
+  const i = firstDiff(text, expected);
+  return `（首个差异位置 ${i}）\n` +
+    `      字典 text: …${ctx(text, i)}…\n` +
+    `      原文预期 : …${ctx(expected, i)}…`;
+}
+
 // ---------- 读字典 ----------
 const readJson = (f) => {
   const abs = path.join(DOCS, f);
@@ -191,10 +219,37 @@ const onlyZh = zk.filter((k) => !(k in en));
 if (onlyEn.length) fail(`[keys] copy-zh.json 缺少 ${onlyEn.length} 个键：${onlyEn.join(', ')}`);
 if (onlyZh.length) fail(`[keys] copy-en.json 缺少 ${onlyZh.length} 个键：${onlyZh.join(', ')}`);
 
-// ---------- ②③④⑤ 逐条 ----------
-const ALLOWED = new Set(['text', 'src', 'lang', 'fallback', 'pending', 'chrome']);
-const pendingKeys = [];
+// ---------- ②③④⑤⑥ 逐条 ----------
+const ALLOWED = new Set(['text', 'src', 'lang', 'chrome']);
+
+/* 材料原文中英混排（或全半角标点混用）的槽位：原文自己就违反译文方针 §3「有通行译名一律译出」/
+   §5「不得中英混排同句、标点随语言」，两侧各写本语言文本后都不可能逐字等于原文。逐条登记，
+   并用「至少一侧含 ≥8 字连续原文片段」作为溯源下限；未登记的新槽位一律按逐字规则失败。 */
+const MIXED_MATERIAL = new Set([
+  'photoband.figcap',      // 原文：FIG. 01 — 实验台 / 21:9 plate
+  'photoband.altnote',     // 原文：alt: 实验室研究场景 · WebP · lazy · 固定宽高比
+  'scholarly-igem.title',  // 原文：iGEM Project；probotic therapy for Parkinson's treatment
+  'scholarly-jhu.q1',      // 原文：Hello，I look like a three, guess what am I?
+  'scholarly-jhu.q2',      // 原文：Hello, I may look like a bone-in lamp leg huh？…
+  'scholarly-hir.title',   // 原文：HIR writing contest-哈佛国际评论学术写作竞赛
+  'footer.legal',          // 原文：© 2026 林知远 · 占位\nBIOLOGY / MEDICINE / MUSIC / SPORT
+]);
+
+/** 混排槽位的溯源下限：text 中至少有一段 TRACE_RUN 字逐字出现在原文区间中。 */
+const TRACE_RUN = 8;
+const tracesTo = (loc, text) => {
+  const flat = (loc.blocks !== undefined ? loc.blocks : loc.texts).join('\n');
+  for (let i = 0; i + TRACE_RUN <= text.length; i++) {
+    if (flat.includes(text.slice(i, i + TRACE_RUN))) return true;
+  }
+  return false;
+};
+
+/** checked = 本侧 text 就是 src 原文；translated = 原文侧逐字相符而本侧是其译文。 */
 let checked = 0;
+let translated = 0;
+let mixed = 0;
+const mixedUsed = new Set();
 for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
   for (const [k, v] of Object.entries(dict)) {
     const at = `${file}:${k}`;
@@ -206,66 +261,52 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
       if ('src' in v) fail(`[chrome] ${at} 是 chrome 条目却带 src=${JSON.stringify(v.src)}（chrome 条目不得带 src）`);
     } else if (typeof v.src !== 'string' || v.src.trim() === '') fail(`[shape] ${at}.src 缺失或为空`);
     if (v.lang !== 'en' && v.lang !== 'zh-Hans') fail(`[lang] ${at}.lang 非法：${JSON.stringify(v.lang)}（只允许 "en" / "zh-Hans"）`);
-    if ('fallback' in v && typeof v.fallback !== 'boolean') fail(`[shape] ${at}.fallback 不是布尔`);
-    if (v.fallback === true && v.lang !== 'en') fail(`[fallback] ${at} 声明 fallback:true 但 lang=${JSON.stringify(v.lang)}（回落项必须 lang:"en"）`);
-    if ('pending' in v && typeof v.pending !== 'boolean') fail(`[shape] ${at}.pending 不是布尔`);
     if (typeof v.text !== 'string') continue;
     if (v.text.trim() === '') fail(`[text] ${at}.text 为空`);
     if (/TODO|FIXME|XXX/.test(v.text)) fail(`[text] ${at}.text 含占位字样：${JSON.stringify(v.text)}`);
     if (v.text.trimStart().startsWith('※')) fail(`[annotation] ${at}.text 以 ※ 开头（设计稿注解不得入字典）：${JSON.stringify(v.text)}`);
-    if (v.pending === true) { if (file === 'copy-zh.json') pendingKeys.push(k); continue; }
-    // ⑤ 逐字溯源（chrome 条目无 src，不参与溯源）
+    // ⑤⑥ 逐字溯源（chrome 条目无 src，不参与溯源）
     if (v.chrome === true || typeof v.src !== 'string' || v.src === '') continue;
     const loc = locate(v.src);
     if (loc.error) { fail(`[src] ${at} ${loc.error}`); continue; }
-    checked++;
-    const escaped = v.text.replace(/\n/g, '\\n');
-    if (loc.blocks !== undefined) {
-      if (loc.blocks.some((b) => b.includes(v.text) || b.includes(escaped))) continue;
-      const host = loc.blocks.find((b) => b.includes(v.text.slice(0, 12))) || loc.blocks[0];
-      // 取 text 与原文区间的最长公共前缀，定位到最接近的原文位置；否则回落到区间开头。
-      let L = v.text.length;
-      while (L > 0 && !host.includes(v.text.slice(0, L))) L--;
-      const p = L > 0 ? host.indexOf(v.text.slice(0, L)) : -1;
-      const expected = p >= 0 ? host.slice(p, p + v.text.length + 24) : host.slice(0, 120);
-      const i = firstDiff(v.text, expected);
-      fail(`[verbatim] ${at} 的 text 与 ${loc.how} 原文区间不逐字相符（首个差异位置 ${i}）\n` +
-           `      字典 text: …${ctx(v.text, i)}…\n` +
-           `      原文预期 : …${ctx(expected, i)}…`);
+    if (regionCarries(loc, v.text)) { checked++; continue; }
+    // 本侧不是该区间的原文 ⇒ 它是译文：核对同一槽位的原文侧。
+    const other = file === 'copy-en.json' ? zh[k] : en[k];
+    if (other === undefined) { fail(`[pair] ${at} 另一份字典无同名键，无法核对译文侧（见①）`); continue; }
+    if (other.src !== v.src) {
+      fail(`[pair] ${at} 与另一侧同键的 src 不同（${JSON.stringify(v.src)} vs ${JSON.stringify(other.src)}）：同一显示槽位两侧必须指向同一处原文`);
       continue;
     }
-    if (!loc.texts.includes(v.text) && !loc.texts.includes(escaped)) {
-      fail(`[verbatim] ${at} 的 text 不在 ${loc.how} 指向的节点子树中\n` +
-           `      字典 text: ${JSON.stringify(v.text)}\n` +
-           `      该子树文本 : ${loc.texts.map((t) => JSON.stringify(t)).join(' | ')}`);
+    if (!regionCarries(loc, other.text)) {
+      if (MIXED_MATERIAL.has(k) && (tracesTo(loc, v.text) || tracesTo(loc, other.text))) {
+        mixed++;
+        mixedUsed.add(k);
+        continue;
+      }
+      const otherFile = file === 'copy-en.json' ? 'copy-zh.json' : 'copy-en.json';
+      fail(`[verbatim] ${at} 的 text 不在 ${loc.how} 原文区间中，且同键另一侧 ${otherFile} 的 text 也不是该区间原文：该槽位两侧都无原文依据` +
+           (MIXED_MATERIAL.has(k) ? '（已登记为材料混排槽位，但两侧都找不到 ≥' + TRACE_RUN + ' 字的原文片段）' : '') + '\n' +
+           `      本侧 text: ${JSON.stringify(v.text)}\n` +
+           `      本侧差异: ${verbatimDiff(loc, v.text)}\n` +
+           `      另一侧 text: ${JSON.stringify(other.text)}\n` +
+           `      另一侧差异: ${verbatimDiff(loc, other.text)}`);
+      continue;
     }
+    if (other.text === v.text) {
+      fail(`[pair] ${at} 与同键另一侧文本相同（该槽位未翻译）：单语纯度要求两侧各写本语言文本`);
+      continue;
+    }
+    translated++;
   }
-}
-
-// ---------- ⑥ 回落条目两侧同文 ----------
-let fb = 0;
-for (const [k, v] of Object.entries(zh)) {
-  if (v.fallback !== true) continue;
-  fb++;
-  const e = en[k];
-  if (!e) continue;
-  if (e.text !== v.text) {
-    const i = firstDiff(v.text, e.text);
-    fail(`[fallback] ${k} 回落条目两侧文本不一致（首个差异位置 ${i}）\n` +
-         `      copy-zh.json: …${ctx(v.text, i)}…\n` +
-         `      copy-en.json: …${ctx(e.text, i)}…`);
-  }
-  if (e.lang !== 'en') fail(`[fallback] ${k} 回落条目在 copy-en.json 中 lang=${JSON.stringify(e.lang)}，应为 "en"`);
 }
 
 // ---------- 汇报 ----------
 for (const e of errors) console.error('✗ ' + e);
 console.log(`root=${ROOT}`);
-console.log(`keys en=${ek.length} zh=${zk.length} | 逐字溯源断言 ${checked} 条 | fallback ${fb} 条 | pending ${pendingKeys.length} 条` +
-  (pendingKeys.length ? ` (${pendingKeys.join(', ')})` : ''));
+console.log(`keys en=${ek.length} zh=${zk.length} | 原文逐字 ${checked} 条 | 译文侧（同一 src 槽位、两侧互异）${translated} 条 | 材料混排改写 ${mixed} 条（${[...mixedUsed].join(', ')}）`);
 console.log(`chrome ${Object.values(en).filter((v) => v.chrome === true).length} 条（无 src，登记于 docs/CHROME.md）`);
 if (errors.length) {
   console.error(`FAIL：${errors.length} 条问题`);
   process.exit(1);
 }
-console.log('PASS：字典键集合一致、字段与 lang 合法、全部 text 与只读输入原文逐字相符');
+console.log('PASS：字典键集合一致、字段与 lang 合法、材料侧逐字溯源、译文侧与原文侧同槽位且互异');

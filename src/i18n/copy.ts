@@ -1,6 +1,7 @@
 /* Frozen copy layer: docs/copy-en.json and docs/copy-zh.json are the only source
-   of visible text. Section components read it through useCopy(); the imported
-   dictionary objects are never rewritten at runtime. */
+   of visible text. Each dictionary holds its own language's text for every key, so
+   the current language picks the dictionary and nothing else (BLUEPRINT §6.4: one
+   language per page, no mixing). The imported objects are never rewritten at runtime. */
 
 import en from "../../docs/copy-en.json";
 import zh from "../../docs/copy-zh.json";
@@ -12,9 +13,8 @@ export type CopyEntry = {
   text: string;
   src?: string;
   lang: "en" | "zh-Hans";
-  fallback?: boolean;
+  /** Chrome text: no material source, registered in docs/CHROME.md §1. */
   chrome?: boolean;
-  pending?: boolean;
 };
 
 /* resolveJsonModule widens every JSON string to `string`, so the two imports are
@@ -33,7 +33,7 @@ type CopyApi = {
 /** Keys already reported, so a missing entry warns once per session, not per render. */
 const warnedKeys = new Set<string>();
 
-/** Copy lookup for the current locale; a key absent from it falls back to en. */
+/** Copy lookup for the current locale; a key absent from it falls back to the same key in en. */
 export function useCopy(): CopyApi {
   const { locale } = useLocale();
   const dictionary: Partial<Record<CopyKey, CopyEntry>> = dictionaries[locale];

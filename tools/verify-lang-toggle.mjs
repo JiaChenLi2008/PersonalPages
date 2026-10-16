@@ -6,16 +6,17 @@
  * tools/verify-ssr-dom.mjs uses (Vite JS API, virtual entry, `vite build --ssr`), writes
  * the markup to /tmp/lang-toggle-ssr.html, and asserts what only rendered markup can prove:
  *
- *   1. the page opens in zh-Hans: lang.ts writes `<html lang>` (and the tab title taken
- *      from the dictionary) at import time, and index.html carries lang="zh-Hans"
+ *   1. the page opens in en: lang.ts writes `<html lang>` (and the tab title taken
+ *      from the dictionary) at import time, and index.html carries lang="en"
  *   2. Nav › Row › Right holds the toggle then Mail: two focusable button[aria-pressed],
  *      labelled verbatim from `nav.lang.zh` / `nav.lang.en`, with the 1×12 hairline between
- *      them and the pressed side on zh-Hans
+ *      them and the pressed side on en
  *   3. in that default-mode markup the 13 frozen key pairs of the label/title layer coexist
- *      as ui.pen draws them: a single-node pair carries only its zh side there (the design
- *      renders one variant; the other arrives by switching, which the browser section below
- *      drives item by item); a dual pair carries both sides side by side, because the design
- *      shows both at once (element-level `lang` only, BLUEPRINT §6.4)
+ *      as ui.pen draws them and single-language purity allows: a single-node pair carries
+ *      only its own language's side there (the design renders one variant; the other arrives
+ *      by switching, which the browser section below drives item by item); a dual pair
+ *      carries both sides, both written in the page's language, because the design shows
+ *      both at once. No other language's text may appear (BLUEPRINT §6.4)
  *
  * Output: pairs_checked=13 single=<n> dual=<n> missing=<n>, then one line per missing pair.
  *
@@ -83,11 +84,20 @@ const decoded = html
   .replace(/&lt;/g, "<")
   .replace(/&gt;/g, ">");
 
-const dict = {
-  zh: JSON.parse(readFileSync(join(REPO, "docs", "copy-zh.json"), "utf8")),
+const DICT = {
   en: JSON.parse(readFileSync(join(REPO, "docs", "copy-en.json"), "utf8")),
+  "zh-Hans": JSON.parse(readFileSync(join(REPO, "docs", "copy-zh.json"), "utf8")),
 };
-const text = (key) => dict.zh[key].text;
+/** The mode the page opens in, i.e. the mode the SSR markup below renders (lang.ts). */
+const DEFAULT_MODE = "en";
+const OTHER_MODE = { en: "zh-Hans", "zh-Hans": "en" };
+/** A key's text in a given page language. */
+const text = (lang, key) => DICT[lang][key].text;
+/** The tab title a page language shows: hero.h1 / hero.h1cn, newline folded to a space (§5). */
+const TITLE = {
+  en: text("en", "hero.h1").replace(/\s*\n\s*/g, " "),
+  "zh-Hans": text("zh-Hans", "hero.h1cn").replace(/\s*\n\s*/g, " "),
+};
 
 /* ---------- markup helpers ---------- */
 
@@ -125,20 +135,20 @@ function tagsOf(markup, name) {
   return attributes;
 }
 
-/* ---------- 1. the page opens in zh-Hans ---------- */
+/* ---------- 1. the page opens in en ---------- */
 
-if (document.documentElement.lang !== "zh-Hans") {
-  fail(`<html lang> is ${JSON.stringify(document.documentElement.lang)}, not "zh-Hans"`);
+if (document.documentElement.lang !== DEFAULT_MODE) {
+  fail(`<html lang> is ${JSON.stringify(document.documentElement.lang)}, not "${DEFAULT_MODE}"`);
 }
-if (document.title !== text("hero.h1cn")) {
+if (document.title !== TITLE[DEFAULT_MODE]) {
   fail(
-    `document.title is ${JSON.stringify(document.title)}, not the zh-Hans hero title ` +
-      `${JSON.stringify(text("hero.h1cn"))}`,
+    `document.title is ${JSON.stringify(document.title)}, not the en hero title ` +
+      `${JSON.stringify(TITLE[DEFAULT_MODE])}`,
   );
 }
 const shell = readFileSync(join(REPO, "index.html"), "utf8");
-if (!shell.includes('<html lang="zh-Hans">')) {
-  fail("index.html does not carry <html lang=\"zh-Hans\"> for the pre-hydration shell");
+if (!shell.includes(`<html lang="${DEFAULT_MODE}">`)) {
+  fail(`index.html does not carry <html lang="${DEFAULT_MODE}"> for the pre-hydration shell`);
 }
 
 /* ---------- 2. the toggle in Nav › Row › Right ---------- */
@@ -151,33 +161,33 @@ if (toggle.length !== 2) {
 const pressed = [...header.matchAll(/<button\b([^>]*)>([^<]*)<\/button>/g)]
   .filter((match) => match[1].includes("aria-pressed"))
   .map((match) => ({ attrs: match[1], label: match[2] }));
-const zhOption = pressed.find((button) => button.label === text("nav.lang.zh"));
-const enOption = pressed.find((button) => button.label === text("nav.lang.en"));
+const zhOption = pressed.find((button) => button.label === text(DEFAULT_MODE, "nav.lang.zh"));
+const enOption = pressed.find((button) => button.label === text(DEFAULT_MODE, "nav.lang.en"));
 if (pressed.length !== 2 || zhOption === undefined || enOption === undefined) {
   fail(
     `nav toggle labels ${JSON.stringify(pressed.map((button) => button.label))} are not ` +
-      `${JSON.stringify([text("nav.lang.zh"), text("nav.lang.en")])}`,
+      `${JSON.stringify([text(DEFAULT_MODE, "nav.lang.zh"), text(DEFAULT_MODE, "nav.lang.en")])}`,
   );
 } else {
-  if (!zhOption.attrs.includes('aria-pressed="true"')) {
-    fail("nav toggle: the zh-Hans option is not the pressed one in the default mode");
+  if (!enOption.attrs.includes('aria-pressed="true"')) {
+    fail("nav toggle: the en option is not the pressed one in the default mode");
   }
-  if (!enOption.attrs.includes('aria-pressed="false"')) {
-    fail("nav toggle: the en option is not unpressed in the default mode");
+  if (!zhOption.attrs.includes('aria-pressed="false"')) {
+    fail("nav toggle: the ZH option is not unpressed in the default mode");
   }
-  if (!zhOption.attrs.includes(`type="button"`)) {
-    fail("nav toggle: the zh-Hans option is not a button[type=button]");
+  if (!enOption.attrs.includes(`type="button"`)) {
+    fail("nav toggle: the en option is not a button[type=button]");
   }
-  /* BLUEPRINT §6.4: the EN label is not the page language, so it carries its own lang. */
-  if (zhOption.attrs.includes("lang=")) {
-    fail("nav toggle: the zh-Hans label carries lang although it is the page language");
+  /* BLUEPRINT §6.4: an element carries lang only when its text is not the page language,
+     and both toggle labels are written in the default mode's own language. */
+  for (const option of [zhOption, enOption]) {
+    if (option.attrs.includes("lang=")) {
+      fail(`nav toggle: the ${JSON.stringify(option.label)} label carries lang although it is the page language`);
+    }
   }
-  if (!enOption.attrs.includes('lang="en"')) {
-    fail("nav toggle: the en label does not carry lang=\"en\" on the Chinese page");
-  }
-  const zhAt = header.indexOf(`>${text("nav.lang.zh")}</button>`);
+  const zhAt = header.indexOf(`>${text(DEFAULT_MODE, "nav.lang.zh")}</button>`);
   const divisionAt = header.indexOf("nav__lang-div");
-  const enAt = header.indexOf(`>${text("nav.lang.en")}</button>`);
+  const enAt = header.indexOf(`>${text(DEFAULT_MODE, "nav.lang.en")}</button>`);
   if (!(zhAt < divisionAt && divisionAt < enAt)) {
     fail("nav toggle: the hairline does not sit between 中 and EN");
   }
@@ -223,14 +233,22 @@ for (const { pair, kind, where, zh, en } of PAIRS) {
   } else {
     dual += 1;
   }
-  const hasZh = markup.includes(text(zh));
-  const hasEn = markup.includes(text(en));
-  if (kind === "single" ? !hasZh || hasEn : !hasZh || !hasEn) {
+  /* A single pair draws one variant — the page language's own side; a dual pair draws both
+     of its sides in the page language (the design shows both, not both languages). */
+  const ownKeys = kind === "single" ? [en] : [zh, en];
+  const foreignKeys = kind === "single" ? [zh] : [zh, en];
+  const own = ownKeys.map((key) => text(DEFAULT_MODE, key));
+  const foreign = foreignKeys.map((key) => text(OTHER_MODE[DEFAULT_MODE], key));
+  const hasOwn = own.map((value) => markup.includes(value));
+  const hasForeign = foreign.map((value) => markup.includes(value));
+  if (hasOwn.includes(false) || hasForeign.includes(true)) {
     missing += 1;
     fail(
-      `${pair} (${kind}): ${where} markup has zh=${hasZh} en=${hasEn} — ` +
-        `expected ${kind === "single" ? "only zh" : "both"} ` +
-        `[${JSON.stringify(text(zh))} / ${JSON.stringify(text(en))}]`,
+      `${pair} (${kind}): ${where} markup has own=${JSON.stringify(hasOwn)} foreign=${JSON.stringify(hasForeign)} — ` +
+        `expected ${kind === "single" ? "only its own side" : "both sides"} in ${DEFAULT_MODE} ` +
+        `and no ${OTHER_MODE[DEFAULT_MODE]} text\n` +
+        `      own (${DEFAULT_MODE}): ${JSON.stringify(own)}\n` +
+        `      foreign (${OTHER_MODE[DEFAULT_MODE]}): ${JSON.stringify(foreign)}`,
     );
   }
 }
@@ -250,8 +268,9 @@ console.log(
  *
  *   scenario 1 (Back/Forward): ?lang=zh-Hans -> Nav anchor (new history entry) -> EN
  *     (replaceState on the current entry) -> Back: <html lang>, document.title, every one of
- *     the four nav labels (ordinal and §6.4 `lang` marks included), the toggle's aria-pressed
- *     and the two dual head pairs must all follow the URL's lang=zh-Hans; Forward must put the
+ *     the four nav labels (ordinal and §6.4 `lang` marks included), the toggle's aria-pressed,
+ *     the two dual head pairs and the head's own copy (description / og:title / og:description)
+ *     must all follow the URL's lang=zh-Hans; Forward must put the
  *     whole set back on lang=en. Each checkpoint compares the whole set, so a label pinned to
  *     one mode (say an item that ignores the switch) is reported by name.
  *   scenario 2 (same-value click): storage zh-Hans + ?lang=en -> clicking the already
@@ -266,12 +285,18 @@ const failuresBeforeBrowser = failures.length;
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 /** What the four surfaces must say, per language, taken from the dictionaries. */
+/** The static head's language-dependent copy: the switch must carry it (BLUEPRINT §6.4). */
+const HEAD_COPY = {
+  en: { title: TITLE.en, summary: text("en", "hero.summary") },
+  "zh-Hans": { title: TITLE["zh-Hans"], summary: text("zh-Hans", "hero.summary") },
+};
+
 const WANT = {
-  title: { "zh-Hans": text("hero.h1cn"), en: text("hero.h1").replace(/\s*\n\s*/g, " ") },
-  navFirst: { "zh-Hans": text("nav.item1.zh"), en: text("nav.item1.en") },
+  title: TITLE,
+  navFirst: { "zh-Hans": text("zh-Hans", "nav.item1.zh"), en: text("en", "nav.item1.en") },
   toggle: {
-    "zh-Hans": `${text("nav.lang.zh")}:true ${text("nav.lang.en")}:false`,
-    en: `${text("nav.lang.zh")}:false ${text("nav.lang.en")}:true`,
+    "zh-Hans": `${text("zh-Hans", "nav.lang.zh")}:true ${text("zh-Hans", "nav.lang.en")}:false`,
+    en: `${text("en", "nav.lang.zh")}:false ${text("en", "nav.lang.en")}:true`,
   },
 };
 
@@ -335,6 +360,13 @@ const PROBE = `(() => {
     navFirst: label(document.querySelector(".nav__links .nav__label")),
     navLinks: [...document.querySelectorAll(".nav__links .nav__link")].map(navLink),
     heads: ${HEAD_PROBE},
+    meta: {
+      description: langOf(null) === null
+        ? (document.querySelector('meta[name="description"]')?.getAttribute("content") ?? null)
+        : null,
+      ogTitle: document.querySelector('meta[property="og:title"]')?.getAttribute("content") ?? null,
+      ogDescription: document.querySelector('meta[property="og:description"]')?.getAttribute("content") ?? null,
+    },
     options: [...document.querySelectorAll(".nav__lang-btn")].map(option).join(" "),
     stored,
     historyLength: history.length,
@@ -483,7 +515,8 @@ function report(label, probe) {
     `${label}: url=${probe.url} query=${JSON.stringify(probe.query)} html.lang=${probe.htmlLang} ` +
       `title=${JSON.stringify(probe.title)} navFirst=${JSON.stringify(probe.navFirst)} ` +
       `toggle=[${probe.options}] stored=${JSON.stringify(probe.stored)} ` +
-      `history.length=${probe.historyLength} nav=[${navRaw}] heads=[${headsRaw}]`,
+      `history.length=${probe.historyLength} nav=[${navRaw}] heads=[${headsRaw}] ` +
+      `head=[${JSON.stringify(probe.meta?.description)} / ${JSON.stringify(probe.meta?.ogTitle)}]`,
   );
 }
 
@@ -498,8 +531,8 @@ function expectEqual(label, actual, wanted) {
  * language differs from the page's (BLUEPRINT §6.4). The label names the surface it read.
  */
 function expectSurface(label, actual, key, pageLang) {
-  expectEqual(`${label} = ${key}`, actual.text, text(key));
-  const own = dict.zh[key].lang;
+  expectEqual(`${label} = ${key}`, actual.text, text(pageLang, key));
+  const own = DICT[pageLang][key].lang;
   expectEqual(`${label} lang (${key})`, actual.lang, own === pageLang ? null : own);
 }
 
@@ -527,15 +560,23 @@ function expectNavLinks(label, probe, lang) {
  * The two dual head pairs: the zh side sits inside the L kicker (it has no element of its
  * own — docs/CHROME.md §4), the English title in R; both stay put in both modes.
  */
-function expectHeadPairs(label, probe) {
+function expectHeadPairs(label, probe, pageLang) {
+  /* The head's L kicker carries the section title too, set in caps by the board, so that
+     one comparison folds case and whitespace (docs/CHROME.md comparison rule); the h2
+     title in R is compared verbatim. */
+  const fold = (value) => value.toLowerCase().replace(/\s+/g, " ").trim();
   for (const pair of HEAD_PAIRS) {
     const head = probe.heads?.[pair.pair];
     if (head === undefined) {
       fail(`${label}: ${pair.pair} head is missing from the page`);
       continue;
     }
-    expectEqual(`${label}: ${pair.pair} kicker carries ${pair.zh}`, head.kicker?.includes(text(pair.zh)), true);
-    expectEqual(`${label}: ${pair.pair} title = ${pair.en}`, head.title, text(pair.en));
+    expectEqual(
+      `${label}: ${pair.pair} kicker carries ${pair.zh}`,
+      fold(head.kicker ?? "").includes(fold(text(pageLang, pair.zh))),
+      true,
+    );
+    expectEqual(`${label}: ${pair.pair} title = ${pair.en}`, head.title, text(pageLang, pair.en));
   }
 }
 
@@ -560,7 +601,11 @@ function expectSurfaces(label, probe, lang) {
   expectEqual(`${label}: first nav label`, probe.navFirst, WANT.navFirst[lang]);
   expectEqual(`${label}: toggle label+aria-pressed`, probe.options, WANT.toggle[lang]);
   expectNavLinks(label, probe, lang);
-  expectHeadPairs(label, probe);
+  expectHeadPairs(label, probe, lang);
+  /* The static head is the default mode's; every language-dependent part must follow. */
+  expectEqual(`${label}: meta description`, probe.meta?.description, HEAD_COPY[lang].summary);
+  expectEqual(`${label}: og:title`, probe.meta?.ogTitle, HEAD_COPY[lang].title);
+  expectEqual(`${label}: og:description`, probe.meta?.ogDescription, HEAD_COPY[lang].summary);
 }
 
 const cdp = await openCdp(CDP_HTTP);
@@ -669,9 +714,9 @@ if (failures.length > 0) {
 }
 
 console.log(
-  `PASS: default mode zh-Hans (${html.length} B, ${HTML_OUT}) — html lang=zh-Hans, ` +
-    `title=${JSON.stringify(document.title)}, ${pressed.length} toggle buttons pressed on zh-Hans ` +
-    "with the 1×12 hairline between them; all 13 pairs coexist in that default-mode markup, and " +
-    `the browser drove all ${NAV_LINKS.length} nav links plus both head pairs through both modes ` +
-    "(label, ordinal and §6.4 lang per item)",
+  `PASS: default mode ${DEFAULT_MODE} (${html.length} B, ${HTML_OUT}) — html lang=${DEFAULT_MODE}, ` +
+    `title=${JSON.stringify(document.title)}, ${pressed.length} toggle buttons pressed on ${DEFAULT_MODE} ` +
+    "with the 1×12 hairline between them; all 13 pairs hold their own language's text in that " +
+    `default-mode markup, and the browser drove all ${NAV_LINKS.length} nav links plus both head ` +
+    "pairs through both modes (label, ordinal and §6.4 lang per item)",
 );
