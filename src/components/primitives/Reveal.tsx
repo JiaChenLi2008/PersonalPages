@@ -5,15 +5,30 @@ type RevealTag = keyof JSX.IntrinsicElements;
 
 export type RevealProps = {
   as?: RevealTag;
-  /** Stagger tier; each tier maps to its own --reveal-delay token. */
+  /** Stagger tier; each tier maps to its own --reveal-delay token (motion.css). */
   delay?: 0 | 1 | 2 | 3;
+  /** Observer threshold; the useInView default (15%) unless a block needs another. */
+  threshold?: number;
+  /** Observer root margin; the useInView default (-10% at the bottom) unless a block needs another. */
+  rootMargin?: string;
+  /** Extra motion hooks travel here too: `motion-slide`, `motion-clip`, `motion-hover`. */
   className?: string;
   children?: ReactNode;
 };
 
-/** Fades and lifts its children in once the block scrolls into view. */
-export function Reveal({ as = "div", delay = 0, className, children }: RevealProps): JSX.Element {
-  const [ref, inView] = useInView<HTMLElement>();
+/**
+ * Fades and lifts its children in once the block scrolls into view. The classes come
+ * from motion.css, so a caller can add one of the other hooks by name.
+ */
+export function Reveal({
+  as = "div",
+  delay = 0,
+  threshold,
+  rootMargin,
+  className,
+  children,
+}: RevealProps): JSX.Element {
+  const [ref, inView] = useInView<HTMLElement>({ threshold, rootMargin });
   const classes = ["reveal", inView ? "is-in" : null, className].filter(Boolean).join(" ");
   // JSX cannot tie a ref to the chosen tag of a union, so the tag is widened here.
   const Element = as as ElementType;
