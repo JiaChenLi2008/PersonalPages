@@ -308,10 +308,33 @@ const photos = tagsOf("img");
 if (photos.length !== FIGURES.length + 3) {
   fail(`img count ${photos.length} != ${FIGURES.length + 3}: the three JHU puzzles plus the three wired figures`);
 }
-const answers = ["scholarly-jhu.a1", "scholarly-jhu.a2", "scholarly-jhu.a3"].map((key) => en[key].text);
-const puzzleAlts = photos.map((photo) => photo.alt).filter((alt) => answers.includes(alt));
-if (puzzleAlts.length !== 3) {
-  fail(`JHU puzzle photos carrying an answer text as alt: ${puzzleAlts.length} != 3`);
+/* The three JHU puzzle photos: each slot is one dissection photo whose alt is its own
+   answer text (§6.3). The assertion is set equality over the three — the count of alts
+   found in the answer list was weaker, because three photos wearing the same answer
+   passed it — plus the per-src pairing, which pins each photo to its own answer. */
+const JHU_PUZZLES = [
+  { src: "media/image1-1600.webp", answer: "scholarly-jhu.a1" },
+  { src: "media/image2-400.webp", answer: "scholarly-jhu.a2" },
+  { src: "media/image3-600.webp", answer: "scholarly-jhu.a3" },
+];
+const puzzlePhotos = photos.filter((photo) => JHU_PUZZLES.some((puzzle) => (photo.src ?? "").endsWith(puzzle.src)));
+if (puzzlePhotos.length !== JHU_PUZZLES.length) {
+  fail(`JHU puzzle photos ${puzzlePhotos.length} != ${JHU_PUZZLES.length}: the three dissection photos are the puzzle slots`);
+}
+const puzzleAlts = puzzlePhotos.map((photo) => photo.alt).sort();
+const answerTexts = JHU_PUZZLES.map((puzzle) => en[puzzle.answer].text);
+if (JSON.stringify(puzzleAlts) !== JSON.stringify(answerTexts.slice().sort())) {
+  fail(`JHU puzzle alt set ${JSON.stringify(puzzleAlts)} != the three answer texts ${JSON.stringify(answerTexts.slice().sort())}`);
+}
+for (const puzzle of JHU_PUZZLES) {
+  const photo = puzzlePhotos.find((attrs) => (attrs.src ?? "").endsWith(puzzle.src));
+  if (photo === undefined) {
+    fail(`no <img src="…/${puzzle.src}">: the JHU puzzle slot is not wired`);
+    continue;
+  }
+  if (photo.alt !== en[puzzle.answer].text) {
+    fail(`img ${puzzle.src}: alt ${JSON.stringify(photo.alt)} != its own ${puzzle.answer} (${JSON.stringify(en[puzzle.answer].text)})`);
+  }
 }
 for (const figure of FIGURES) {
   const photo = photos.find((attrs) => (attrs.src ?? "").endsWith(figure.src));
