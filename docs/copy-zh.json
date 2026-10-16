@@ -132,5 +132,11 @@
   "values.card4": {"text":"智慧","src":"design-system.md#Values","lang":"zh-Hans"},
   "footer.cta": {"text":"聊聊吧。","src":"design-system.md#Footer","lang":"zh-Hans"},
   "footer.mail": {"text":"lin.zhiyuan@example.com","src":"design-system.md#Footer","lang":"en"},
-  "footer.legal": {"text":"© 2026 林知远 · 占位\n生物学 / 医学 / 音乐 / 体育","src":"design-system.md#Footer","lang":"zh-Hans"}
+  "footer.legal": {"text":"© 2026 林知远 · 占位\n生物学 / 医学 / 音乐 / 体育","src":"design-system.md#Footer","lang":"zh-Hans"},
+  "scholarly-igem.fig1.alt": {"text":"实验台：戴手套的手在打开的笔记本旁装填凝胶。","chrome":true,"lang":"zh-Hans"},
+  "scholarly-igem.fig2.alt": {"text":"海报展示：报告人站在印制的科研海报旁，观众部分入镜。","chrome":true,"lang":"zh-Hans"},
+  "scholarly-hir.fig.alt": {"text":"书桌一角：手在横格纸上书写，旁边摊着一本打开的书。","chrome":true,"lang":"zh-Hans"},
+  "elder.fig.alt": {"text":"陪伴场景：一只手扶着长者的手臂，长者手边有手杖。","chrome":true,"lang":"zh-Hans"},
+  "music.fig.alt": {"text":"打击乐练习：鼓槌交叉搭在马林巴琴上。","chrome":true,"lang":"zh-Hans"},
+  "sport.fig.alt": {"text":"训练一刻：球员在羽毛球网前跨步。","chrome":true,"lang":"zh-Hans"}
 }

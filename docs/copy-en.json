@@ -132,5 +132,11 @@
   "values.card4": {"text":"Wisdom","src":"design-system.md#Values","lang":"en"},
   "footer.cta": {"text":"LET'S TALK.","src":"design-system.md#Footer","lang":"en"},
   "footer.mail": {"text":"lin.zhiyuan@example.com","src":"design-system.md#Footer","lang":"en"},
-  "footer.legal": {"text":"© 2026 Lin Zhiyuan · Placeholder\nBIOLOGY / MEDICINE / MUSIC / SPORT","src":"design-system.md#Footer","lang":"en"}
+  "footer.legal": {"text":"© 2026 Lin Zhiyuan · Placeholder\nBIOLOGY / MEDICINE / MUSIC / SPORT","src":"design-system.md#Footer","lang":"en"},
+  "scholarly-igem.fig1.alt": {"text":"Laboratory bench: gloved hands loading a gel beside an open notebook.","chrome":true,"lang":"en"},
+  "scholarly-igem.fig2.alt": {"text":"Poster session: a presenter beside a printed research poster, listeners partly in frame.","chrome":true,"lang":"en"},
+  "scholarly-hir.fig.alt": {"text":"Desk scene: a hand writing on lined paper next to an open book.","chrome":true,"lang":"en"},
+  "elder.fig.alt": {"text":"Companionship visit: a hand steadying an older person’s arm above a walking stick.","chrome":true,"lang":"en"},
+  "music.fig.alt": {"text":"Percussion practice: mallets crossed over a marimba.","chrome":true,"lang":"en"},
+  "sport.fig.alt": {"text":"Training moment: a player mid-lunge in front of a badminton net.","chrome":true,"lang":"en"}
 }

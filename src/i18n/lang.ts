@@ -1,4 +1,5 @@
-/* Page language: `?lang=` wins over the stored choice, which wins over zh-Hans.
+/* Page language: `?lang=` wins over the stored choice, which wins over en — and the switch
+   carries the whole page with it: <html lang>, the tab title and the head's meta copy.
    The dictionaries keep the two-letter file index (`en` / `zh`); `Lang` is the value
    `<html lang>` and every element-level `lang` attribute must carry (BLUEPRINT §6.4).
    Switching is page-internal: no reload, no navigation (BLUEPRINT §6.6 #6). */
@@ -9,8 +10,8 @@ import zhCopy from "../../docs/copy-zh.json";
 
 export type Lang = "en" | "zh-Hans";
 
-/** The frozen design (ui.pen) is the Chinese page, so it is the default. */
-export const DEFAULT_LANG: Lang = "zh-Hans";
+/** The site opens in English; the switch carries the Chinese page (BLUEPRINT §6.4). */
+export const DEFAULT_LANG: Lang = "en";
 
 /** Dictionary file index for a page language. */
 export const DICTIONARY_OF: Record<Lang, "en" | "zh"> = { en: "en", "zh-Hans": "zh" };
@@ -53,6 +54,25 @@ function titleOf(lang: Lang): string {
   return DICTIONARIES[DICTIONARY_OF[lang]][TITLE_KEY[lang]].text.replace(/\s*\n\s*/g, " ");
 }
 
+/* The static head is the default mode's (index.html); every language-dependent part of it
+   has to follow the switch, or the Chinese page keeps English meta. The SSR checks stub
+   `document` down to documentElement, so the pre-render path stops at the language and the
+   title — the shell keeps the default copy, which is what those checks assert. */
+function rewriteHeadMeta(lang: Lang): void {
+  if (typeof document.querySelector !== "function") {
+    return;
+  }
+  const description = DICTIONARIES[DICTIONARY_OF[lang]]["hero.summary"].text;
+  const values: [selector: string, value: string][] = [
+    ['meta[name="description"]', description],
+    ['meta[property="og:title"]', titleOf(lang)],
+    ['meta[property="og:description"]', description],
+  ];
+  for (const [selector, value] of values) {
+    document.querySelector<HTMLMetaElement>(selector)?.setAttribute("content", value);
+  }
+}
+
 let current: Lang = resolveLang();
 const listeners = new Set<() => void>();
 
@@ -62,6 +82,7 @@ function apply(lang: Lang): void {
   }
   document.documentElement.lang = lang;
   document.title = titleOf(lang);
+  rewriteHeadMeta(lang);
 }
 
 apply(current);

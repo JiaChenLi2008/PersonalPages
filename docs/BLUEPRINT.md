@@ -180,8 +180,8 @@
 | `hir-essay.md#pN` | 第 N 页区间（`p0` = 文首导言区） | 同上 |
 | `uirpen#<A.B.C>` | `ui.pen` 中按节点名逐段下沉（匿名 `frame` 层自动跳过） | `text` 必须等于该节点子树内某个文本节点的 `content`（逐字） |
 
-其余硬断言：① 两字典键集合一致；② 字段/类型齐全；③ `lang ∈ {en, zh-Hans}` 且 `fallback: true` 必伴随 `lang: "en"`；④ `text` 非空且不含 TODO/FIXME/XXX；⑥ `copy-zh.json` 中 `fallback` 条目与 `copy-en.json` 同键同文。
-`pending: true` 条目跳过「逐字溯源」断言（材料无原文），但其余断言照旧。
+其余硬断言：① 两字典键集合一致；② 字段/类型齐全；③ `lang ∈ {en, zh-Hans}`；④ `text` 非空且不含 TODO/FIXME/XXX；⑤ **材料侧逐字溯源**：材料语言那一侧的 `text` 必须逐字命中上表区间；⑥ **译文侧**：同一 `src` 槽位 + 原文侧逐字相符 + 两侧文本互异（两侧同文即失败，单语纯度下每个显示槽位两侧各写本语言文本）；⑥' 材料原文自身中英混排的 7 个槽位（`verify-copy.mjs` 的 `MIXED_MATERIAL` 逐条登记）改用「至少一侧含 ≥8 字连续原文片段」下限；⑦ `chrome` 条目不得带 `src`（材料无原文，登记于 `docs/CHROME.md` §1），非 `chrome` 条目必须带 `src`。
+`fallback` / `pending` 字段已废弃：两字典均不得再出现（出现即 `[shape] 含未知字段`）。
 
 ### 2.11 实现补充值（`ui.pen` 无此值，design-system.md §8 列出「文档中无此值」）
 
@@ -258,7 +258,7 @@
 | 3 | JHU 三谜题揭晓 | 点击谜题件（`<button>`）—— docx 段[48]/[52]/[53]「点击一个东西或者图标，会显示答案：」 | 该谜题 `aria-expanded` false→true、答案区 `data-state` 同步；高度 `grid-template-rows` 0fr→1fr（CSS 驱动，**不写内联高度/内联过渡**）；谜题件视觉态**待设计稿**（DESIGN-GAPS.md#7） | `--dur-2` / `--ease-out` | 立即切换 | `button[aria-expanded][aria-controls]`；答案区 `id` + `role="region"` + `aria-labelledby`（指按钮）；焦点留在按钮 |
 | 4 | Immunotherapy 三栏揭晓 | docx 段[59]：横向滑动/滚轮；键盘 `Tab` 进容器后 `←`/`→` 切栏；亦可点击栏标题 | 三栏横向 scroll-snap；激活栏答案区 `aria-hidden` false，非激活栏保持 `true`；激活判定 = 栏中心与容器中心距离最小 | `--dur-2` / `--ease-out` | 关闭 snap 动画（瞬时对齐），答案随激活立即显示 | 容器 `role="region"` + `aria-label` = 区块标题文案；栏内问题 `button[aria-expanded][aria-controls]`；容器 `tabindex="0"` + 可见焦点 |
 | 5 | HIR 三问揭晓 | 点击问题卡（`<button>`）—— docx 段[71]「一组互动＋解答形式的页面作为 hook」 | 该卡答案区展开（`grid-template-rows` 0fr→1fr；内部容器仍 `max-height: 60vh` + 滚动，§2.11）；其余卡独立不受影响；`Answer:` 标签仅在展开后可见 | `--dur-2` / `--ease-out` | 立即展开（无高度过渡） | `button[aria-expanded][aria-controls]`；答案区 `role="region"` + `aria-labelledby`；长文可滚动区加 `tabindex="0"` 以便键盘滚动 |
-| 6 | 语言切换（**页内切换，不整页重载**） | 点击语言切换件（位置/样式**待设计稿** → DESIGN-GAPS.md#7） | `<html lang>` 在 `zh-Hans` / `en` 间切换；按字典 `lang` 字段显示/隐藏对应文本，`fallback` 条目在中文页显示英文原文；选择持久化（`?lang=` + `localStorage`）；重排用 FLIP（测前后 rect，`transform` 走同一套 token，同一时刻至多一组） | `--dur-1` / `--ease-out` | 无过渡，瞬时切换（FLIP 直接切终态） | `<html lang>` 同步；切换件 `button[aria-pressed]` 或在 `<nav>` 内作为链接列出；文本语言与页面语言不一致时按 §6.4 加 `lang` 属性 |
+| 6 | 语言切换（**页内切换，不整页重载**） | 点击语言切换件（位置/样式**待设计稿** → DESIGN-GAPS.md#7） | `<html lang>` 在 `en`（默认）/ `zh-Hans` 间切换，只渲染当前语言词典的文本（不成对同现）；选择持久化（`?lang=` + `localStorage`）；重排用 FLIP（测前后 rect，`transform` 走同一套 token，同一时刻至多一组） | `--dur-1` / `--ease-out` | 无过渡，瞬时切换（FLIP 直接切终态） | `<html lang>` 同步；切换件 `button[aria-pressed]` 或在 `<nav>` 内作为链接列出；文本语言 ≠ 页面语言时按 §6.4 #5 加 `lang` 属性 |
 
 未覆盖区块（5.2 / 5.4 / 6 / 7 / 8）的**视觉状态**（未揭晓态、揭晓态、空态、hover/focus/active、过渡曲线）一律待设计稿：DESIGN-GAPS.md#1/#2/#3/#4/#5/#7。
 
@@ -296,10 +296,10 @@
 | 部位 | 标签 | 标题层级 |
 |---|---|---|
 | 页头 | `<header><nav aria-label="站点导航">`（`aria-label` 文案材料无原文 → **不写文字标签**，用 §6.5 缺口处理） | 不含标题 |
-| 首屏 | `<section id="hero" aria-labelledby="hero-title">` | `<h1 id="hero-title">` = `hero.h1` + `<span lang="zh-Hans">hero.h1cn</span>`（**唯一 h1**，两段文案同属主标题） |
+| 首屏 | `<section id="hero" aria-labelledby="hero-title">` | `<h1 id="hero-title">` = `hero.h1` + `hero.h1cn`（**唯一 h1**，两段文案同属主标题；两串都取当前语言词典，同语言不加 `lang` —— §6.4 #5） |
 | 图版带 | `<figure>` + `<figcaption>` | 不设标题（无标题文案）；`figcaption` 内两行 = `photoband.figcap` / `photoband.altnote` |
 | 总览 | `<section id="index" aria-labelledby="index-title">` | `<h2 id="index-title">` = `index.head.eyebrow`；`index.head.range` 为 `<p>` |
-| 板块1 | `<section id="scholarly" aria-labelledby="scholarly-title">` | `<h2>` = `scholarly.title.zh`/`.en`；子板块 `<h3>`（5.1–5.4）；iGEM 小节 `<h4>`（`Lab contribution` / `Paris Conference`） |
+| 板块1 | `<section id="scholarly" aria-labelledby="scholarly-title">` | `<h2>` = 本语言的 `scholarly.title.en`（`scholarly.title.zh` 是无元素死键，见 CHROME.md §4）；子板块 `<h3>`（5.1–5.4）；iGEM 小节 `<h4>`（`Lab contribution` / `Paris Conference`） |
 | 板块2–4 | `<section id="elder|music|sport" aria-labelledby="…">` | `<h2>` = 对应标题文案 |
 | 方法 | `<section id="method" aria-labelledby="method-title">` | `<h2 id="method-title">` = `method.title`；`method.eyebrow` 为 `<p>`；三列 `<h3>` |
 | 价值 | `<section id="values">`（无标题文案，不编造 `aria-label`） | 四卡各一个 `<h2>` = `values.card1..4`（并列一级内容） |
@@ -323,57 +323,25 @@
 | 占位框（§5 全部 10 条） | `aria-hidden="true"`；内含可见标注文字 `image pending`；容器按目标宽高比留白，不产生布局位移 |
 | 装饰性图形 | `Nav Mark`（14×14 品牌点）为装饰 → `aria-hidden="true"` |
 
-### 6.4 `lang` 属性规则（硬）
+### 6.4 语言模型：默认英文 + 单语纯度（本节取代旧「双语同现」模型）
 
-1. 页面级：`<html lang="zh-Hans">`（默认中文页）/ `<html lang="en">`（切换后）；语言切换为**页内切换**，不整页重载（裁决）。
-2. 元素级：文本语言 ≠ 页面语言时，在承载该文本的元素上加 `lang="<该条 text 的真实语言>"`，取值直接来自 `copy-*.json` 的 `lang` 字段（`zh-Hans` / `en`）。
-3. **回落清单（`copy-zh.json` 中 `fallback: true`，共 80 条 —— 中文页上这些元素必须加 `lang="en"`）**：
+> 2026-10-16 裁决（`.agents/briefs/lang-purity-ruling.md`，用户明令，优先于本文件旧文本）：默认英文 + **单语纯度**取代旧「双语同现 + 元素级 `lang`」。旧 §6.4 的**回落清单（80 条）与反向清单（54 条「材料无英文原文、不得翻译」）就地作废** —— 该翻译的一律翻译，两语言各写本语言文本。译文方针见 `.agents/briefs/translation-policy.md`。
 
-| 分组 | 条目 |
-|---|---|
-| `nav`（11） | `nav.brand.name`、`nav.mail`、`nav.item1.en`、`nav.item1.no`、`nav.item2.en`、`nav.item2.no`、`nav.item3.en`、`nav.item3.no`、`nav.item4.en`、`nav.item4.no`、`nav.lang.en` |
-| `hero`（4） | `hero.eyebrow`、`hero.h1`、`hero.btn1`、`hero.btn2` |
-| `index`（9） | `index.head.range`、`index.row1.titleEn`、`index.row1.no`、`index.row2.titleEn`、`index.row2.no`、`index.row3.titleEn`、`index.row3.no`、`index.row4.titleEn`、`index.row4.no` |
-| `scholarly`（6） | `scholarly.title.en`、`scholarly.imagePending`、`scholarly.revealTap`、`scholarly.revealSwipe`、`scholarly.meta`、`scholarly.linkPdf` |
-| `scholarly-igem`（8） | `scholarly-igem.title`、`scholarly-igem.no`、`scholarly-igem.sub1`、`scholarly-igem.para1`、`scholarly-igem.sub2`、`scholarly-igem.para2`、`scholarly-igem.cta.en`、`scholarly-igem.cta.url` |
-| `scholarly-jhu`（8） | `scholarly-jhu.title`、`scholarly-jhu.no`、`scholarly-jhu.q1`、`scholarly-jhu.a1`、`scholarly-jhu.q2`、`scholarly-jhu.a2`、`scholarly-jhu.q3`、`scholarly-jhu.a3` |
-| `scholarly-immuno`（11） | `scholarly-immuno.title`、`scholarly-immuno.no`、`scholarly-immuno.q1.no`、`scholarly-immuno.q1`、`scholarly-immuno.a1`、`scholarly-immuno.q2.no`、`scholarly-immuno.q2`、`scholarly-immuno.a2`、`scholarly-immuno.q3.no`、`scholarly-immuno.q3`、`scholarly-immuno.a3` |
-| `scholarly-hir`（15） | `scholarly-hir.no`、`scholarly-hir.answerLabel`、`scholarly-hir.q1.no`、`scholarly-hir.q1`、`scholarly-hir.a1`、`scholarly-hir.bridge1`、`scholarly-hir.q2.no`、`scholarly-hir.q2`、`scholarly-hir.a2`、`scholarly-hir.bridge2`、`scholarly-hir.q3.no`、`scholarly-hir.q3`、`scholarly-hir.a3`、`scholarly-hir.closing`、`scholarly-hir.card.title` |
-| `elder`（2） | `elder.title.en`、`elder.contentPending` |
-| `music`（1） | `music.titleEn` |
-| `sport`（1） | `sport.titleEn` |
-| `method`（1） | `method.title` |
-| `values`（1） | `values.label` |
-| `footer`（2） | `footer.cta`、`footer.mail` |
+1. **默认语言＝英文**：`DEFAULT_LANG = "en"`（`src/i18n/lang.ts`）；`index.html` 为 `<html lang="en">` 且 head（title / description / og:*）取 `copy-en.json` 的 `hero.h1`（换行折成空格）与 `hero.summary`；SSR（无 `window`）渲染英文页。解析顺序 `?lang=` → `localStorage` → `en`，切换为页内切换（§6.6 #6）。
+2. **词典模型**：`docs/copy-en.json` / `docs/copy-zh.json` **各自持本语言文本**（同键、语义等价、事实不增删）。`useCopy().text(key)` / `langOf(key)` 签名不变，取当前语言词典的条目。`fallback`（及 `pending`）字段**废弃**：已从两份字典与 `CopyEntry` 移除，`docs/verify-copy.mjs` 不再识别，两侧同文即判失败（见 §2.10）。
+3. **单语纯度（硬）**：EN 模式**零 CJK**；ZH 模式**零白名单外拉丁字母**。约束面含可见文本与 `aria-label` / `alt` / `title` / `placeholder` / `meta`。门禁：`tools/verify-lang-purity.mjs`（两模式 SSR 产物逐 token 扫描，越界即 rc≠0）。
+4. **白名单（封闭，扩充须 leader 批准，见 `translation-policy.md` §2）**：`iGEM`、`HIR`、`JHU`、`IgG4`、邮箱地址与 URL、`PDF`、`WebP`、切换件标签 `EN` / `ZH`。
+5. **元素级 `lang`**：只标「页面语言 ≠ 该串语言」的文本 —— 中文页上的白名单拉丁 token 标 `lang="en"`（读屏按英文发音），英文页上的中文专名标 `lang="zh-Hans"`（当前无此例）。与本语言相同的文本不再输出 `lang`；英文页上分节仍带的冗余 `lang="en"` 标注不影响纯度门禁，由分节 lane 成对锁定收口时一并去掉。
+6. **图位 alt**：6 个内容图位键两侧齐备、中性描述（不含时间 / 地点 / 荣誉 / 数字，不暗示人物身份）—— `scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`（`chrome: true`，材料无原文）。装饰性图位（PhotoBand 主图、Index 行 2/3/4 缩略图）一律 `alt=""`。
+7. **死键**：未接线键的登记与判据见 `docs/CHROME.md` §4 与 `tools/verify-copy-wiring.mjs` 的 `UNREFERENCED` 数组。
 
-合计 **11+4+9+6+8+8+11+15+2+1+1+1+1+2 = 80** 条（= `node -e` 过滤 `copy-zh.json` 的 `fallback === true` 的实际条数；本表 2026-10-16 按当前字典重新生成，较旧表新增 chrome 条目（`*.no`、`*.kicker`、`lang.*` 类）、Index 第四行 `index.row4.*` 与 HIR 独立题号 `scholarly-hir.q1.no/q2.no/q3.no`）。
-4. **反向清单（`copy-en.json` 中 `lang: "zh-Hans"`，共 54 条）**：英文页上这些元素必须加 `lang="zh-Hans"`（材料无英文原文，**不得翻译**）：
-
-| 分组 | 条目 |
-|---|---|
-| `nav`（6） | `nav.brand.cn`、`nav.item1.zh`、`nav.item2.zh`、`nav.item3.zh`、`nav.item4.zh`、`nav.lang.zh` |
-| `hero`（8） | `hero.h1cn`、`hero.summary`、`hero.key.subject`、`hero.val.subject`、`hero.key.instrument`、`hero.val.instrument`、`hero.key.sport`、`hero.val.sport` |
-| `photoband`（2） | `photoband.figcap`、`photoband.altnote` |
-| `index`（9） | `index.head.eyebrow`、`index.row1.title`、`index.row1.body`、`index.row2.title`、`index.row2.body`、`index.row3.title`、`index.row3.body`、`index.row4.title`、`index.row4.body` |
-| `scholarly`（4） | `scholarly.title.zh`、`scholarly.kicker`、`scholarly.figcap2`、`scholarly.figcap3` |
-| `scholarly-igem`（1） | `scholarly-igem.cta.zh` |
-| `scholarly-jhu`（1） | `scholarly-jhu.hint` |
-| `scholarly-hir`（2） | `scholarly-hir.title`、`scholarly-hir.card.file` |
-| `elder`（3） | `elder.title.zh`、`elder.kicker`、`elder.body` |
-| `music`（3） | `music.title`、`music.kicker`、`music.body` |
-| `sport`（3） | `sport.title`、`sport.kicker`、`sport.body` |
-| `method`（7） | `method.eyebrow`、`method.col1.title`、`method.col1.body`、`method.col2.title`、`method.col2.body`、`method.col3.title`、`method.col3.body` |
-| `values`（4） | `values.card1`、`values.card2`、`values.card3`、`values.card4` |
-| `footer`（1） | `footer.legal` |
-
-合计 **6+8+2+9+4+1+1+2+3+3+3+7+4+1 = 54** 条（= `node -e` 过滤 `copy-en.json` 的 `lang === "zh-Hans"` 的实际条数；本表 2026-10-16 按当前字典重新生成）。
 
 ### 6.5 SEO
 
 | 项 | 取值 | 出处 |
 |---|---|---|
-| `<title>` | `LIFE, IN FOCUS.`（`hero.h1` 原文，换行归一为空格 = 实现补充） | design-system.md §5.2 |
-| `meta[name=description]` | `hero.summary` 原文（41 字） | ui.pen `Hero.Grid.Right.D` |
+| `<title>` | `LIFE, IN FOCUS.`（默认语言字典 `copy-en.json` 的 `hero.h1`，换行归一为空格 = 实现补充） | design-system.md §5.2 |
+| `meta[name=description]` | 默认语言字典 `copy-en.json` 的 `hero.summary` 原文 | ui.pen `Hero.Grid.Right.D` |
 | `og:title` / `og:description` | 同上两条原文 | 同上 |
 | `og:image` | `photoband` 图版文件（当前为占位 → 有真图前不发 `og:image`） | §5 #1 |
 | `<html lang>` / `hreflang` | `lang` 随切换更新；单页 + 页内切换 ⇒ **不发 `hreflang`**（无独立 URL）；如后续改 `?lang=en`，再补 `hreflang` | 裁决：页内切换 |
