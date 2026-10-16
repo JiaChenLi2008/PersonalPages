@@ -39,13 +39,19 @@
   list-style: none;
 }
 
-/* Row spec: chip | text column | square, closed by the 1px hairline. */
+/* Row spec: chip | text column | square, closed by the 1px hairline. The row box — padding
+   and closing rule — is the li the entrance fades in; the box inside it is the pointer
+   micro-motion target (④), because `.motion-hover` and `.reveal` cannot share an element:
+   the hover's transition shorthand would drop the entrance's opacity. */
 .index__row {
+  padding: var(--pad-row);
+  border-block-end: var(--rule-h) solid var(--c-rule);
+}
+
+.index__row-inner {
   display: flex;
   align-items: center;
   gap: var(--sp-24);
-  padding: var(--pad-row);
-  border-block-end: var(--rule-h) solid var(--c-rule);
 }
 
 .index__num {
@@ -97,8 +103,19 @@
   flex: 1 1 auto;
   min-width: 0;
   gap: var(--sp-8);
+  /* The language-switch FLIP (§5) plays through this one transition: the hook pins each
+     text block where it stood, then releases the pin. Row text is the only thing that
+     glides; the pin itself is written under `.index__body--pinned`, where the transition
+     is off, or the browser would interpolate the pin away instead of playing it. */
+  transition: transform var(--dur-1) var(--ease-out);
 }
 
+.index__body--pinned {
+  transition: none;
+}
+
+/* The design's Top box (gap 14px) held the T + EN pair; one language side renders now, so
+   it holds the row's single title. */
 .index__top {
   display: flex;
   flex-wrap: wrap;
@@ -112,15 +129,6 @@
   font-size: var(--fs-34);
   font-weight: var(--fw-title);
   color: var(--c-ink);
-}
-
-.index [data-role="EN"] {
-  margin: 0;
-  font-family: var(--ff-sans-en);
-  font-size: var(--fs-13);
-  font-weight: var(--fw-key);
-  letter-spacing: var(--ls-caps);
-  color: var(--en-ink);
 }
 
 .index [data-role="D"] {
@@ -137,20 +145,6 @@
   width: var(--thumb);
   height: var(--thumb);
   object-fit: cover;
-}
-
-.index__media--pending {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: var(--rule-h) solid var(--c-rule);
-}
-
-.index__pending {
-  font-family: var(--ff-mono);
-  font-size: var(--fs-10);
-  letter-spacing: var(--ls-caps);
-  color: var(--c-muted);
 }
 
 @media (max-width: 1200px) {
@@ -217,10 +211,13 @@
   }
 
   .index__row {
+    padding: var(--pad-row-t600);
+  }
+
+  .index__row-inner {
     flex-direction: column;
     align-items: flex-start;
     gap: var(--sp-16);
-    padding: var(--pad-row-t600);
   }
 
   .index__num {
@@ -240,5 +237,12 @@
 
   .index [data-role="No"] {
     font-size: var(--fs-26-t600);
+  }
+}
+
+/* The section's own reduce branch: motion.css covers the shared hooks, not this transition. */
+@media (prefers-reduced-motion: reduce) {
+  .index__body {
+    transition: none;
   }
 }

@@ -38,7 +38,11 @@
   gap: var(--sp-32);
 }
 
-.method__col {
+/* Columns: the design's column box is the Reveal that the entrance staggers, and the box
+   inside it is the pointer micro-motion target (④) — `.motion-hover` and `.reveal` cannot
+   share an element, because the hover's transition shorthand would drop the entrance's
+   opacity. */
+.method__col-inner {
   display: flex;
   flex-direction: column;
   gap: var(--sp-12);

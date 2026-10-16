@@ -52,13 +52,19 @@ export function Method() {
       <div className="method__cols">
         {COLUMNS.map((column) => (
           <Reveal key={column.title} delay={column.delay} className="method__col">
-            <div className="method__rule" aria-hidden="true" />
-            <h3 className="method__col-title" data-role="T">
-              {t(column.title)}
-            </h3>
-            <p className="method__col-d" data-role="D">
-              {t(column.body)}
-            </p>
+            <div className="method__col-inner motion-hover">
+              {/* The column's ordinal mark is the accent stroke, and it slides in (③). The
+                  Reveal carries the hook, because the stroke keeps its own aria-hidden. */}
+              <Reveal className="motion-slide">
+                <div className="method__rule" aria-hidden="true" />
+              </Reveal>
+              <h3 className="method__col-title" data-role="T">
+                {t(column.title)}
+              </h3>
+              <p className="method__col-d" data-role="D">
+                {t(column.body)}
+              </p>
+            </div>
           </Reveal>
         ))}
       </div>

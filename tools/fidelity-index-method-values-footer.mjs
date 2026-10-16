@@ -28,7 +28,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const PEN_SHA256_PREFIX = "8816b923b24c00e4";
+const PEN_SHA256_PREFIX = "41dd7140223515c2";
 const TOKENS_PATH = join(ROOT, "src/styles/tokens.css");
 const PRIMITIVES_PATH = join(ROOT, "src/components/primitives/primitives.css");
 
@@ -77,6 +77,14 @@ const FIELD_PROPS = {
 };
 
 const WEIGHT_WORDS = { normal: 400, bold: 700 };
+
+/* The design's per-row EN label slot (rows 1–3; row 4 kept ui.pen's editor default) is the
+   pair's other side, which the single-side rule of this lane's brief keeps out of the DOM in
+   both modes: `index.row{n}.title` renders on the zh page and `index.row{n}.titleEn` on the en
+   page, both in the title's own box. The slot's type values (13px / +3px) therefore have no
+   declaration to pair with, and are named here instead of being asserted; its fill still pairs,
+   through the per-row --en-ink declaration, in the row report below. */
+const UNRENDERED_EN_NODES = new Set(["Mdb3y", "kd6AZ", "SbfN8"]);
 
 /* BLUEPRINT §3 tiers; [prop, expected] where a number matches numerically and a
    string matches as a substring of the resolved declaration. */
@@ -439,6 +447,11 @@ const failures = [];
 const notes = [];
 let checked = 0;
 
+notes.push(
+  "index: the design's EN label nodes of rows 1–3 are out of the DOM under the single-side rule, " +
+    "so their type values are not asserted (their fill still pairs, via --en-ink)",
+);
+
 for (const section of SECTIONS) {
   const files = readdirSync(section.dir).filter((name) => /\.(tsx|css)$/.test(name));
   const source = files.map((name) => readFileSync(join(section.dir, name), "utf8")).join("\n");
@@ -476,6 +489,9 @@ for (const section of SECTIONS) {
   let sectionMissing = 0;
 
   for (const requirement of requirementsOf(subtree, section.name, notes)) {
+    if (UNRENDERED_EN_NODES.has(requirement.node)) {
+      continue;
+    }
     checked += 1;
     sectionChecked += 1;
 
@@ -514,8 +530,10 @@ for (const section of SECTIONS) {
     }
   }
 
-  /* the per-row custom properties must be consumed, not merely declared */
-  for (const name of ["--num-fill", "--no-ink", "--en-ink", "--card-fill", "--card-title-ink", "--card-label-ink"]) {
+  /* The per-row custom properties must be consumed, not merely declared. `--en-ink` is the
+     exception this lane created: its element is the same unrendered EN slot, so the token stays
+     declared — and paired with the design's fill in the row report below — without a consumer. */
+  for (const name of ["--num-fill", "--no-ink", "--card-fill", "--card-title-ink", "--card-label-ink"]) {
     const declared = sectionDeclarations.some((declaration) => declaration.prop === name);
     const consumed = sectionDeclarations.some(
       (declaration) => declaration.prop !== name && declaration.value.includes(`var(${name})`),
@@ -653,6 +671,128 @@ console.log(`values cards: ${cardReport.join(" | ")}`);
 
 if (cardReport.length !== 4) {
   failures.push(`values: expected 4 cards in ui.pen, found ${cardReport.length}`);
+}
+
+/* ------------------------------------------------ S2 lane: the three new assertions ---
+
+   ui.pen draws one text variant per row and states no motion at all, so what this lane
+   added cannot be read off the board: the row squares it wired to the MANIFEST crops of
+   their own Media nodes, the single-side row title, and the entrance / slide / hover hooks
+   of motion-spec §2 and §4. Each is asserted against the section sources here. */
+
+const MANIFEST = JSON.parse(readFileSync(join(ROOT, "public", "media", "MANIFEST.json"), "utf8"));
+
+/** Every .tsx/.css of a section, as one string: what a section renders and styles. */
+function sectionSource(dir) {
+  return readdirSync(dir)
+    .filter((name) => /\.(tsx|css)$/.test(name))
+    .map((name) => readFileSync(join(dir, name), "utf8"))
+    .join("\n");
+}
+
+const indexSource = sectionSource(SECTIONS[0].dir);
+
+/* 1. Rows 2–4 carry the 296×296 crop of their own ui.pen Media node, and the design draws
+   the same 1:1 148px box on all four rows. */
+const ROW_SQUARES = [
+  ["index-elder-296", "kIPsy"],
+  ["index-music-296", "XywbR"],
+  ["index-sport-296", "B8NpB"],
+];
+for (const [base, node] of ROW_SQUARES) {
+  checked += 1;
+  const entry = MANIFEST[`${base}.webp`];
+  if (entry === undefined || entry.nodeId !== node || entry.w !== 296 || entry.h !== 296) {
+    failures.push(
+      `index: MANIFEST ${base}.webp is not the 296×296 crop of ui.pen node ${node} (${JSON.stringify(entry?.nodeId)})`,
+    );
+  }
+  for (const name of [`${base}.webp`, `${base}.jpg`]) {
+    if (!indexSource.includes(name)) {
+      failures.push(`index: row square ${name} (ui.pen node ${node}) is not wired in Index.tsx`);
+    }
+  }
+}
+
+const rowSquares = (indexSubtree.children ?? [])
+  .filter((child) => child.name?.startsWith("0"))
+  .map((row) => (row.children ?? []).find((child) => child.name?.startsWith("Media")));
+checked += 1;
+if (
+  rowSquares.length !== 4 ||
+  rowSquares.some((square) => square === undefined || square.width !== 148 || square.height !== 148)
+) {
+  failures.push(
+    `index: ui.pen draws the 1:1 148px Media box on ${rowSquares.filter(Boolean).length} of 4 rows`,
+  );
+}
+
+/* No row is left on the pending placeholder box. */
+checked += 1;
+if (/imagePending|index__media--pending|index__pending/.test(indexSource)) {
+  failures.push("index: a row still renders the pending placeholder box instead of its square");
+}
+
+/* 2. Single-side row title: the pair's side is chosen by the page language in one
+   conditional, and the design's second (EN) element never reaches the DOM. The gate cannot
+   render, so it pins the one expression that makes the choice. */
+checked += 1;
+if (!/locale\s*===\s*"en"\s*\?\s*t\(row\.titleEn\)\s*:\s*t\(row\.title\)/.test(indexSource)) {
+  failures.push(
+    'index: the row title must choose its side in one page-language conditional ' +
+      '(locale === "en" ? t(row.titleEn) : t(row.title)), so the other side stays out of the DOM',
+  );
+}
+checked += 1;
+if (/index__title-en|data-role="EN"/.test(indexSource)) {
+  failures.push("index: the row still renders the pair's second (EN) element, so both sides reach the DOM");
+}
+
+/* 3. Motion hooks: the entrance tier, the ordinal slide (③) and the pointer micro-motion
+   (④) of motion-spec §2/§4. A hover hook may never ride on a Reveal — `.motion-hover`'s
+   transition shorthand would drop `.reveal`'s opacity fade. */
+const MOTION_HOOKS = [
+  { section: "index", dir: SECTIONS[0].dir, hooks: ["motion-slide", "motion-hover"] },
+  { section: "method", dir: SECTIONS[1].dir, hooks: ["motion-slide", "motion-hover"] },
+  { section: "values", dir: SECTIONS[2].dir, hooks: ["motion-slide", "motion-hover"] },
+  { section: "footer", dir: SECTIONS[3].dir, hooks: [] },
+];
+for (const { section, dir, hooks } of MOTION_HOOKS) {
+  const source = sectionSource(dir);
+  checked += 1;
+  if (!/delay=\{/.test(source)) {
+    failures.push(`${section}: the entrance carries no stagger tier (Reveal's delay)`);
+  }
+  for (const hook of hooks) {
+    checked += 1;
+    if (!new RegExp(`className="[^"]*\\b${hook}\\b[^"]*"`).test(source)) {
+      failures.push(`${section}: ${hook} is not wired to an element (motion-spec §4)`);
+    }
+  }
+  checked += 1;
+  if (/<Reveal[^>]*className="[^"]*motion-hover/.test(source)) {
+    failures.push(
+      `${section}: motion-hover rides on a Reveal, where its transition shorthand drops the entrance's opacity`,
+    );
+  }
+}
+
+/* The footer closes the entrance chain with the last tier (motion-spec §2). */
+checked += 1;
+if (!/delay=\{3\}/.test(sectionSource(SECTIONS[3].dir))) {
+  failures.push("footer: the entrance must take the last stagger tier (delay={3})");
+}
+
+/* The one motion a section declares itself — the language-switch FLIP (§5) — carries its
+   own reduce branch, because motion.css's covers its own hooks only. */
+checked += 1;
+if (!/\.index__body\s*\{[^}]*transition:/.test(indexSource)) {
+  failures.push("index: .index__body has no transition, so the language-switch FLIP has nothing to play through");
+}
+checked += 1;
+const indexReduce = /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{([\s\S]*)$/.exec(indexSource);
+if (indexReduce === null || !indexReduce[1].includes(".index__body")) {
+  failures.push("index: .index__body (the FLIP target) has no prefers-reduced-motion branch in Index.css");
 }
 
 /* BLUEPRINT §3 tiers. */
