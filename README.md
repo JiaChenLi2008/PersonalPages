@@ -26,27 +26,35 @@ npm run typecheck               # src + vite.config.ts
 ### CI 跑（每次部署都跑，顺序即 workflow 的顺序）
 
 ```bash
-node tools/verify-tokens.mjs      # 设计 token 逐条比对设计稿数值
-node tools/verify-deploy.mjs      # 部署配置门禁（GitHub Pages 单路径）
-npm run build                     # 类型检查 + 产出 dist/
-node tools/verify-copy-wiring.mjs # 文案键确实进了 dist/assets/*.js
+node tools/verify-tokens.mjs       # 设计 token 逐条比对设计稿数值
+node tools/verify-deploy.mjs       # 部署配置门禁（GitHub Pages 单路径）
+npm run build                      # 类型检查 + 产出 dist/
+node tools/verify-copy-wiring.mjs  # 文案键确实进了 dist/assets/*.js（读打包产物）
+node tools/verify-head.mjs         # index.html 文档头与字典 hero.* 逐字一致
+node tools/verify-responsive.mjs   # 蓝图 §3 的响应式数值逐条比对
+node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite SSR 构建）
 ```
 
-便宜的静态门禁先跑（fail fast）；`verify-copy-wiring.mjs` 读打包产物，故排在 `npm run build` 之后。
+便宜的静态门禁先跑（fail fast）。后四条都排在 `npm run build` 之后：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` 用 Vite JS API 自建一份 SSR 产物到 `/tmp`（不读 `dist/`），是这批里最慢的一个，故排最后。
 
-### 本地跑全套（CI 不跑）
+### 只在本地跑（CI 不跑，因为不自足）
 
-上面四条照跑，另加：
+上列七条全自足：只读 checkout、无浏览器、无仓库外输入。下面这些的输入或运行环境不在 CI 里，故留在本地：
+
+| 命令 / 门禁 | 不进 CI 的原因 |
+|---|---|
+| `node docs/verify-copy.mjs` | 读仓库上级目录的 `ui.pen` 与 `.agents/briefs/**`，并按 `ui.pen` 的 sha256 + 字节数校验冻版基线；CI 的 checkout 里没有这些文件 |
+| 四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`） | 同上，另需 HIR 竞赛文书 PDF |
+| `node tools/verify-render.mjs` | 连宿主浏览器 CDP 端点（默认 `127.0.0.1:9222`，可用 `CDP=` 覆盖）；CI 容器内没有浏览器，端点不可用时以 rc=2 明确退出而非静默通过 |
+| `node tools/verify-lang-toggle.mjs` | 同上：其浏览器节同样依赖宿主 CDP 端点 |
+
+本地跑全量（CI 七条 + 上表）：
 
 ```bash
-npx tsc --noEmit                  # 仅类型检查（src）
-node docs/verify-copy.mjs         # 双语字典键集合与文案逐字溯源
-node tools/verify-head.mjs        # index.html 文档头与字典 hero.* 逐字一致
-node tools/verify-render.mjs      # 真渲染矩阵（需宿主 Chrome 开着 CDP）
-for f in tools/fidelity-*.mjs; do node "$f"; done   # 逐节设计稿保真
+node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
 ```
 
-这几条之所以只在本地跑：它们的输入不在仓库里。`docs/verify-copy.mjs` 与四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`）要读仓库上级目录的素材——`ui.pen`、`.agents/briefs/**`、HIR 竞赛文书 PDF——并各自按 `ui.pen` 的 sha256 + 字节数校验冻版基线，CI 的 checkout 里不存在这些文件；`tools/verify-render.mjs` 则要连宿主浏览器的 CDP 端点（容器内没有浏览器），没有端点时以 rc=2 `ENV:` 退出而非静默通过。`tools/verify-head.mjs` 只读仓库内文件，但同样没有接进 workflow。所有命令都以 rc=0 为准；rc≠0 会打印具体是哪一条断言不成立。
+所有命令都以 rc=0 为准；rc≠0 会打印具体是哪一条断言不成立。
 
 ## 部署到 GitHub Pages
 
@@ -55,8 +63,8 @@ for f in tools/fidelity-*.mjs; do node "$f"; done   # 逐节设计稿保真
 1. 把仓库推到 GitHub，默认分支 `main`。
 2. 仓库网页端 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**（不要选 "Deploy from a branch"）。
 3. 向 `main` 推送即触发 `.github/workflows/deploy.yml`：
-   `actions/checkout` → `actions/setup-node`（Node 22 + npm 缓存）→ `npm ci` → `node tools/verify-tokens.mjs` → `node tools/verify-deploy.mjs` → `npm run build` → `node tools/verify-copy-wiring.mjs` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: ./dist`）→ `actions/deploy-pages`。
-   静态门禁先跑（fail fast），要读 `dist/` 的 `verify-copy-wiring` 排在 build 之后；任一脚本 rc≠0，job 即失败，不会发布半成品。进 CI 的只有自足脚本——依赖仓库上级目录素材的 `docs/verify-copy.mjs` 与 `fidelity-*.mjs` 留在本地跑（见「验证套件」）。
+   `actions/checkout` → `actions/setup-node`（Node 22 + npm 缓存）→ `npm ci` → `node tools/verify-tokens.mjs` → `node tools/verify-deploy.mjs` → `npm run build` → `node tools/verify-copy-wiring.mjs` → `node tools/verify-head.mjs` → `node tools/verify-responsive.mjs` → `node tools/verify-ssr-dom.mjs` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: ./dist`）→ `actions/deploy-pages`。
+   静态门禁先跑（fail fast），靠后的四个门禁都排在 build 之后（`verify-copy-wiring` 要读 `dist/`）；任一脚本 rc≠0，job 即失败，不会发布半成品。进 CI 的只有自足脚本；依赖仓库外素材或宿主浏览器的门禁留在本地跑（见「验证套件」的 CI 边界表）。
    手动重跑：**Actions → Deploy to GitHub Pages → Run workflow**。
 4. 在 **Actions** 面板看这次 run 的 `build` / `deploy` 两个 job 变绿；`deploy` 的 environment 链接即站点地址。
 5. 访问 `https://<user>.github.io/<repo>/`。（用户主页仓库 `<user>.github.io` 则是 `https://<user>.github.io/`。）
@@ -85,7 +93,7 @@ src/
   lib/useInView.ts       IntersectionObserver 观察 + reduced-motion / SSR 降级
   components/primitives/ Section / Rule / TextRole / Reveal + primitives.css
   sections/              Nav / Hero / PhotoBand / Index / Method / Values / Footer（占位）
-tools/                   verify-tokens.mjs / verify-copy-wiring.mjs / verify-deploy.mjs
+tools/                   verify-tokens / verify-deploy / verify-copy-wiring / verify-head / verify-responsive / verify-ssr-dom（进 CI），其余留在本地
 docs/                    verify-copy.mjs / copy-en.json / copy-zh.json
 .github/workflows/       deploy.yml（唯一的部署路径）
 ```

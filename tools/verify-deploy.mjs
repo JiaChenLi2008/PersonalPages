@@ -88,6 +88,15 @@ for (const rel of ["tools/verify-tokens.mjs", "tools/verify-deploy.mjs", "tools/
   check(`${WORKFLOW} runs node ${rel}`, has(workflow, `node ${rel}`));
 }
 
+// These three gates need nothing but the checkout (no browser, no repo-external
+// assets), so the workflow must keep running them. Anchored to the whole `run:`
+// line: a renamed script (tools/verify-head-x.mjs) must not pass as a substring.
+for (const rel of ["tools/verify-head.mjs", "tools/verify-responsive.mjs", "tools/verify-ssr-dom.mjs"]) {
+  const escaped = rel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const stepPattern = new RegExp(`^\\s*run:\\s*node\\s+${escaped}\\s*$`, "m");
+  check(`${WORKFLOW} runs node ${rel}`, stepPattern.test(workflow));
+}
+
 // Every script a human or the workflow is told to run must actually be there.
 for (const [who, body] of [[WORKFLOW, workflow], [README, text(README)]]) {
   const referenced = [...new Set([...body.matchAll(NODE_SCRIPT)].map((match) => match[1]))].sort();
