@@ -139,7 +139,7 @@ const BUDGET_MS = 800;
  * that lane will use, so the deferral is explicit instead of silently missing.
  */
 const SECTIONS = [
-  { section: "nav", dir: "Nav", state: "deferred", lane: "S1", requires: [".reveal", ".motion-hover"] },
+  { section: "nav", dir: "Nav", state: "wired", lane: "", requires: [".reveal", ".motion-hover"] },
   { section: "hero", dir: "Hero", app: true, state: "wired", lane: "" },
   { section: "photoband", dir: "PhotoBand", state: "wired", lane: "" },
   { section: "index", dir: "Index", state: "wired", lane: "" },
