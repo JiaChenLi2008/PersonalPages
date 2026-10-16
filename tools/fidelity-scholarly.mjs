@@ -201,6 +201,9 @@ const TEXT_ROLES = [
   { node: "juo5I", selector: ".scholarly__qtext" },
   { node: "n81oy", selector: ".scholarly__qtext" },
   { node: "JNmYW", selector: [".scholarly__qtext", ".scholarly__qtext--hir"] },
+  { node: "aBJJs", selector: ".scholarly__onum" },
+  { node: "mEmz8", selector: ".scholarly__onum" },
+  { node: "b0ca8", selector: ".scholarly__onum" },
   { node: "GnP1a", selector: ".scholarly__panelLabel" },
   { node: "ZQLZ5", selector: [".scholarly__answer", ".scholarly__answer--qa"] },
   { node: "jeZpQ", selector: [".scholarly__answer", ".scholarly__answer--hir"] },
@@ -316,6 +319,9 @@ const GEOMETRY = [
   { node: "qBAl2", property: "fill", selector: ".scholarly__accent", declaration: "background: var(--c-blue);" },
   { node: "FMu2N", property: "padding", selector: ".scholarly__sub", declaration: "padding: 26px 0;" },
   { node: "LlwbS", property: "gap", selector: ".scholarly__body--hir", declaration: "gap: var(--sp-18);" },
+  { node: "t95cb", property: "gap", selector: ".scholarly__question--hir", declaration: "gap: var(--sp-10);" },
+  { node: "ac84L", property: "gap", selector: ".scholarly__question--hir", declaration: "gap: var(--sp-10);" },
+  { node: "mphJ7", property: "gap", selector: ".scholarly__question--hir", declaration: "gap: var(--sp-10);" },
   { node: "T0FU1", property: "height", selector: ".scholarly__media--hir", declaration: "height: 420px;" },
   { node: "k7ToY", property: "padding", selector: ".scholarly__panel--hir", declaration: "padding: var(--sp-16) var(--sp-18);" },
   { node: "aNRvK", property: "gap", selector: ".scholarly__pull", declaration: "gap: var(--sp-10);" },
@@ -481,8 +487,8 @@ for (const boardText of boardTexts) {
     concatenated += 1;
     continue;
   }
-  // The board also splits a copy string across nodes (the question numbers are
-  // separate Onum nodes, docs/CHROME.md alignment note 3), so containment counts.
+  // The board may also carry a copy string inside its own node while the dictionary
+  // holds it with a prefix (or suffix) the board keeps elsewhere, so containment counts.
   if (normalised.some((text) => text.includes(wanted))) {
     insideNode += 1;
     continue;
@@ -565,12 +571,6 @@ for (const { handle, panel } of paired) {
 /* ---------- deviations: what the board and the dictionary disagree on ---------- */
 
 const DEVIATIONS = [
-  [
-    "01.4 question numbers",
-    "the board stacks a blue mono number (aBJJs/mEmz8/b0ca8) above each question, but " +
-      "scholarly-hir.q1..q3 carry '1. '/'2. '/'3. ' inside the question text (docs/CHROME.md, " +
-      "alignment note 3), so the number renders inline and no second node repeats it",
-  ],
   [
     "01.2 card ordinals",
     "the board numbers the three cards 1/2/3; the dictionaries hold those three strings only as " +

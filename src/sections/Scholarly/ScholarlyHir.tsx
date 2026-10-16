@@ -6,9 +6,9 @@ import { useReveal } from "./useReveal";
  * 01.4 HIR writing contest (ui.pen `FMu2N`): figure slot, three long questions
  * with their answer panels and closing pull-quotes, then the essay card.
  *
- * The board stacks a blue mono number above each question, but `scholarly-hir.q1..q3`
- * carry the number as part of the question text (docs/CHROME.md, alignment note 3),
- * so the number renders inline with the question and no second node repeats it.
+ * The board stacks a blue mono number (`Onum`) above each question (`Qtext`) inside a
+ * 10px-gap frame, so each question renders as two nodes: `scholarly-hir.q<n>.no` and
+ * `scholarly-hir.q<n>` (the same split the Immunotherapy block uses).
  */
 export function ScholarlyHir() {
   const { text, langOf } = useCopy();
@@ -39,7 +39,15 @@ export function ScholarlyHir() {
           {text("scholarly.revealTap")}
         </p>
 
-        <button type="button" className="scholarly__question" id="scholarly-hir-q1" {...q1.triggerProps}>
+        <button
+          type="button"
+          className="scholarly__question scholarly__question--hir"
+          id="scholarly-hir-q1"
+          {...q1.triggerProps}
+        >
+          <span className="scholarly__onum" lang={langOf("scholarly-hir.q1.no")}>
+            {text("scholarly-hir.q1.no")}
+          </span>
           <span className="scholarly__qtext scholarly__qtext--hir" lang={langOf("scholarly-hir.q1")}>
             {text("scholarly-hir.q1")}
           </span>
@@ -64,7 +72,15 @@ export function ScholarlyHir() {
           </p>
         </div>
 
-        <button type="button" className="scholarly__question" id="scholarly-hir-q2" {...q2.triggerProps}>
+        <button
+          type="button"
+          className="scholarly__question scholarly__question--hir"
+          id="scholarly-hir-q2"
+          {...q2.triggerProps}
+        >
+          <span className="scholarly__onum" lang={langOf("scholarly-hir.q2.no")}>
+            {text("scholarly-hir.q2.no")}
+          </span>
           <span className="scholarly__qtext scholarly__qtext--hir" lang={langOf("scholarly-hir.q2")}>
             {text("scholarly-hir.q2")}
           </span>
@@ -89,7 +105,15 @@ export function ScholarlyHir() {
           </p>
         </div>
 
-        <button type="button" className="scholarly__question" id="scholarly-hir-q3" {...q3.triggerProps}>
+        <button
+          type="button"
+          className="scholarly__question scholarly__question--hir"
+          id="scholarly-hir-q3"
+          {...q3.triggerProps}
+        >
+          <span className="scholarly__onum" lang={langOf("scholarly-hir.q3.no")}>
+            {text("scholarly-hir.q3.no")}
+          </span>
           <span className="scholarly__qtext scholarly__qtext--hir" lang={langOf("scholarly-hir.q3")}>
             {text("scholarly-hir.q3")}
           </span>
