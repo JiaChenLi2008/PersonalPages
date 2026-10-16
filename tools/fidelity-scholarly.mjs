@@ -39,8 +39,8 @@ const SECTION_DIR = join(REPO, "src", "sections", "Scholarly");
 const TOKENS_CSS = join(REPO, "src", "styles", "tokens.css");
 const PRIMITIVES_CSS = join(REPO, "src", "components", "primitives", "primitives.css");
 
-const PEN_SHA256 = "f25b8e1fe0a0235549305d7d0cf0c955ac8c1e54b504a6b21c33fda005a604b0";
-const PEN_BYTES = 137261;
+const PEN_SHA256 = "9f9f23f9a7291b5fb7f99a80069f3a8dc78c268fe769421dd6977297444c55f2";
+const PEN_BYTES = 137536;
 const FRAME = "ppRfL";
 const SUB_FRAMES = ["gE6yx", "EYW9F", "H1VYtj", "FMu2N"];
 
