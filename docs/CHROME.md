@@ -1,6 +1,6 @@
 # CHROME 与设计稿注解登记
 
-冻版基线：`ui.pen` size 137536 B、sha256 `9f9f23f9a7291b5f…`、根 frame `r4IYo` 下 11 节（Nav | Hero | PhotoBand | Index | 01 学术成果 · Section | 02 助老活动 · Section | 03 音乐时光 · Section | 04 律动时刻 · Section | Columns | Values | Footer）、全稿 311 节点。本文两张表由脚本自设计稿批处理生成，非手工誊录。
+冻版基线：`ui.pen` size 137536 B、sha256 `8816b923b24c00e4…`、根 frame `r4IYo` 下 11 节（Nav | Hero | PhotoBand | Index | 01 学术成果 · Section | 02 助老活动 · Section | 03 音乐时光 · Section | 04 律动时刻 · Section | Columns | Values | Footer）、全稿 311 节点。本文两张表由脚本自设计稿批处理生成，非手工誊录。
 
 口径——设计稿上可见的文本，只可能是以下三类之一：
 
