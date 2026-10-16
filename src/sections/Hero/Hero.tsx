@@ -1,6 +1,7 @@
 import { Fragment } from "react";
 import { useLocale } from "../../i18n";
 import { useCopy, type CopyKey } from "../../i18n/copy";
+import { Reveal } from "../../components/primitives/Reveal";
 import "./Hero.css";
 
 /** The three key-value rows of `Hero.Grid.Right`, in ui.pen order. */
@@ -22,37 +23,44 @@ export function Hero() {
   return (
     <section id="hero" data-section="hero" className="hero" aria-labelledby="hero-title">
       <div className="hero__grid">
-        <div className="hero__left">
+        {/* Entrance tiers (motion spec §2 hero): 标题 0 → 副标 1 → 键值 3. */}
+        <Reveal className="hero__left" delay={0}>
           <p className="hero__eyebrow" lang={copyLang("hero.eyebrow")}>
             {text("hero.eyebrow")}
           </p>
           <h1 id="hero-title" className="hero__title">
-            <span className="hero__title-en" lang={copyLang("hero.h1")}>
-              {text("hero.h1")}
-            </span>
-            <span className="hero__title-cn" lang={copyLang("hero.h1cn")}>
-              {text("hero.h1cn")}
+            {/* One title, one element (single-side rendering, BLUEPRINT §6.4): the display
+                line in English, the Chinese main title in Chinese — the other side never
+                reaches the DOM, and the box keeps one typography per mode. */}
+            <span
+              className={page === "zh-Hans" ? "hero__title-cn" : "hero__title-en"}
+              lang={copyLang(page === "zh-Hans" ? "hero.h1cn" : "hero.h1")}
+            >
+              {page === "zh-Hans" ? text("hero.h1cn") : text("hero.h1")}
             </span>
           </h1>
-        </div>
+        </Reveal>
         <div className="hero__right">
-          <p className="hero__summary" lang={copyLang("hero.summary")}>
+          <Reveal as="p" className="hero__summary" delay={1}>
             {text("hero.summary")}
-          </p>
-          {ROWS.map((row) => (
-            <Fragment key={row.key}>
-              <div className="hero__rule" aria-hidden="true" />
-              <div className="hero__kv">
-                <span className="hero__kv-key" lang={copyLang(row.key)}>
-                  {text(row.key)}
-                </span>
-                <span className="hero__kv-value" lang={copyLang(row.value)}>
-                  {text(row.value)}
-                </span>
-              </div>
-            </Fragment>
-          ))}
-          <div className="hero__rule" aria-hidden="true" />
+          </Reveal>
+          {/* The rules travel with the key-value rows: they are one block on screen. */}
+          <Reveal className="hero__kvgroup" delay={3}>
+            {ROWS.map((row) => (
+              <Fragment key={row.key}>
+                <div className="hero__rule" aria-hidden="true" />
+                <div className="hero__kv">
+                  <span className="hero__kv-key" lang={copyLang(row.key)}>
+                    {text(row.key)}
+                  </span>
+                  <span className="hero__kv-value" lang={copyLang(row.value)}>
+                    {text(row.value)}
+                  </span>
+                </div>
+              </Fragment>
+            ))}
+            <div className="hero__rule" aria-hidden="true" />
+          </Reveal>
         </div>
       </div>
       <div className="hero__btns">
@@ -60,7 +68,7 @@ export function Hero() {
             stays out of the tab order until the file lands (see .agents/briefs/to-fill.md). */}
         <button
           type="button"
-          className="hero__btn hero__btn--solid"
+          className="hero__btn hero__btn--solid motion-hover"
           lang={copyLang("hero.btn1")}
           aria-disabled="true"
           tabIndex={-1}
@@ -70,7 +78,7 @@ export function Hero() {
         {/* A real mail link: the address is the dictionary's mail slot — the same entry
             the page's JSON-LD carries (BLUEPRINT §5.1). */}
         <a
-          className="hero__btn hero__btn--ghost"
+          className="hero__btn hero__btn--ghost motion-hover"
           href={`mailto:${text("nav.mail")}`}
           lang={copyLang("hero.btn2")}
         >

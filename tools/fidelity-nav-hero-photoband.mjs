@@ -8,13 +8,24 @@
  *   1. each of those values has a declaration in that section's own .tsx / .css
  *      (colours must arrive through a var(--token) from src/styles/tokens.css), and
  *   2. no declaration in those files carries a value the node never has.
+ * The design file carries layout values only, so the lane's other three deliverables are
+ * asserted against the sections' own sources as a second block (printed as `structure=`):
+ *   3. the photoband photo slot is wired to the manifest's 2880×1120 webp (decorative
+ *      `alt=""`, lazy/async, explicit dimensions, 18:7 `aspect-ratio` + `object-fit: cover`,
+ *      the `.motion-clip` sweep and the `.motion-parallax` travel on their own elements, and
+ *      no `image pending` placeholder left),
+ *   4. the nav brand and the hero title render one side of their key pair at a time — one
+ *      element, both keys reached through the page-language conditional (BLUEPRINT §6.4),
+ *   5. the nav's colour and pointer feedback runs at `--dur-1` through `.motion-hover`
+ *      (never the 600ms `--dur-3` this lane removed), and the entrance tiers stay 0 for the
+ *      nav and 0/1/3 for the hero (motion spec §1.1/§2).
  * Exception, and the only one: the responsive tiers (BLUEPRINT §3.1-3.3) and the
- * two documented implementation supplements (BLUEPRINT §2.11) are listed in
+ * documented implementation supplements (BLUEPRINT §2.11, motion spec §2) are listed in
  * SUPPLEMENTS with the section that justifies each value; 0 is allowed everywhere
  * as a reset.
  *
  * Usage: node tools/fidelity-nav-hero-photoband.mjs
- *        (exit 0 = aligned; exit 1 = missing / out-of-range / unresolved values,
+ *        (exit 0 = aligned; exit 1 = missing / out-of-range / structure problem,
  *         each printed with its file and line)
  *        ui.pen is looked up beside the repo root or in its ancestors; PEN_PATH overrides.
  */
@@ -25,7 +36,8 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const PEN_SHA = "8816b923b24c00e4";
+const PEN_SHA =
+  "41dd7140223515c28a506a6b75299ea86381618577f78afdbe29d7f28d410114";
 /* The frozen board lives outside the repo (one shared source for the whole project),
    so it is searched for beside the repo root and in its ancestors — the same upward
    lookup as tools/fidelity-index-method-values-footer.mjs. No absolute path: a missing
@@ -60,9 +72,10 @@ const SUPPLEMENTS = {
   },
   photoband: {
     padding: { values: [40, 32, 16, 8], why: "§3.1 --pad-cap tiers" },
-    height: { values: [464, 352, 232], why: "§3.3 band height tiers" },
+    height: { values: [464, 352, 232, 150], why: "§3.3 band height tiers; 150% is the photo's parallax overhang" },
     gap: { values: [8], why: "§3.3 stacked caption gap at ≤900px" },
-    color: { values: ["#D8D4CC"], why: "§5 proportional placeholder surface" },
+    color: { values: ["#D8D4CC"], why: "§5 photo background while it loads" },
+    width: { values: [150], why: "§5 the photo carries the 0.3× parallax, so it is 150% of the slot wide" },
   },
 };
 
@@ -303,10 +316,137 @@ for (const section of SECTIONS) {
   );
 }
 
-const missingTotal = problems.filter((line) => !line.startsWith("out-of-range")).length;
-const outOfRangeTotal = problems.length - missingTotal;
+/* ---- the S1 wiring the design file cannot carry: photo slot, single-side text, timings ----
+
+The board fixes layout values only, so the three deliverables of this lane are pinned here
+against the sections' own sources: the photoband's photo (the manifest's own 2880×1120 asset,
+wired as a decorative image), single-side rendering of the two key pairs (one element per pair,
+both keys reached through the page-language conditional), and the frozen timing of the nav's
+colour feedback (--dur-1 through the shared `.motion-hover` hook, never --dur-3). */
+
+/** A section source with its comments stripped, so prose examples never match. */
+function source(rel) {
+  return readFileSync(join(ROOT, rel), "utf8")
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/^\s*\/\/.*$/gm, "");
+}
+
+/** The slice of `text` between two markers; "" when either is absent. */
+function between(text, from, to) {
+  const start = text.indexOf(from);
+  const end = text.indexOf(to, start + 1);
+  return start < 0 || end < 0 ? "" : text.slice(start, end);
+}
+
+const count = (text, needle) => text.split(needle).length - 1;
+const structureProblem = (message) => problems.push(`structure: ${message}`);
+
+const navSource = source("src/sections/Nav/Nav.tsx");
+const navCss = source("src/sections/Nav/Nav.css");
+const heroSource = source("src/sections/Hero/Hero.tsx");
+const bandSource = source("src/sections/PhotoBand/PhotoBand.tsx");
+const bandCss = source("src/sections/PhotoBand/PhotoBand.css");
+const motionCss = source("src/styles/motion.css");
+
+/* 1. Single-side rendering (BLUEPRINT §6.4): one element per pair, both keys reached through
+   the page-language conditional, so the other side never reaches the DOM. */
+const PAIRS = [
+  {
+    name: "nav brand",
+    block: between(navSource, '<div className="nav__brand">', '<div className="nav__links">'),
+    elements: 2,
+    keys: ["nav.brand.name", "nav.brand.cn"],
+  },
+  {
+    name: "hero title",
+    block: between(heroSource, '<h1 id="hero-title"', "</h1>"),
+    elements: 1,
+    keys: ["hero.h1", "hero.h1cn"],
+  },
+];
+for (const pair of PAIRS) {
+  const elements = count(pair.block, "<span");
+  if (elements !== pair.elements) {
+    structureProblem(
+      `the ${pair.name} renders ${elements} span(s); expected ${pair.elements}, one side at a time`,
+    );
+  }
+  for (const key of pair.keys) {
+    if (!pair.block.includes(`text("${key}")`)) {
+      structureProblem(`the ${pair.name} does not reach ${key}`);
+    }
+  }
+  if (!/===\s*"zh-Hans"\s*\?/.test(pair.block)) {
+    structureProblem(`the ${pair.name} does not pick its key from the page language`);
+  }
+}
+
+/* 2. The photoband photo slot: the manifest's own 2880×1120 webp, decorative (alt=""), fitted
+   by ratio and cover, sweeping open while it parallaxes — and no placeholder left behind. */
+const bandPhoto = JSON.parse(readFileSync(join(ROOT, "public/media/MANIFEST.json"), "utf8"))[
+  "photoband-2880.webp"
+];
+if (bandPhoto?.w !== 2880 || bandPhoto?.h !== 1120) {
+  structureProblem(
+    `MANIFEST.json carries ${bandPhoto?.w}×${bandPhoto?.h} for photoband-2880.webp, expected 2880×1120`,
+  );
+}
+if (!existsSync(join(ROOT, "public/media/photoband-2880.webp"))) {
+  structureProblem("public/media/photoband-2880.webp is missing");
+}
+if (!bandSource.includes('src="./media/photoband-2880.webp"')) {
+  structureProblem("the PhotoBand <img> does not point at ./media/photoband-2880.webp");
+}
+for (const attribute of ['alt=""', "width={2880}", "height={1120}", 'loading="lazy"', 'decoding="async"']) {
+  if (!bandSource.includes(attribute)) {
+    structureProblem(`the PhotoBand <img> is missing ${attribute}`);
+  }
+}
+for (const hook of ["photo-band__img motion-parallax", "photo-band__media motion-clip"]) {
+  if (!bandSource.includes(hook)) {
+    structureProblem(`PhotoBand does not carry ${hook}`);
+  }
+}
+if (!bandCss.includes("aspect-ratio: 2880 / 1120") || !bandCss.includes("object-fit: cover")) {
+  structureProblem("PhotoBand.css does not fit the photo by its 18:7 ratio with object-fit: cover");
+}
+if (bandSource.includes("imagePending") || bandCss.includes("photo-band__pending")) {
+  structureProblem("PhotoBand still renders the image-pending placeholder");
+}
+
+/* 3. Nav timing (motion spec §1.1): colour and pointer feedback run at --dur-1 through the
+   shared hook; the 600ms link transition this lane removed must not come back. */
+if (navCss.includes("--dur-3")) {
+  structureProblem("Nav.css declares a --dur-3 transition; the nav's colour feedback is --dur-1");
+}
+if (count(navSource, "motion-hover") < 2) {
+  structureProblem("the nav links and the language buttons both carry .motion-hover (spec §2 nav, device ④)");
+}
+const hoverRule = /\.motion-hover\s*\{([^}]*)\}/.exec(motionCss)?.[1] ?? "";
+if (!hoverRule.includes("color var(--dur-1)") || !hoverRule.includes("transform var(--dur-1)")) {
+  structureProblem(".motion-hover does not time the nav's colour and pointer feedback at --dur-1");
+}
+
+/* 4. Entrance tiers (spec §2): nav tier 0; hero 标题 0 → 副标 1 → 键值 3. */
+const navTiers = [...navSource.matchAll(/delay=\{(\d)\}/g)].map(([, tier]) => tier);
+if (!navTiers.every((tier) => tier === "0")) {
+  structureProblem(`the nav entrance uses tiers ${JSON.stringify(navTiers)}; the spec freezes tier 0`);
+}
+const heroTiers = [...heroSource.matchAll(/delay=\{(\d)\}/g)].map(([, tier]) => tier).sort();
+if (heroTiers.join() !== "0,1,3") {
+  structureProblem(`the hero entrance uses tiers ${JSON.stringify(heroTiers)}; the spec freezes 0, 1, 3`);
+}
+if (count(heroSource, "motion-hover") < 2) {
+  structureProblem("the two hero buttons both carry .motion-hover (spec §2 hero, device ④)");
+}
+
+const missingTotal = problems.filter((line) => !/^(out-of-range|structure:)/.test(line)).length;
+const outOfRangeTotal = problems.filter((line) => line.startsWith("out-of-range")).length;
+const structureTotal = problems.filter((line) => line.startsWith("structure:")).length;
 
 for (const problem of problems) console.error(problem);
-console.log(`checked=${checked} missing=${missingTotal} out_of_range=${outOfRangeTotal}`);
+console.log(
+  `checked=${checked} missing=${missingTotal} out_of_range=${outOfRangeTotal} structure=${structureTotal}`,
+);
 
 process.exit(problems.length > 0 ? 1 : 0);

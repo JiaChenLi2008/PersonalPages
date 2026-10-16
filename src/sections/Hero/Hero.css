@@ -38,6 +38,8 @@
   color: var(--c-ink);
 }
 
+/* One title element per mode (single-side rendering, BLUEPRINT §6.4): the display line's
+   typography or the Chinese main title's, never both and never a mixture. */
 .hero__title-en {
   font-family: var(--ff-sans-en);
   font-size: var(--fs-118);
@@ -61,6 +63,13 @@
   flex-direction: column;
   gap: var(--sp-14);
   width: var(--col-hero-right);
+}
+
+/* The three key-value rows and their rules enter as one block (spec §2 hero, tier 3). */
+.hero__kvgroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-14);
 }
 
 .hero__summary {
