@@ -1,6 +1,6 @@
 # CHROME 与设计稿注解登记
 
-冻版基线：`ui.pen` size 137261 B、sha256 `f25b8e1fe0a02355…`、根 frame `r4IYo` 下 11 节（Nav | Hero | PhotoBand | Index | 01 学术成果 · Section | 02 助老活动 · Section | 03 音乐时光 · Section | 04 律动时刻 · Section | Columns | Values | Footer）、全稿 311 节点。本文两张表由脚本自设计稿批处理生成，非手工誊录。
+冻版基线：`ui.pen` size 137536 B、sha256 `9f9f23f9a7291b5f…`、根 frame `r4IYo` 下 11 节（Nav | Hero | PhotoBand | Index | 01 学术成果 · Section | 02 助老活动 · Section | 03 音乐时光 · Section | 04 律动时刻 · Section | Columns | Values | Footer）、全稿 311 节点。本文两张表由脚本自设计稿批处理生成，非手工誊录。
 
 口径——设计稿上可见的文本，只可能是以下三类之一：
 
@@ -45,7 +45,7 @@
 
 本表 28 条 = 字典中 `chrome:true` 条目总数，无一含 `src`（`node docs/verify-copy.mjs` 规则⑦逐条断言）。chrome 的 `text` 全部取自冻版设计稿对应节点，未新增、未改写、未翻译。
 
-对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 131 键（en=zh），其中 src-traced 103 条、chrome 28 条。
+对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 134 键（en=zh），其中 src-traced 106 条、chrome 28 条。
 
 ## 2. ※ 注解清单（7 条，不入典、不渲染）
 
@@ -60,3 +60,16 @@
 | 7 | 04 律动时刻 · Section | `Ph` | ※ image pending |
 
 以上 7 条为设计稿注解：说明图版文件名与显示宽、素材缺位、段号待补。它们不是站点文案——不得进入 `docs/copy-en.json` / `docs/copy-zh.json`（规则⑧），实现方不得渲染为页面文本。
+
+## 3. 版式口径：揭晓面板默认折叠 ⇒ 整页天然矮 ≈670px（非缺口）
+
+设计稿把 9 个揭晓面板（`RevealPanel`：01.2 / 01.3 / 01.4 各 3 个）**画成展开态**；实现按裁决默认折叠（`hidden`，见 `useReveal.ts`）。故 1440 下文档 `scrollHeight` 天然小于稿面全高 7433（`_preview/cmp/design-at-1440.png` 1440×7433），属口径差，**非版式缺口**。P4 后实测 6764，差 −669；9 面板全开后 7455，与稿面仅差 +22。归因分解（1440 实测：逐块点开该块全部 `[aria-expanded="false"]`，取 `scrollHeight` 增量；每块自折叠态单独量，故各项独立取整）：
+
+- 01.4 HIR 三面板（同列累加）−408
+- 01.3 免疫最高列面板 −167
+- 01.2 JHU 最高卡面板 −117
+- 行盒与内外边距余差 +23
+
+合计 −669 = 6764 − 7433。此前的 −741 比这多 −72，全部出自 HIR 三问题号：设计稿画成 `Onum` 独立节点（上距题干 10px），而实现的字典把 “1. ”“2. ”“3. ” 并进题干、内联渲染；P4 已按节点边界拆回独立渲染，该项归零（该节高 1060 → 1132px，整页 6692 → 6764px）。
+
+复核方法：同 viewport 量 `document.documentElement.scrollHeight`，与稿面全高 7433 相减；面板贡献逐块点开 `[aria-expanded="false"]` 后重测增量。

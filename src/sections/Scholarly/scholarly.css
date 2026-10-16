@@ -263,6 +263,12 @@
   cursor: pointer;
 }
 
+/* The HIR `Q 1/2/3` frames (`t95cb`/`ac84L`/`mphJ7`) stack Onum and Qtext 10px
+   apart, not the 14px the shared trigger uses. */
+.scholarly__question--hir {
+  gap: var(--sp-10);
+}
+
 .scholarly__panel {
   border: var(--rule-h) solid var(--c-rule);
 }
