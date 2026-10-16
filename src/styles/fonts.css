@@ -1,0 +1,35 @@
+/* Self-hosted Latin faces for the design's two Latin families (tokens.css
+   --ff-sans-en / --ff-mono). Only the weights the page actually renders were taken
+   (Inter 700/900, IBM Plex Mono 400 — measured with tools/verify-fonts.mjs); CJK is
+   left to the client's system font on purpose (--ff-sans-cn).
+
+   The files sit in public/fonts/ (with their OFL licences) and Vite copies them to
+   dist/fonts/. The src url must be written as a root-absolute "/fonts/…": Vite then
+   emits it relative to the built stylesheet ("../fonts/…" from dist/assets/), which
+   is what keeps the font reachable on a GitHub Pages project page (base "./").
+   Written as a relative "./fonts/…" here the url would be passed through untouched
+   and resolve against dist/assets/, i.e. 404. */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("/fonts/inter-latin-700.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url("/fonts/inter-latin-900.woff2") format("woff2");
+}
+
+@font-face {
+  font-family: "IBM Plex Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/ibm-plex-mono-latin-400.woff2") format("woff2");
+}
