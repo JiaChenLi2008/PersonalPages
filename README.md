@@ -46,12 +46,13 @@ node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite 
 | `node docs/verify-copy.mjs` | 读仓库上级目录的 `ui.pen` 与 `.agents/briefs/**`，并按 `ui.pen` 的 sha256 + 字节数校验冻版基线；CI 的 checkout 里没有这些文件。缺输入时以 rc=2 单行报 `UNAVAILABLE:` 退出 |
 | 四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`） | 同上，另需仓库上级目录的 HIR 竞赛文书 PDF；缺输入时同样以 rc=2 单行报 `UNAVAILABLE:` 退出 |
 | `node tools/verify-render.mjs` | 连宿主浏览器 CDP 端点（默认 `127.0.0.1:9222`，可用 `CDP=` 覆盖）；CI 容器内没有浏览器，端点不可用时以 rc=2 明确退出而非静默通过 |
+| `node tools/verify-fonts.mjs` | 同上：靠 CDP `CSS.getPlatformFontsForNode` 读**实际选中**的字体族，端点不可用时以 rc=2 单行 `UNAVAILABLE:` 退出 |
 | `node tools/verify-lang-toggle.mjs` | 同上：其浏览器节同样依赖宿主 CDP 端点 |
 
 本地跑全量（CI 七条 + 上表）：
 
 ```bash
-node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
+node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
 ```
 
 所有命令都以 rc=0 为准；rc=1 打印具体是哪一条断言不成立，rc=2 表示运行环境或仓外输入不可用（单行 `UNAVAILABLE:`，见下表）。
@@ -84,11 +85,21 @@ node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build &&
 - `design brief §9`：设计稿实测值（83 项）
 - `implementation supplement`：设计稿中未单列的值（73 项）——单尺寸补齐、响应式分档（BLUEPRINT §3.1–§3.3）与动效层
 
+## 字体
+
+拉丁两族**自托管**：文件入仓、构建不联网、运行期不取任何 CDN。`public/fonts/` 放 `src/styles/fonts.css` 声明的 woff2 与两族各自的 OFL 许可（`OFL-Inter.txt` / `OFL-IBM-Plex-Mono.txt`，来源：npm 包 `@fontsource/inter` 与 `@fontsource/ibm-plex-mono`，即 Google Fonts 官方字体的 Fontsource 打包，5.3.0）。只取页面实际用到的字重与 latin 子集（Inter 700/900、IBM Plex Mono 400）——多一个字重就是白白多一次下载。
+
+中文按设计走**客户端系统 CJK 字体**（`--ff-sans-cn: "Noto Sans SC", system-ui, sans-serif`）：不下载、不入仓，实际由本机系统字体呈现（本机实测落 `Noto Sans CJK SC`）。
+
+`@font-face` 的 `src` 在源码里写成 `/fonts/…`：Vite（`base: "./"`）会把它改写成相对产物样式表的 `../fonts/…`，GH Pages 项目页子路径下才可达；若产物里出现 `"/fonts/…` 这类根绝对路径，字体在该路径下必 404。核法：`grep -oE 'url\([^)]*fonts[^)]*\)' dist/assets/*.css`。
+
+**声明栈 ≠ 实际选中**：CSS 里写了 `Inter` 不等于浏览器真的用它——字体没加载、字重不在子集、字形不在子集，都会静默回落到别的族。`tools/verify-fonts.mjs` 就是为此存在：用 CDP `CSS.getPlatformFontsForNode` 断言 `.hero__title-en` / `.hero__eyebrow` 等节点的实际 `familyName` 与 `isCustomFont`，并断言中文节点仍在系统 CJK 字体上。
+
 ## 目录结构
 
 ```
 src/
-  styles/                tokens.css / global.css / motion.css
+  styles/                tokens.css / global.css / motion.css / fonts.css（自托管 @font-face）
   i18n/index.tsx         双语运行时（Locale 类型、LocaleProvider、useLocale）
   lib/useInView.ts       IntersectionObserver 观察 + reduced-motion / SSR 降级
   components/primitives/ Section / Rule / TextRole / Reveal + primitives.css
@@ -107,3 +118,4 @@ docs/                    verify-copy.mjs / copy-en.json / copy-zh.json
 
 - `package-lock.json` 的 `resolved` 字段统一指向公共源 `https://registry.npmjs.org/`（本机 npm 配置了镜像也无妨：`replace-registry-host=npmjs` 会在安装时自动换回镜像源）。
 - 页面唯一的 `<h1>` 在 Hero 节（`src/sections/Hero/Hero.tsx`，`id="hero-title"`）；全局 `:focus-visible` 与 `prefers-reduced-motion` 已在 `global.css` / `motion.css` 就位。
+- **无 JS 时页面为空白**：内容全部由 React 在客户端渲染，`index.html` 里只有一段 `<noscript>` 兜底提示（中英并列）与静态 `meta`，故无 JS 环境只看得到那句提示。整页预渲染 / SSR 未做（用户裁决暂不做）。该提示文案不是设计稿文案，故不在中心字典内。
