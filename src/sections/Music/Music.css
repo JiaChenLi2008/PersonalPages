@@ -1,9 +1,9 @@
-/* Music (03) — ui.pen node Z79UYi.
-   Every value is a tokens.css token. Four measurements the design uses have no
-   token yet (Head padding-bottom 20px, Body padding-block 26px, Pull
-   padding-block 6px, Pull body font-size 18px); each is derived exactly from the
-   nearest scale tokens so no literal is written. See S4-report.md open items for the
-   token names the design needs (--sp-20 / --sp-26 / --sp-6 / --fs-18). */
+/* Music (03) — ui.pen node Z79UYi. Same structure and the same four un-tokenised
+   measurements as Elder (02) / Sport (04): Head padding-bottom 20px, Body
+   padding-block 26px, Pull padding-block 6px, PullText font-size 18px. Each is
+   derived exactly from the nearest scale tokens so no literal is written;
+   see S4b-report.md open items for the token names the design needs
+   (--sp-20 / --sp-26 / --sp-6 / --fs-18). */
 
 .music {
   --head-pad-b: calc(var(--sp-18) + var(--sp-2)); /* 20px */
@@ -112,11 +112,13 @@
   margin: 0;
 }
 
-/* 4:3 placeholder box (design's Media node: fill_container × 270 inside a 360
-   column). No asset exists for this section, so the box stays empty and only
-   the chrome label is shown; the asset pipeline never scales an image up. */
+/* 4:3 media box (design's Fig.Media: fill_container × 270 inside a 360 column).
+   The photograph covers it, so the ratio lives here and the image never shifts the
+   layout. The tint stays as the box the photograph loads into; the design's centred
+   flex keeps the img centred when the box is wider than the file. */
 .music__media {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   aspect-ratio: 4 / 3;
@@ -124,12 +126,11 @@
   overflow: hidden;
 }
 
-.music__ph {
-  color: var(--c-muted);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-10);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-figcap);
+.music__photo {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 @media (max-width: 1200px) {

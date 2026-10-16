@@ -9,7 +9,11 @@
  *      §2 lists as never-rendered design notes,
  *   3. resolves the section stylesheets through tokens.css (var() + calc) and
  *      asserts each design value has a matching declaration,
- *   4. reports `checked=<n> missing=0`.
+ *   4. holds the three image slots to their derived asset: the manifest entry whose
+ *      nodeId is the design node, the file itself, and the <img> the section renders
+ *      (src / alt / manifest pixel size / lazy + async) — the placeholder labels the
+ *      figure replaced must not come back in any form,
+ *   5. reports `checked=<n> missing=0`.
  *
  * The node-id -> selector map is the only hand-written part; the ids come from
  * the frozen ui.pen and every id it maps is looked up on each run, so a renamed
@@ -27,8 +31,8 @@ import { join } from "node:path";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 /* The frozen design lives outside the repo (one shared source for the whole
    project); the sha is pinned so the check is against the reviewed revision. */
-const PEN_SHA16 = "8816b923b24c00e4";
-const PEN_BYTES = 137536;
+const PEN_SHA16 = "41dd7140223515c2";
+const PEN_BYTES = 140380;
 const TOKENS = "src/styles/tokens.css";
 const PRIMITIVES = "src/components/primitives/primitives.css";
 
@@ -47,13 +51,18 @@ const SECTIONS = [
       WIGFx: ".elder__kicker",
       VtA4j: ".elder__title-en",
       lm0yZ: RULE_BASELINE,
-      wGBfI: ".elder__body",
-      MrSwt: ".elder__panel",
-      D3vpEv: ".elder__pending",
+      Y4SOF2: ".elder__body",
+      uhNKE: ".elder__col",
+      hwNtO: ".elder__pull",
+      v8ohmD: ".elder__pull-rule",
+      rsYla: ".elder__pull-text",
+      n2gcPv: ".elder__kv",
+      QMinG: ".elder__k",
+      u2HP5: ".elder__v",
+      nhEAf: ".elder__fig",
+      Uh3XX: ".elder__media",
     },
-    annotations: {
-      hGNQz: "the ※ note is a design annotation, not site copy (docs/CHROME.md §2)",
-    },
+    annotations: {},
   },
   {
     name: "music",
@@ -76,7 +85,6 @@ const SECTIONS = [
       XmoFw: ".music__v",
       mCN4T: ".music__fig",
       vVdM9: ".music__media",
-      syl4Z: ".music__ph",
     },
     annotations: {},
   },
@@ -101,7 +109,6 @@ const SECTIONS = [
       m9FVq: ".sport__v",
       p1ZAro: ".sport__fig",
       rWg3m: ".sport__media",
-      f0PRy: ".sport__ph",
     },
     annotations: {},
   },
@@ -118,6 +125,26 @@ const ENUM_PAIRS = {
 };
 
 const BASE_IMAGE_PENDING = "scholarly.imagePending";
+
+/** The one real photograph each section carries: the design node whose fill is an image
+    (A1 derived its file from that node's fill.url), the derived asset stem, and the alt
+    key BLUEPRINT §6.4 #6 gives the slot. */
+const FIGURES = {
+  elder: { nodeId: "Uh3XX", asset: "elder-fig-720", altKey: "elder.fig.alt" },
+  music: { nodeId: "vVdM9", asset: "music-fig-720", altKey: "music.fig.alt" },
+  sport: { nodeId: "rWg3m", asset: "sport-fig-720", altKey: "sport.fig.alt" },
+};
+
+/** Placeholder text the three sections rendered while their figures were missing. The
+    photograph replaces it, so neither the chrome label nor the content-pending key may
+    stay behind — a rendered empty colour block would be the same placeholder again. */
+const RETIRED_PLACEHOLDERS = [BASE_IMAGE_PENDING, "contentPending", "CONTENT PENDING", "待补"];
+
+/* public/media/MANIFEST.json, read once: each derived file keeps the ui.pen nodeId it
+   was cut from, so a design node finds its own asset instead of a hard-coded name. */
+const MANIFEST = JSON.parse(
+  readFileSync(join(ROOT, "public", "media", "MANIFEST.json"), "utf8"),
+);
 
 /** FIDELITY_LIST=1 also prints every value assertion, e.g. for a review report. */
 const LIST = process.env.FIDELITY_LIST === "1";
@@ -588,8 +615,20 @@ function checkNode(context, node, parentNode) {
     : fillsBorder
       ? ["border", "outline"]
       : ["background", "color"];
-  if (node.fill !== undefined) {
+  if (typeof node.fill === "string") {
     checkColor(section, rules, resolve, node, selector, "fill", colorProps);
+  } else if (node.fill !== undefined) {
+    /* An image fill carries no colour: checkDom holds this node to the asset it became. */
+    if (node.fill.type !== "image") {
+      fail(
+        `${section.name} ${node.id} ${node.name} fill`,
+        `unsupported fill ${JSON.stringify(node.fill)}`,
+      );
+    } else {
+      checked.push(
+        `${section.name} ${node.id} ${node.name} fill=image <- public/media/${FIGURES[section.name].asset}.webp (DOM check)`,
+      );
+    }
   }
   if (node.stroke !== undefined) {
     checkColor(section, rules, resolve, node, selector, "stroke", ["border", "outline"]);
@@ -633,10 +672,54 @@ function checkDom(section, tsx, css) {
       fail(`${section.name} ${file}`, "hex colour literal (tokens.css is the only colour source)");
     }
   }
-  if (!tsx.includes(`text("${BASE_IMAGE_PENDING}")`) && section.name !== "elder") {
-    fail(`${section.name} dom`, `placeholder label must be text("${BASE_IMAGE_PENDING}")`);
+  /* The design's Fig.Media is an image fill, so the board states no colour for it: the
+     asset A1 derived from that very node and the <img> that renders it take over the
+     check. The manifest's own width/height go into the markup, which is what keeps the
+     box from shifting while the photograph loads. */
+  const figure = FIGURES[section.name];
+  const label = `${section.name} fig ${figure.nodeId}`;
+  const file = `${figure.asset}.webp`;
+  const derived = MANIFEST[file];
+  if (derived === undefined) {
+    fail(label, `public/media/MANIFEST.json has no entry ${file}`);
+  } else {
+    if (derived.nodeId !== figure.nodeId) {
+      fail(label, `${file} was derived from node ${derived.nodeId}, not ${figure.nodeId}`);
+    }
+    if (!existsSync(join(ROOT, "public", "media", file))) {
+      fail(label, `public/media/${file} is missing from the tree`);
+    }
+    for (const needle of [
+      `src="media/${file}"`,
+      `alt={text("${figure.altKey}")}`,
+      `width={${derived.w}}`,
+      `height={${derived.h}}`,
+      `loading="lazy"`,
+      `decoding="async"`,
+    ]) {
+      if (tsx.includes(needle)) {
+        checked.push(`${label} <- ${section.tsx} { ${needle} }`);
+      } else {
+        fail(label, `${section.tsx} does not render ${needle}`);
+      }
+    }
+    if (/object-fit:\s*cover/.test(css)) {
+      checked.push(`${label} <- ${section.css} { object-fit: cover }`);
+    } else {
+      fail(label, `${section.css} has no object-fit: cover: the photograph must cover its 4:3 box`);
+    }
   }
-  checked.push(`${section.name} files: no hex literal, no ※ annotation, dictionary-only placeholder label`);
+  for (const retired of RETIRED_PLACEHOLDERS) {
+    for (const [file, text] of [
+      [section.tsx, tsx],
+      [section.css, css],
+    ]) {
+      if (text.includes(retired)) {
+        fail(`${section.name} ${file}`, `the retired placeholder "${retired}" is still referenced`);
+      }
+    }
+  }
+  checked.push(`${section.name} files: no hex literal, no ※ annotation, real figure with its own alt`);
 }
 
 // ---------------------------------------------------------------------- driving
