@@ -9,14 +9,20 @@
  *
  *   §3.1 / §3.2 — token rows. The family (--gutter-x, --fs-64, …) fixes the
  *                 properties allowed to carry the value (padding, font-size, …);
- *                 a tier value must appear in one of the section stylesheets that
- *                 consume that token, as a declaration of one of those properties
- *                 inside a `@media (max-width: Npx)` block. A token no stylesheet
- *                 consumes fails: the row would otherwise never be checked.
+ *                 a tier value must arrive as a declaration of one of those
+ *                 properties inside a `@media (max-width: Npx)` block that
+ *                 consumes the token — `var(--name)` or a tier form
+ *                 `var(--name-tNNNN)` — on the selector that consumes the token
+ *                 at 1440. Matching the section pool instead let the value be
+ *                 moved to another selector of the same section and still pass.
+ *                 A token no stylesheet consumes fails: the row would otherwise
+ *                 never be checked.
  *   §3.3       — per-block rows. The numbers are anchored to the wording the
  *                 table uses (色块 / 方图 / `h`= / ≥ / gap / padding N/0, plus
  *                 `--token` and `Npx`) and must appear in that block's own CSS at
- *                 that tier.
+ *                 that tier. A `--token` number is held to that token's carriers
+ *                 as above; plain numbers are matched against the block's own
+ *                 declarations.
  *
  * Variable references are resolved through src/styles/tokens.css, so a value
  * carried by a token (var(--band-h-t900)) counts as the value it resolves to.
@@ -131,9 +137,9 @@ function declarations(css, file) {
   const found = [];
   const collect = (body, tier) => {
     for (const match of body.matchAll(/([^{}]*)\{([^{}]*)\}/g)) {
-      const declarations = match[2];
-      for (const decl of declarations.matchAll(/([-a-zA-Z][\w-]*)\s*:\s*([^;]+)/g)) {
-        found.push({ file, tier, prop: decl[1], value: decl[2].trim() });
+      const selector = match[1].replace(/\/\*[\s\S]*?\*\//g, " ").trim().replace(/\s+/g, " ");
+      for (const decl of match[2].matchAll(/([-a-zA-Z][\w-]*)\s*:\s*([^;]+)/g)) {
+        found.push({ file, selector, tier, prop: decl[1], value: decl[2].trim() });
       }
     }
   };
@@ -141,6 +147,7 @@ function declarations(css, file) {
   let rest = css;
   for (const tier of TIERS) {
     const pattern = new RegExp(`@media\\s*\\(max-width:\\s*${tier}px\\)\\s*\\{`, "g");
+    const blocks = [];
     for (const match of rest.matchAll(pattern)) {
       let depth = 1;
       let at = match.index + match[0].length;
@@ -150,8 +157,14 @@ function declarations(css, file) {
         at += 1;
       }
       collect(rest.slice(match.index + match[0].length, at - 1), tier);
+      blocks.push([match.index, at]);
     }
-    rest = rest.replace(pattern, (match) => " ".repeat(match.length));
+    /* The whole block is blanked, not just its header: a body left in place was
+       collected a second time at tier null, so every tier declaration also read
+       as a 1440 one and the selector binding below could not tell them apart. */
+    for (const [start, end] of blocks.reverse()) {
+      rest = rest.slice(0, start) + " ".repeat(end - start) + rest.slice(end);
+    }
   }
   collect(rest, null);
   return found;
@@ -227,6 +240,7 @@ function expect(label, tier, wanted, pool, props) {
 
 /* Each section's declarations, and the whole pool, for §3.1/§3.2 (global rows). */
 const bySection = new Map();
+const bySectionSheets = new Map();
 const pool = [];
 const stylesheets = [];
 for (const section of SECTIONS) {
@@ -238,6 +252,7 @@ for (const section of SECTIONS) {
   stylesheets.push(...files);
   const declarationsOfSection = files.flatMap((file) => file.declarations);
   bySection.set(section.name, declarationsOfSection);
+  bySectionSheets.set(section.name, files);
   pool.push(...declarationsOfSection);
 }
 
@@ -254,6 +269,28 @@ function consumers(name) {
   return stylesheets
     .filter((stylesheet) => used.test(stylesheet.css))
     .flatMap((stylesheet) => stylesheet.declarations);
+}
+
+/**
+ * The declarations a token's tier value may arrive in: the token reference —
+ * `var(--name)` or a tier form `var(--name-tNNNN)` — has to sit on a selector that
+ * consumes the token in the same stylesheet at 1440. A tier block that hands the
+ * value to a different selector has moved it off the element §3 applies it to;
+ * that used to pass, because any declaration in the section carrying the number
+ * counted.
+ */
+function tierCarriers(name, sheets = stylesheets) {
+  const used = new RegExp(`var\\(\\s*${name}(?:-t\\d+)?\\s*[,)]`);
+  return sheets.flatMap((stylesheet) => {
+    const owners = new Set(
+      stylesheet.declarations
+        .filter((declaration) => declaration.tier === null && used.test(declaration.value))
+        .map((declaration) => declaration.selector),
+    );
+    return stylesheet.declarations.filter(
+      (declaration) => used.test(declaration.value) && (declaration.tier === null || owners.has(declaration.selector)),
+    );
+  });
 }
 
 for (const tier of TIERS) {
@@ -293,10 +330,11 @@ for (const [heading, label] of [
         );
         continue;
       }
+      const carriers = tierCarriers(name);
       for (const tier of TIERS) {
         const value = values[TIERS.indexOf(tier) + 1];
         if (value === null || value === undefined) continue;
-        expect(`${label} ${name}`, tier, valueNumbers(value), scoped, family.props);
+        expect(`${label} ${name}`, tier, valueNumbers(value), carriers, family.props);
       }
     }
   }
@@ -336,6 +374,7 @@ for (const cells of tableRows(sectionLines("### 3.3"))) {
     continue;
   }
   const files = [...new Set(section.map((declaration) => relative(ROOT, declaration.file)))].join(", ");
+  const sheets = bySectionSheets.get(dir) ?? [];
 
   for (const tier of TIERS) {
     const cell = cells[TIERS.indexOf(tier) + 2] ?? "";
@@ -347,8 +386,14 @@ for (const cells of tableRows(sectionLines("### 3.3"))) {
       if (/不缩|不折|不变/.test(clause)) continue;
       const blank = [...clause];
       const wanted = new Set();
-      for (const anchor of ANCHORS) {
-        for (const match of clause.matchAll(anchor)) {
+      const tokenWanted = [];
+      /* `--token N` names the token that must carry the number at this tier. */
+      for (const match of clause.matchAll(ANCHORS[0])) {
+        tokenWanted.push({ token: match[1], number: Number(match[2]) });
+        for (let at = match.index; at < match.index + match[0].length; at += 1) blank[at] = " ";
+      }
+      for (const anchor of ANCHORS.slice(1)) {
+        for (const match of blank.join("").matchAll(anchor)) {
           for (const group of match.slice(1)) {
             if (group !== undefined && Number.isFinite(Number(group))) wanted.add(Number(group));
           }
@@ -359,6 +404,10 @@ for (const cells of tableRows(sectionLines("### 3.3"))) {
       const scope = /保持|同/.test(clause) ? "any" : tier;
       for (const number of wanted) {
         expect(`BLUEPRINT §3.3 ${block}`, scope, [number], section, null);
+      }
+      /* A `--token` number is held to that token's own carriers in this block. */
+      for (const { token, number } of tokenWanted) {
+        expect(`BLUEPRINT §3.3 ${block} ${token}`, scope, [number], tierCarriers(token, sheets), null);
       }
       /* A number the anchors did not read means the table says more than the check
          understood: that is a failure, never a silent pass. Ratios (÷ 2.571) and
