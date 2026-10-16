@@ -1,5 +1,41 @@
 {
   "_sources": {
+    "B8NpB.jpg": {
+      "bytes": 1068585,
+      "format": "JPEG",
+      "h": 2400,
+      "w": 3200
+    },
+    "FvW5q.jpg": {
+      "bytes": 627632,
+      "format": "JPEG",
+      "h": 1800,
+      "w": 3200
+    },
+    "I2wlYa.jpg": {
+      "bytes": 753649,
+      "format": "JPEG",
+      "h": 2132,
+      "w": 3200
+    },
+    "T0FU1.jpg": {
+      "bytes": 2400254,
+      "format": "JPEG",
+      "h": 2134,
+      "w": 3200
+    },
+    "Uh3XX.jpg": {
+      "bytes": 2336123,
+      "format": "JPEG",
+      "h": 1801,
+      "w": 3200
+    },
+    "XywbR.jpg": {
+      "bytes": 1002317,
+      "format": "JPEG",
+      "h": 2133,
+      "w": 3200
+    },
     "image1.jpeg": {
       "bytes": 5480434,
       "format": "JPEG",
@@ -17,7 +53,119 @@
       "format": "JPEG",
       "h": 520,
       "w": 693
+    },
+    "kIPsy.jpg": {
+      "bytes": 916887,
+      "format": "JPEG",
+      "h": 2133,
+      "w": 3200
+    },
+    "rWg3m.jpg": {
+      "bytes": 2999065,
+      "format": "JPEG",
+      "h": 4800,
+      "w": 3200
+    },
+    "u2okj.jpg": {
+      "bytes": 1132613,
+      "format": "JPEG",
+      "h": 2500,
+      "w": 3200
+    },
+    "vVdM9.jpg": {
+      "bytes": 1682755,
+      "format": "JPEG",
+      "h": 2133,
+      "w": 3200
     }
+  },
+  "elder-fig-720.jpg": {
+    "aspect": 1.3333,
+    "bytes": 148187,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 540,
+    "nodeId": "Uh3XX",
+    "quality": 85,
+    "src": "Uh3XX.jpg",
+    "w": 720
+  },
+  "elder-fig-720.webp": {
+    "aspect": 1.3333,
+    "bytes": 141770,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 540,
+    "nodeId": "Uh3XX",
+    "quality": 82,
+    "src": "Uh3XX.jpg",
+    "w": 720
+  },
+  "hir-fig-2688.jpg": {
+    "aspect": 3.2,
+    "bytes": 253795,
+    "crop": "16x5",
+    "format": "jpg",
+    "h": 840,
+    "nodeId": "T0FU1",
+    "quality": 23,
+    "src": "T0FU1.jpg",
+    "w": 2688
+  },
+  "hir-fig-2688.webp": {
+    "aspect": 3.2,
+    "bytes": 254436,
+    "crop": "16x5",
+    "format": "webp",
+    "h": 840,
+    "nodeId": "T0FU1",
+    "quality": 23,
+    "src": "T0FU1.jpg",
+    "w": 2688
+  },
+  "igem-fig1-720.jpg": {
+    "aspect": 1.3333,
+    "bytes": 74598,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 540,
+    "nodeId": "u2okj",
+    "quality": 85,
+    "src": "u2okj.jpg",
+    "w": 720
+  },
+  "igem-fig1-720.webp": {
+    "aspect": 1.3333,
+    "bytes": 43912,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 540,
+    "nodeId": "u2okj",
+    "quality": 82,
+    "src": "u2okj.jpg",
+    "w": 720
+  },
+  "igem-fig2-720.jpg": {
+    "aspect": 1.3333,
+    "bytes": 44683,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 540,
+    "nodeId": "I2wlYa",
+    "quality": 85,
+    "src": "I2wlYa.jpg",
+    "w": 720
+  },
+  "igem-fig2-720.webp": {
+    "aspect": 1.3333,
+    "bytes": 22194,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 540,
+    "nodeId": "I2wlYa",
+    "quality": 82,
+    "src": "I2wlYa.jpg",
+    "w": 720
   },
   "image1-1600.jpg": {
     "aspect": 1.3333,
@@ -198,5 +346,137 @@
     "quality": 82,
     "src": "image3.jpeg",
     "w": 600
+  },
+  "index-elder-296.jpg": {
+    "aspect": 1.0,
+    "bytes": 16222,
+    "crop": "1x1",
+    "format": "jpg",
+    "h": 296,
+    "nodeId": "kIPsy",
+    "quality": 85,
+    "src": "kIPsy.jpg",
+    "w": 296
+  },
+  "index-elder-296.webp": {
+    "aspect": 1.0,
+    "bytes": 10692,
+    "crop": "1x1",
+    "format": "webp",
+    "h": 296,
+    "nodeId": "kIPsy",
+    "quality": 82,
+    "src": "kIPsy.jpg",
+    "w": 296
+  },
+  "index-music-296.jpg": {
+    "aspect": 1.0,
+    "bytes": 22772,
+    "crop": "1x1",
+    "format": "jpg",
+    "h": 296,
+    "nodeId": "XywbR",
+    "quality": 85,
+    "src": "XywbR.jpg",
+    "w": 296
+  },
+  "index-music-296.webp": {
+    "aspect": 1.0,
+    "bytes": 16842,
+    "crop": "1x1",
+    "format": "webp",
+    "h": 296,
+    "nodeId": "XywbR",
+    "quality": 82,
+    "src": "XywbR.jpg",
+    "w": 296
+  },
+  "index-sport-296.jpg": {
+    "aspect": 1.0,
+    "bytes": 18656,
+    "crop": "1x1",
+    "format": "jpg",
+    "h": 296,
+    "nodeId": "B8NpB",
+    "quality": 85,
+    "src": "B8NpB.jpg",
+    "w": 296
+  },
+  "index-sport-296.webp": {
+    "aspect": 1.0,
+    "bytes": 12058,
+    "crop": "1x1",
+    "format": "webp",
+    "h": 296,
+    "nodeId": "B8NpB",
+    "quality": 82,
+    "src": "B8NpB.jpg",
+    "w": 296
+  },
+  "music-fig-720.jpg": {
+    "aspect": 1.3333,
+    "bytes": 43549,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 540,
+    "nodeId": "vVdM9",
+    "quality": 85,
+    "src": "vVdM9.jpg",
+    "w": 720
+  },
+  "music-fig-720.webp": {
+    "aspect": 1.3333,
+    "bytes": 18942,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 540,
+    "nodeId": "vVdM9",
+    "quality": 82,
+    "src": "vVdM9.jpg",
+    "w": 720
+  },
+  "photoband-2880.jpg": {
+    "aspect": 2.5714,
+    "bytes": 251832,
+    "crop": "18x7",
+    "format": "jpg",
+    "h": 1120,
+    "nodeId": "FvW5q",
+    "quality": 77,
+    "src": "FvW5q.jpg",
+    "w": 2880
+  },
+  "photoband-2880.webp": {
+    "aspect": 2.5714,
+    "bytes": 133276,
+    "crop": "18x7",
+    "format": "webp",
+    "h": 1120,
+    "nodeId": "FvW5q",
+    "quality": 82,
+    "src": "FvW5q.jpg",
+    "w": 2880
+  },
+  "sport-fig-720.jpg": {
+    "aspect": 1.3333,
+    "bytes": 112960,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 540,
+    "nodeId": "rWg3m",
+    "quality": 85,
+    "src": "rWg3m.jpg",
+    "w": 720
+  },
+  "sport-fig-720.webp": {
+    "aspect": 1.3333,
+    "bytes": 81154,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 540,
+    "nodeId": "rWg3m",
+    "quality": 82,
+    "src": "rWg3m.jpg",
+    "w": 720
   }
 }
