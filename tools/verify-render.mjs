@@ -22,7 +22,8 @@
  *      `is-in` and its computed clip-path no longer holds `100%` — a slot held at
  *      `inset(0 100% 0 0)` has zero area, so the observer feeding it never fires
  *   7. every `<img>`, `loading="lazy"` included, has loaded (naturalWidth > 0) after that
- *      same scroll — a lazy image inside a closed slot is never requested
+ *      same scroll, an image the fast pass outran being brought into view once — a lazy
+ *      image inside a closed slot is never requested at all
  *
  * at 1440 only, the two interactive pieces are exercised for real:
  *
@@ -258,6 +259,15 @@ const MOTION_PROBE = `(async () => {
      two after the scroll stops, so poll rather than sleep the whole budget every cell. */
   const opened = () => clips.every((el) => el.classList.contains("is-in") && !/100%/.test(getComputedStyle(el).clipPath));
   for (let i = 0; i < 10 && !opened(); i++) await sleep(100);
+  /* A pass this fast can outrun the browser's lazy-load scheduler, so every image still at
+     naturalWidth 0 gets its own chance: centred in the viewport, then read. What is left
+     after that cannot load at all — a closed mask slot gives its photo no visible area to
+     be scheduled from. */
+  for (const img of images) {
+    if (img.naturalWidth > 0) continue;
+    img.scrollIntoView({ block: "center" });
+    await sleep(250);
+  }
   const loaded = () => images.every((img) => img.naturalWidth > 0);
   for (let i = 0; i < 20 && !loaded(); i++) await sleep(100);
   return {
