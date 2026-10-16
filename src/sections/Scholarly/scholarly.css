@@ -133,6 +133,14 @@
   line-height: var(--lh-body);
 }
 
+/* The iGEM URL is one 39-character run at 12px IBM Plex Mono, and Chrome breaks it
+   only after the hyphen: the 216.02px first fragment overflows the 209px column at
+   320px by 7px. Breaking inside the token fixes the narrow tier; at 1440px the URL
+   still fits on one line, so nothing changes there. */
+.scholarly__ctaUrl {
+  overflow-wrap: anywhere;
+}
+
 .scholarly__url {
   color: var(--c-blue);
   font-family: var(--ff-mono);
