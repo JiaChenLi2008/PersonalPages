@@ -13,11 +13,14 @@ P14 轮只改两条 fidelity 的**输入解析**（`nav-hero-photoband` / `elder
 
 T3b 轮落地**默认英文 + 单语纯度**（裁决：`.agents/briefs/lang-purity-ruling.md`；BLUEPRINT §6.4 已就地改写并标注旧模型作废）：`DEFAULT_LANG="en"`、`index.html` 的 `<html lang="en">` 与英文 head；字典两侧各持本语言文本（134 → 140 键，新增 6 个图位 alt 键）；`fallback`/`pending` 字段废弃。新增 `tools/verify-lang-purity.mjs`，并把两条既有判据**同强度换向**：`verify-ssr-dom` 的「`lang` 双值」→「单语言（无 CJK、`lang` 只有 `en`）+ h2 文本逐字取 `copy-en.json`」，`verify-lang-toggle` 的默认模式 zh-Hans → en（13 对键的「自身一侧在场 + 另一语言文本不在场」）。`docs/verify-copy.mjs` 的溯源断言按「材料侧逐字 / 译文侧同槽位且互异」重写，断言条数 214 不变（126 原文逐字 + 74 译文侧 + 14 材料混排改写）。本轮实测：四条 fidelity 因 `ui.pen` 与冻版哈希不符（`41dd7140…`/140380 B vs `8816b923…`/137536 B）直接拒绝比对，rc=1，与本轮改动无关（本轮未动 `ui.pen`、`src/styles/**`、`src/sections/**`）。
 
+P15 轮把三条自足门禁接进 CI（`tools/verify-motion.mjs`、`tools/verify-lang-purity.mjs`、`tools/verify-assets.py`），
+只动 `.github/workflows/deploy.yml`、本文件与 `README.md` 的登记；另一处改动是 `hir-fig-2688` 一对派生图按全幅宽白名单上限（≤320 KB）以更高画质重编，`tools/verify-assets.py` 因此多一条白名单判据。判据强度未放宽：白名单只增两条分支，其余图位仍判 250 KB。
+
 ## 1 总表
 
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |
 |---|---|---|---|
-| `tools/verify-tokens.mjs` | `src/styles/tokens.css` 156 个 token 与设计简报 §9 + 实现补充表**逐字节同值** | 谁消费了哪个 token、某节档位取值、视觉结果 | CI |
+| `tools/verify-tokens.mjs` | `src/styles/tokens.css` 160 个 token 与设计简报 §9 + 实现补充表**逐字节同值** | 谁消费了哪个 token、某节档位取值、视觉结果 | CI |
 | `tools/verify-deploy.mjs` | Pages 发布链静态约定 57 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序） | 运行结果、UI | CI |
 | `npm run build`（`tsc --noEmit` + vite） | 类型可编译、可打包 | 视觉、设计值、布局 | CI |
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
@@ -25,16 +28,19 @@ T3b 轮落地**默认英文 + 单语纯度**（裁决：`.agents/briefs/lang-pur
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
 | `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`） | 只覆盖 scholarly 节；视觉 | CI |
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 140 键）、字段类型、材料侧 `text` 逐字溯源、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」、chrome/src 归属、※ 禁止 | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检） | 本地 |
-| `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"` | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | 本地（**未接入 CI**） |
+| `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
 | `tools/verify-lang-toggle.mjs` | 语言切换逐条键（默认 `en`）、不重载、同值点击持久化 | 视觉 | 本地 |
 | `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`） | CI 无此环境 | 本地 |
-| `tools/verify-assets.py` | 资源体积与完整性 | 版式、设计值 | 本地 |
+| `tools/verify-assets.py` | `MANIFEST.json` 38 条目的字段/存在/字节/尺寸/格式/禁放大、清单集合==磁盘集合、总字节须少于源图、10 组图位派生图（存在 / 像素尺寸精确匹配 / webp+jpg 成对 / 非空白 / 单文件 ≤250 KB，全幅宽白名单 `hir-fig-2688`+`photoband-2880` ≤320 KB） | 版式、设计值、画面内容是否就是设计稿那张图（只判非空白） | CI（`python3` + Pillow，见 §5） |
+| `tools/verify-motion.mjs` | 动效层 7 类：12 个冻结 motion token 逐字同值且被样式消费、无作废旧名（`--dur-fast` 等）、每个动效钩子（7 个 animated 加全部 `motion-*`/`reveal*` 选择器）都有 `prefers-reduced-motion: reduce` 终态、揭晓契约（`0fr→1fr`、`overflow-anchor: none`、`aria-expanded`/`aria-controls`/`aria-labelledby`/`data-state`、无内联 style）、11 节均有入场钩子、禁用项（过冲缓动、动画 `top/left/height/margin`、`transition: all`、scroll 监听）、时长预算（单条 ≤800ms、首屏链 ≤800ms）、BLUEPRINT §2.11 同名同值 | 实际观感、真机帧率、`reduced-motion` 下的渲染结果（不跑浏览器）；`motion-spec-frozen.md` 自身的措辞（仓外文件，只比三处同源物） | CI（自带 `--self-test` 自毁副本反例） |
 | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对 | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；另三条本轮**未审**（§2 C） | 本地 |
 | `tools/verify-fonts.mjs` | 抽样 6 个节点的**实际选中**字体族（CDP `CSS.getPlatformFontsForNode`）：4 个声明 Inter / IBM Plex Mono 的节点确由该族绘制且 `isCustomFont=true`（自托管 woff2 已加载），2 个中文节点落在含 CJK 的系统字体上且 `isCustomFont=false` | 未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机与其它浏览器 | 本地（需宿主 CDP `127.0.0.1:9222`，可 `CDP=` 覆盖）；端点不可达以 rc=2 单行 `UNAVAILABLE:` 退出，不进 CI |
 
-上表 7 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-deploy →
-build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom）。
-四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、lang-purity、render、fonts、assets **未接入 CI**，其假绿 CI 不会拦下（lang-purity 未加进 `.github/workflows/deploy.yml`：本轮可改路径不含 `.github/**`）。
+上表 10 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → verify-deploy → verify-motion →
+build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-lang-purity）。
+四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、fonts **未接入 CI**，其假绿 CI 不会拦下。
+`tools/verify-deploy.mjs` 会检查「workflow/README 引用的每个 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，
+但**不逐条点名**必须包含哪些新步骤：删掉 `verify-motion` 步骤它仍 rc=0（§4 D1，已记为未决项）。
 
 ## 2 逐条盲区
 
@@ -68,6 +74,9 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 按左列改一处，跑 `node tools/<门禁>`，看 rc。修前判据用 `git show HEAD:tools/…` 取（P9 那条另把
 `PEN_SHA256_PREFIX` 对齐当前冻版哈希，否则会因旧冻版哈希先红）。上表每条反例均如此实跑，记录如下：
 
+P15 轮新增的三条自足门禁不与 `ui.pen` 相干，其反例在**干净克隆**（`git clone` 到 /tmp，`npm ci`）里跑，
+其余口径同上（改一处 / 跑一条 / 看 rc / 复原）：
+
 | 反例 | 改法 | 门禁 | rc |
 |---|---|---|---|
 | A1 | 互换 `:nth-child(1)`/`:nth-child(2)` 的 `--card-fill` 值 | fidelity-index-method-values-footer | 修前 0 → 修后 1 |
@@ -81,6 +90,10 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 | A3 | 互换 `.method__title`(64) 与 `.method__col-title`(22) 的 `font-size` | 同上 | 0（假绿） |
 | A4 | Method `[data-role="K"]` 的 `color` 由 `--c-blue` 改 `--c-ink` | 同上 | 0（假绿） |
 | B-残留 | Values `@media (max-width: 1200px)` 内 `height: var(--card-h-t1200)` 挪给 `.values__cell` | verify-responsive ＋ fidelity-index-method-values-footer | 0 ＋ 0（双漏） |
+| P15-M1 | `node tools/verify-motion.mjs --self-test`（自毁 /tmp 副本：加一处未声明的 `.motion-*` 钩子 + 一条动画 `height` 的 transition） | verify-motion | 1（`[HOOK]` + `[PROPERTY]` 各一条；副本未被拦住则 rc=2 自报失明） |
+| P15-L1 | 干净克隆里 `docs/copy-en.json` 的 `nav.brand.name.text` 追加「中文」二字 | verify-lang-purity | 1（`en: CJK=2`）；复原 0 |
+| P15-A1 | 把 `public/media/hir-fig-2688.jpg` 重编成 474742 B（q85）；另把 `FULL_BLEED` 白名单加一个不存在的图位名 | verify-assets.py | 1（字节数不符 ＋ `474742 字节 > 320 KB 上限（全幅宽白名单）`）；另 1（`白名单含未知图位: ['nope-1x1']`）；两次复原均 0 |
+| P15-D1 | 从 `.github/workflows/deploy.yml` 删掉 `Verify motion layer` 步骤 | verify-deploy | **0**（未覆盖，见 §5） |
 
 计数口径：`fidelity-index-method-values-footer` 的 `checked` 由 324 增至 332（+8 = 新绑定的 2 属性 × 4 卡；
 P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 84（`--token` 锚的数字从共用数字集合
@@ -89,6 +102,9 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 ## 5 口径与局限
 
 - 本文件登记**判据强度**，不登记门禁条数或覆盖率；「已修」只指本轮/上列提交的判据改动，「未修」「未审」「未实测」即字面意思。
+- 门禁条数以门禁自身输出为准：`verify-tokens.mjs` 本轮打印 160/160（83 `design brief §9` + 77 `implementation supplement`），原记的 156（83+73）与实测不符，已在 §1 与 `README.md` 改为实测值。
+- `tools/verify-assets.py` 的仓库外依赖为零，但有**运行期依赖**：`python3` + Pillow（`PIL`）。workflow 该步骤先试 `python3 -c "import PIL"`，失败才 `python3 -m pip install --quiet pillow`；本机与 GitHub `ubuntu-latest` 镜像的差异未实测（无 runner 环境），CI 首跑才算验过。
+- `tools/verify-deploy.mjs` 的覆盖边界：它只断言「workflow/README 引用的 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，**不逐条点名**应包含哪些步骤 —— 删掉 `Verify motion layer` 仍 rc=0（§4 P15-D1）。收紧需改 `tools/verify-deploy.mjs` 本身，不在本轮可改路径内，记为未决项。
 - 单语纯度：EN 模式就是 SSR 默认产物；ZH 模式由构建期改写 `DEFAULT_LANG` 一个字面量后走同一条渲染路径（改写不生效即 rc≠0，不会静默扫两遍英文）。**纯度 ≠ 语义**：译文与原文的语义一致只能由人工抽检（`translation-policy.md` §验收 2，≥10 条含 HIR 长答与 mono 短标）。
 - 元素级 `lang`：中文页上的白名单拉丁 token 已带 `lang="en"`（`tools/verify-lang-purity.mjs` 第 3 项逐元素断言）；英文页上分节仍输出冗余 `lang="en"`（BLUEPRINT §6.4 #5 待分节 lane 成对锁定收口），本门禁不断言该冗余，只断言「无 CJK 且无其它语言」。
 - 四条 fidelity 门禁都依赖 `ui.pen` 冻结哈希（`PEN_SHA256_PREFIX`）与字节大小，改冻版必须同步改门禁常量，否则先红在哈希检查。

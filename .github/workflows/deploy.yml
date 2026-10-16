@@ -37,8 +37,19 @@ jobs:
       - name: Verify design tokens
         run: node tools/verify-tokens.mjs
 
+      # Reads public/media + MANIFEST.json only. Pillow is this script's one
+      # non-stdlib import; the guarded install is a no-op on images that ship it.
+      - name: Verify media assets
+        run: |
+          python3 -c "import PIL" 2>/dev/null || python3 -m pip install --quiet pillow
+          python3 tools/verify-assets.py
+
       - name: Verify deploy configuration
         run: node tools/verify-deploy.mjs
+
+      # Static read of src/styles, src/lib and docs/BLUEPRINT.md: no build needed.
+      - name: Verify motion layer
+        run: node tools/verify-motion.mjs
 
       - name: Build
         # vite.config.ts sets base: "./", so project subpaths need no BASE override.
@@ -57,9 +68,14 @@ jobs:
         run: node tools/verify-responsive.mjs
 
       # Runs its own vite SSR build into /tmp (Vite JS API), so it needs
-      # node_modules but not dist/: slowest of the three, hence last.
+      # node_modules but not dist/: slowest of the three.
       - name: Verify SSR DOM
         run: node tools/verify-ssr-dom.mjs
+
+      # Runs its own two-mode (en / zh-Hans) SSR build, so it is the slowest gate
+      # and needs node_modules, not dist/: last.
+      - name: Verify language purity
+        run: node tools/verify-lang-purity.mjs
 
       - name: Configure Pages
         uses: actions/configure-pages@v6
