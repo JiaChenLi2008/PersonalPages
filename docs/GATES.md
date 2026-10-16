@@ -37,6 +37,13 @@ h1、一个变体，旧的 dual 期望是双语并存时期的残留。门禁自
 `tools/verify-lang-purity.mjs`；`nav.brand` / `nav.brand.cn` 本门禁未断言，无需更新。本轮 `src/**`、
 `docs/copy-*.json`、`docs/CHROME.md` 未动。
 
+F1 轮（本轮）按独立审查收口四条**可空跑/过宽**的判据并修两处实现，均属收紧（未放宽任何判据）：
+① `docs/verify-copy.mjs` 的 ⑥' 混排槽位下限由「任一侧含 8 字连续原文片段」改为**覆盖率**——原文区间与两侧 `text` 各自折叠（全角标点→ASCII、标点周围空白去掉、换行写法统一）后，每侧左到右贪心取能在区间里命中的最长片段（长度须 ≥ `TRACE_RUN`=8），累计命中字符数 ÷ 该侧字符数，两侧之和须 ≥ `COVERAGE_MIN`=0.75 且最长单片段 ≥8 字；七个登记槽位读数 `figcap=1.448 altnote=1.054 igem.title=1.000 jhu.q1=1.000 jhu.q2=1.000 hir.title=1.244 footer.legal=1.015`，仍全部通过。
+② `tools/fidelity-scholarly.mjs` 的第一豁免（标点折叠）由**全局键池**改为**逐 board 节点对应键**（`PUNCTUATION_FOLDED_BY_NODE`：`vPbTb`→`scholarly-igem.title` / `juo5I`→`scholarly-jhu.q1` / `kk4C1`→`scholarly-jhu.q2`，取消跨键 `includes` 兜底，跨键命中在失败信息里指名），第二豁免（混排标题 `scholarly-hir.title`）命中前先要求该键已被 `text()` 接线，未接线即判负并指名。
+③ `tools/verify-ssr-dom.mjs` 的 JHU 谜题图 alt 判据由**计数**恢复为**集合相等**（三张图的 alt 多重集 == 三条答案文本集合）并加逐 `src` 对应（image1→a1 / image2→a2 / image3→a3）。
+④ `tools/verify-render.mjs` 在既有矩阵流程里先断言**预期规模**（每格 `.motion-clip` == `EXPECTED_CLIPS`=10、`<img>` ≥ `MIN_IMAGES_PER_CELL`=14、槽名 ≥1 `.photo-band__media` ＋ ≥6 `.scholarly__clip`），探针空跑不再零报错。
+七条负例逐条 rc=1（§4），同一条改动在修前判据下 rc=0（§3）。实现两处：`src/sections/Nav/langSwap.ts` 增 `registerFlipCapture`/`takeFlipCapture`，`src/sections/Index/Index.tsx` 的 FLIP 优先取点击前的暂存测量（`swapLanguage` 对外签名与 `Nav.tsx` 调用点未动）；Index 四行缩略图改 `<picture><source type="image/webp">` ＋ jpg `src` 回退（尺寸/alt/loading 属性未动）。`docs/verify-copy.mjs` 的 125 原文逐字 / 73 译文侧 / 14 材料混排改写计数与修前一致，`verify-responsive` 的 `values_checked=84` 未变。
+
 ## 1 总表
 
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |
@@ -47,14 +54,14 @@ h1、一个变体，旧的 dual 期望是双语并存时期的残留。门禁自
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
-| `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`） | 只覆盖 scholarly 节；视觉 | CI |
-| `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 140 键）、字段类型、材料侧 `text` 逐字溯源、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」、chrome/src 归属、※ 禁止 | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检） | 本地 |
+| `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧） | 只覆盖 scholarly 节；视觉 | CI |
+| `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 138 键）、字段类型、材料侧 `text` 逐字溯源（本轮 125 条）、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」（73 条）、材料混排 7 槽位按**覆盖率**下限（两侧折叠后各自命中比例之和 ≥0.75 且最长单片段 ≥8 字，14 条）、chrome/src 归属、※ 禁止 | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检）；覆盖率的**分母口径**（见 §5） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
 | `tools/verify-lang-toggle.mjs` | 语言切换逐条键（默认 `en`）、不重载、同值点击持久化 | 视觉 | 本地 |
-| `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`）：7 宽 × 2 语言逐格量横向溢出 / 11 区块高度 / 逐元素自溢 / nav 锚落点 / 占位盒离树，**加本轮两条**——滚过全页后每个 `.motion-clip` 已揭开（`is-in` 且 `getComputedStyle().clipPath` 不含 `100%`）、页内每个 `<img>` 已加载（`naturalWidth>0`，含 `loading="lazy"`）；本轮输出 `clips_checked=140 clips_closed=0 images_checked=196 images_unloaded=0`（14 格 × 10 槽 / 14 图） | CI 无此环境；不证 mask sweep 的时长与缓动（归 `verify-motion`）、不证版式；第 7 条不区分「lazy 未被调度」与「文件缺失」（两者同为 `naturalWidth=0`），也不证「仅靠滚动手势即能触发 lazy」（§2 R1） | 本地 |
+| `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`）：7 宽 × 2 语言逐格量横向溢出 / 11 区块高度 / 逐元素自溢 / nav 锚落点 / 占位盒离树，**加本轮两条**——滚过全页后每个 `.motion-clip` 已揭开（`is-in` 且 `getComputedStyle().clipPath` 不含 `100%`）、页内每个 `<img>` 已加载（`naturalWidth>0`，含 `loading="lazy"`）；**加 F1 四条**——每格先断言**预期规模**（`.motion-clip` == 10、`<img>` ≥ 14、槽名 ≥1 `.photo-band__media` ＋ ≥6 `.scholarly__clip`），不足即 rc=1，探针空跑不再走空循环（既有四键名与语义未动）；本轮输出 `clips_checked=140 clips_closed=0 images_checked=196 images_unloaded=0`（14 格 × 10 槽 / 14 图） | CI 无此环境；不证 mask sweep 的时长与缓动（归 `verify-motion`）、不证版式；第 7 条不区分「lazy 未被调度」与「文件缺失」（两者同为 `naturalWidth=0`），也不证「仅靠滚动手势即能触发 lazy」（§2 R1）；预期规模常量按当前 11 节结构写死，增删 `.motion-clip` 槽须同步改常量（§5） | 本地 |
 | `tools/verify-assets.py` | `MANIFEST.json` 38 条目的字段/存在/字节/尺寸/格式/禁放大、清单集合==磁盘集合、总字节须少于源图、10 组图位派生图（存在 / 像素尺寸精确匹配 / webp+jpg 成对 / 非空白 / 单文件 ≤250 KB，全幅宽白名单 `hir-fig-2688`+`photoband-2880` ≤320 KB） | 版式、设计值、画面内容是否就是设计稿那张图（只判非空白） | CI（`python3` + Pillow，见 §5） |
 | `tools/verify-motion.mjs` | 动效层 7 类：12 个冻结 motion token 逐字同值且被样式消费、无作废旧名（`--dur-fast` 等）、每个动效钩子（7 个 animated 加全部 `motion-*`/`reveal*` 选择器）都有 `prefers-reduced-motion: reduce` 终态、揭晓契约（`0fr→1fr`、`overflow-anchor: none`、`aria-expanded`/`aria-controls`/`aria-labelledby`/`data-state`、无内联 style）、11 节均有入场钩子、禁用项（过冲缓动、动画 `top/left/height/margin`、`transition: all`、scroll 监听）、时长预算（单条 ≤800ms、首屏链 ≤800ms）、BLUEPRINT §2.11 同名同值 | 实际观感、真机帧率、`reduced-motion` 下的渲染结果（不跑浏览器）；`motion-spec-frozen.md` 自身的措辞（仓外文件，只比三处同源物） | CI（自带 `--self-test` 自毁副本反例） |
-| `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对 | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；另三条本轮**未审**（§2 C） | 本地 |
+| `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对；`fidelity-scholarly` 的两处文案豁免逐条登记在门禁内（标点折叠按 board 节点逐键比对、混排标题要求 src 已接线，F1 收口） | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；后三条本轮**未审**（§2 C）；豁免只覆盖已登记的那四个 board 节点/键 | 本地 |
 | `tools/verify-fonts.mjs` | 抽样 6 个节点的**实际选中**字体族（CDP `CSS.getPlatformFontsForNode`）：4 个声明 Inter / IBM Plex Mono 的节点确由该族绘制且 `isCustomFont=true`（自托管 woff2 已加载），2 个中文节点落在含 CJK 的系统字体上且 `isCustomFont=false` | 未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机与其它浏览器 | 本地（需宿主 CDP `127.0.0.1:9222`，可 `CDP=` 覆盖）；端点不可达以 rc=2 单行 `UNAVAILABLE:` 退出，不进 CI |
 
 上表 10 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → verify-deploy → verify-motion →
@@ -77,6 +84,11 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 | B-残留 | 同文件 §3.3 非 token 数字锚 | values @≤1200 的「`h` 216」、index 的「色块 56/方图 120」、photoband 的「**464px**」、gap、`padding` | 节内池级（不看选择器） | 把 `.values__card { height: var(--card-h-t1200) }` 挪到同块另一选择器 `.values__cell` → 卡片失去高度，而 `verify-responsive` rc=0 **且** `fidelity-index-method-values-footer` rc=0（两门禁皆漏） | 未修 | 实测双 rc=0 |
 | C | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs` | 各节全部节点值 | **未审**：本轮未读其逐节点绑定强度，也未跑反例 | 若其判据同为节级池，节点级错值可被同节顶掉——**未证明**，不得写作「已完备」 | 未审 | 无（未实测） |
 | R1 | `tools/verify-render.mjs` 第 6/7 条（本轮新增） | —（`.motion-clip` 初态/终态为冻版设计值，门禁只读运行期事实） | 终态断言：快滚过全页后 1s 内轮询至「`is-in` 且 `clipPath` 无 `100%`」，未达成即指名；图片先快滚、漏网者居中重试一次后判 `naturalWidth>0` | 只读终态——不证揭开过程真的播放；`prefers-reduced-motion: reduce` 下 `.motion-clip` 初态即 `clip-path:none`，第 6 条恒真（该模式下探针不区分）；`naturalWidth=0` 不区分「lazy 未被调度」与「文件缺失/路径错」 | 已修（本轮） | §4 M1-N1/M1-N2/M1-N0 |
+| F1-A | `docs/verify-copy.mjs` ⑥' 混排 7 槽位 | —（溯源下限） | 两轮改后：**覆盖率**（两侧折叠后各自命中比例之和 ≥0.75，且最长单片段 ≥8 字；每步只认 ≥8 字的命中） | 仍不判译文**语义**（只判「槽位里有多少字逐字来自原文区间」）；七槽读数 1.000–1.448，离阈值最近的是 `footer.legal=1.015`（§5 分口径） | 已修 | 负例 rc=1（覆盖率 0.129，指名键）；修前同一改动 rc=0；七槽逐条读数见汇总行 |
+| F1-B | `tools/fidelity-scholarly.mjs` 第二豁免（`MIXED_TITLE`） | `TZa4y` ＝ `scholarly-hir.title` | 命中前要求 `referencedKeys.has(key)`（未接线即判负并指名键与 board 节点） | 不再只看字典；未接线时即使字典两侧齐备也不给豁免 | 已修 | 旧判据实跑 rc=0（`1 mixed-script`）→ 新判据 rc=1（指名 `scholarly-hir.title`） |
+| F1-B2 | 同文件第一豁免（标点折叠） | `vPbTb`/`juo5I`/`kk4C1` 三节点 | 逐 board 节点只与本节点登记键的折叠文本比对（取消跨键 `includes` 兜底；跨键命中在失败信息里指名） | 未登记节点仍走通用规则（case＋空白折叠后的包含）；若日后换笔，节点 id 表必须同步 | 已修 | 沙盒换 pen 文本：旧判据 rc=0（`3 punctuation-folded`）→ 新判据 rc=1（指名 `juo5I` ＋ `scholarly-igem.title`） |
+| F1-C | `tools/verify-ssr-dom.mjs` JHU alt | 三张谜题图 alt ＝ `scholarly-jhu.a1/a2/a3` | 集合相等 ＋ 逐 `src` 对应 | 三图同用一个答案已拦；仍不判「alt 是否确为**该图**的正确答案」（图不参与辨认） | 已修 | 负例 rc=1（集合不等 3 条）；旧判据（计数）在此改动下为假绿（未实跑，按代码 `filter(...).length !== 3` 恒真） |
+| F1-D | `tools/verify-render.mjs` 第 6/7 条 | —（只读运行期事实） | 每格先断言预期规模：`.motion-clip` == 10、`<img>` ≥ 14、槽名 ≥1 `.photo-band__media` ＋ ≥6 `.scholarly__clip` | 常量按当前节结构写死（增删槽位须同步改）；不证每个槽属哪一节（只抽查两个槽名） | 已修 | 两条负例 rc=1（常量 99；探针选择器改名 → `clips_checked=0` 且 14 格逐条报数）；旧判据在「节点全缺」下为假绿（未实跑，按代码对空数组遍历零报错） |
 
 `tools/verify-fonts.mjs`（在树 12614 B；P14 登记）：**能证**——上表抽样的 6 个节点实际选中族与声明族一致，拉丁两族的 `isCustomFont=true`（自托管 woff2 确已加载），中文节点为含 CJK 的系统字体；**不能证**——未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机/其它浏览器；跑在本地（需宿主 CDP），不进 CI，端点不可达 rc=2。
 
@@ -90,6 +102,11 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 | P12（本轮） | `verify-responsive` 档位值由节级池 → 载体选择器绑定 | 挪 `--pad-row-t1200` 声明到 `.index__body`：**rc=0** | **rc=1**（`values_checked=84` 不变） |
 | 早期 | Index 四行 `--num-fill`/`--no-ink`/`--en-ink` 逐行配对（自 `46f0cbd` 起即在树中） | **未实测**（其修前状态不在本轮范围） | 现状 rc=0 且逐行打印；互换 `--num-fill` **已复现 rc=1**（P13 复验，见其终树 `753f352` 报告；本 lane 未重跑） |
 | M1 | `verify-render` 此前无「`.motion-clip` 揭开 / 图片加载」判据 | 旧判据（`HEAD~1` 的 `verify-render.mjs` 在 /tmp 旧树实跑）：全站 10 槽永隐、10 张 lazy 图零请求，**rc=0** | **rc=1**（同一旧树 + 新判据：98 条 clip 未揭 ＋ 84 条图未载，逐条指名元素/文件） |
+| F1-A | `verify-copy.mjs` ⑥'：混排槽位由「任一侧含 8 字原文片段」→ 覆盖率 ≥0.75 | 把 `scholarly-jhu.q2` 的 en 侧换成无关句＋只留 9 字原文片段（`the heart`）：**rc=0**（`HEAD~1` 判据在 /tmp 沙盒实跑，`材料混排改写 14 条` 照旧） | **rc=1**（`copy-en.json:scholarly-jhu.q2`：覆盖率 0.129 / 要求 ≥0.75；同键另一侧一并指名） |
+| F1-B | `fidelity-scholarly.mjs` 第二豁免：命中前要求该键已接线 | 注掉 `text("scholarly-hir.title")`：**rc=0**（`HEAD~1` 判据在 /tmp 沙盒实跑，`1 mixed-script` 照旧） | **rc=1**（指名 `TZa4y <T>` ＋ `scholarly-hir.title`）；复原 rc=0、`git diff` 空 |
+| F1-B2 | 同文件第一豁免：全局键池 → 逐 board 节点对应键 | 把 `juo5I` 的 board 文本换成 iGEM 标题键的文本（/tmp 沙盒：改 `ui.pen` 并把副本的 `PEN_SHA256`/`PEN_BYTES` 对齐该副本）：**rc=0**（`3 punctuation-folded`） | **rc=1**（指名 `juo5I <Qtext>` ＋ 跨键 `scholarly-igem.title`） |
+| F1-C | `verify-ssr-dom.mjs`：JHU alt 由计数 → 集合相等＋逐 `src` | —（**未实跑**；旧判据为 `photos.map(alt).filter(a => answers.includes(a)).length !== 3`，三图同用 a1 时恒为 3 ⇒ 过） | **rc=1**（集合不等 ＋ `image2-400.webp`/`image3-600.webp` 各一条）；复原 rc=0 |
+| F1-D | `verify-render.mjs`：新增预期规模下限 | —（**未实跑**；旧判据只遍历实际命中节点，探针查不到节点时零报错、`clips_checked=0` 仍 rc=0） | **rc=1**（14 格逐条 `probe found 0 .motion-clip slots, expected 10`；常量改 99 亦 rc=1） |
 
 ## 4 最小反例复现（本轮实测口径）
 
@@ -121,6 +138,13 @@ P15 轮新增的三条自足门禁不与 `ui.pen` 相干，其反例在**干净�
 | M1-N1 | worktree 内把 `src/lib/useInView.ts` / `src/components/primitives/Reveal.tsx` 回退为 `HEAD` 前的观察自身行为（只改这两文件，门禁不动） | verify-render | **1**：`clips_checked=140 clips_closed=98`、`images_checked=196 images_unloaded=84`，逐条点名 `div.photo-band__media.motion-clip`（`is-in=false, clip-path=inset(0px 100% 0px 0px)`）与 `igem-fig1-720.webp` 等；复原 rc=0 |
 | M1-N2 | 探针取读数前把 `.photo-band__img` 的 `src` 指向不存在的 `./media/m1-missing-file.webp`（改 DOM，仓内未动；临时改门禁文件、跑完即复原） | verify-render | **1**：`images_unloaded=14`，14 格各点名 `m1-missing-file.webp`，同轮 `clips_closed=0`（两组断言互不遮蔽）；复原 rc=0 |
 
+| F1-A | /tmp 沙盒（新/旧两份 `verify-copy.mjs` ＋ `HEAD~1` 的 `docs/copy-*.json` 副本，改 `copy-en.json` 的 `scholarly-jhu.q2.text` 为无关句＋9 字原文片段 `the heart`） | verify-copy（`HEAD~1` 判据 / 新判据） | **0 → 1**（新判据：`覆盖率 0.129 / 要求 ≥ 0.75`，指名 `copy-en.json:scholarly-jhu.q2`） |
+| F1-B | worktree 内把 `src/sections/Scholarly/ScholarlyHir.tsx` 的 `text("scholarly-hir.title")` 注掉（跑完复原） | fidelity-scholarly（`HEAD~1` 判据 / 新判据） | **0 → 1**（注掉即 1：`board text TZa4y <T> is only covered by scholarly-hir.title, which src/ never references`；复原 0、`git diff` 空） |
+| F1-B2 | ① /tmp 沙盒：把 `ui.pen` 的 `juo5I` 文本换成 `scholarly-igem.title` 的文本（副本 pin 常量对齐）② worktree 内注掉 `text("scholarly-jhu.q1")`（跑完复原） | fidelity-scholarly（`HEAD~1` 判据 / 新判据） | ① **0 → 1**（新判据指名 `juo5I` ＋ 跨键 `scholarly-igem.title`）② **1**（未接线：指名 `juo5I` ＋ `scholarly-jhu.q1`），复原 0 |
+| F1-C | worktree 内把 `ScholarlyJhu.tsx` 里 image2/image3 的 `alt` 改成 `text("scholarly-jhu.a1")`（跑完复原） | verify-ssr-dom | **1**：`JHU puzzle alt set [a1,a1,a1] != 三条答案文本` ＋ `img media/image2-400.webp`/`image3-600.webp` 各一条；复原 0 |
+| F1-D | ① 把 `EXPECTED_CLIPS` 由 10 改 99 ② 把探针选择器 `.motion-clip` 改成不存在的 `.motion-clip-absent`（均临时改门禁、跑完复原） | verify-render | **1 ＋ 1**：① 14 格逐条 `probe found 10 .motion-clip slots, expected 99`；② `clips_checked=0` 且 14 格 `probe found 0 .motion-clip slots, expected 10` ＋ 两条槽名缺失 |
+| F1-N3 | worktree 内把 `Index.tsx` 的 `before` 改回只读上一次 map（`const before = previous.current`，即本轮修前行为），1440→1100 后点切语言 | /tmp CDP 探针（一次性） | **1**：四行 `pin=(16, 183.75/223.75/263.75/303.75)` vs 实测 `before−after=(0, 52.5/52.5/39.21/39.21)`，`max |err|=264.54px`（阈值 ≤1px）；改回捕获后同一探针 `max |err|=0.01px` |
+
 计数口径：`fidelity-index-method-values-footer` 的 `checked` 由 324 增至 332（+8 = 新绑定的 2 属性 × 4 卡；
 P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 84（`--token` 锚的数字从共用数字集合
 移入各自的 token 断言，总数不变；hero 的 `--col-hero-right 304px` 只算一条，token 区间已先屏蔽）。
@@ -136,4 +160,8 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 - 四条 fidelity 门禁都依赖 `ui.pen` 冻结哈希（`PEN_SHA256_PREFIX`）与字节大小，改冻版必须同步改门禁常量，否则先红在哈希检查。
 - 逐节点配对只覆盖已显式列出的属性（Index 三色、Values 三属性）；其余节点值仍是节级池，见 §2 A2/A3/A4。
 - `tools/verify-render.mjs` 本轮新增的第 6/7 条按矩阵逐格取读数并累加（14 格 → `clips_checked=140`、`images_checked=196`），键名追加在既有汇总行末，既有键名与既有断言口径未动；整门实测耗时约 90s（含自带 `npm run build`）。
+- `docs/verify-copy.mjs` 混排槽位（⑦ 条）的**覆盖率分母口径**：两侧 `text` 长度不同（译文通常更短），故分母取**各侧自身长度**、分子取该侧命中的字符数，再将两侧比值**相加**与 0.75 比。把分母换成「原文区间长度」不可满足（区间是整段 markdown 块，槽位文本只占其中一小截：实测量 0.07–0.5）；换成「两侧长度之和」也不可满足（七个登记槽位里 6 个 < 0.75，因为一侧是译文、本就不应含原文）；换成「较长一侧」则 `photoband.altnote`（0.672）不可满足。上述三种分母已在本轮实测过，均会把已登记槽位判负。
+- 上条的另一面（**已知缺口**）：总和口径只保证「两側合起来 ≥ 0.75」，不保证「承载材料的那一侧单独 ≥ 0.75」。因此 §4 的 F1-A 负例只能改**承载材料的那一侧**（改译文侧时另一侧仍 ≥ 0.75，判据不会红）；改译文侧而不改材料侧的情形仍不能拦（材料侧本已 ≥ 0.75），这是本判据的边界，不是漏。
+- `tools/verify-render.mjs` 的预期规模常量（`EXPECTED_CLIPS=10`、`MIN_IMAGES_PER_CELL=14`）是**当前节结构**的快照：增删 `.motion-clip` 槽位或 `<img>` 时门禁会先红，须同步改常量——这是故意的（宁可红也不静默放行）；`<img>` 取 ≥ 而非 ==，是为了不与「以后某节再加图」硬绑。
+- `docs/GATES.md` §1 的字典键数本轮由 140 改为实测 138（`node docs/verify-copy.mjs` 首行 `keys en=138 zh=138`；T3b 轮记的 140 与现树不符，与本轮改动无关，仅就手改正）。
 - 设计稿上两处取值相同（如卡2/卡3 的 title-ink）时，互换不可判——这是信息不足，不是可修的缺口。

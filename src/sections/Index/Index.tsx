@@ -3,6 +3,7 @@ import { Reveal } from "../../components/primitives/Reveal";
 import { Rule } from "../../components/primitives/Rule";
 import { useLocale, type Locale } from "../../i18n";
 import { useCopy, type CopyKey } from "../../i18n/copy";
+import { registerFlipCapture, takeFlipCapture } from "../Nav/langSwap";
 import "./Index.css";
 
 /**
@@ -19,10 +20,10 @@ type IndexRow = {
   titleEn: CopyKey;
   body: CopyKey;
   delay: 0 | 1 | 2 | 3;
-  /** The 1:1 row square (ui.pen's 148px Media box): one `src` plus its `srcSet` candidates.
-      Rows 2–4 wire the MANIFEST crop of their own Media node — the webp in `srcSet`, which
-      every current engine picks, and the same crop's jpg in `src` for an engine that reads
-      no `srcSet`. */
+  /** The 1:1 row square (ui.pen's 148px Media box): the MANIFEST crop of the row's own Media
+      node. `<picture>` offers the webp, which every current engine picks, and the `<img>`
+      inside it is the same crop's jpg — an engine that reads no webp decodes the jpg instead
+      of a webp it cannot read. Row 1's jpg is the 2x crop, the one its widest candidate uses. */
   image: { src: string; srcSet: string };
 };
 
@@ -35,7 +36,7 @@ const ROWS: IndexRow[] = [
     body: "index.row1.body",
     delay: 0,
     image: {
-      src: "media/image1-1x1-1200.webp",
+      src: "media/image1-1x1-1200.jpg",
       srcSet: "media/image1-800.webp 1x, media/image1-1x1-1200.webp 2x",
     },
   },
@@ -75,8 +76,21 @@ const ROWS: IndexRow[] = [
 ];
 
 /** Where a flip target stood, in document space: a viewport rect would read a scroll between
-    two language switches as a reflow. */
+    two measurements as a reflow. */
 type FlipRect = { top: number; left: number };
+
+/** The row text blocks' rects, measured as they stand now. */
+function measureRows(elements: (HTMLDivElement | null)[]): Map<HTMLElement, FlipRect> {
+  const measured = new Map<HTMLElement, FlipRect>();
+  for (const element of elements) {
+    if (element === null) {
+      continue;
+    }
+    const rect = element.getBoundingClientRect();
+    measured.set(element, { top: rect.top + window.scrollY, left: rect.left + window.scrollX });
+  }
+  return measured;
+}
 
 /* motion-spec §5: the switch rewrites every row's text, so each row's text block is measured
    before the switch, pinned to where it stood with an inline transform, and released through
@@ -92,18 +106,30 @@ const PIN_CLASS = "index__body--pinned";
 
 function useRowTextFlip(refs: RefObject<(HTMLDivElement | null)[]>, locale: Locale): void {
   const previous = useRef(new Map<HTMLElement, FlipRect>());
+  /* The switch's capture is this hook's own measurement of its blocks, taken when the toggle
+     is clicked; it registers and collects that one function, so no other surface's value (or
+     another Index's) can be read as this hook's `before`. */
+  const capture = useRef<(() => Map<HTMLElement, FlipRect>) | undefined>(undefined);
+  if (capture.current === undefined) {
+    capture.current = () => measureRows(refs.current);
+  }
+  const captureRows = capture.current;
+  useEffect(() => registerFlipCapture(captureRows), [captureRows]);
 
   usePrePaintEffect(() => {
     const elements = refs.current.filter((element): element is HTMLDivElement => element !== null);
     const measured = new Map<HTMLElement, FlipRect>();
     const moves: [element: HTMLElement, x: number, y: number][] = [];
+    /* Preferred `before`: what the switch measured in the click's own layout. The grid of the
+       previous run is the fallback for a paint that no switch preceded. */
+    const before = takeFlipCapture<Map<HTMLElement, FlipRect>>(captureRows) ?? previous.current;
     for (const element of elements) {
       const rect = element.getBoundingClientRect();
       const now = { top: rect.top + window.scrollY, left: rect.left + window.scrollX };
       measured.set(element, now);
-      const before = previous.current.get(element);
-      if (before !== undefined && (before.top !== now.top || before.left !== now.left)) {
-        moves.push([element, before.left - now.left, before.top - now.top]);
+      const was = before.get(element);
+      if (was !== undefined && (was.top !== now.top || was.left !== now.left)) {
+        moves.push([element, was.left - now.left, was.top - now.top]);
       }
     }
     previous.current = measured;
@@ -121,7 +147,7 @@ function useRowTextFlip(refs: RefObject<(HTMLDivElement | null)[]>, locale: Loca
       element.classList.remove(PIN_CLASS);
       element.style.transform = "";
     }
-  }, [locale, refs]);
+  }, [locale, refs, captureRows]);
 }
 
 /** Index: four numbered rows (No / T / EN / D / 1:1 square) closed by a hairline each. */
@@ -178,16 +204,17 @@ export function Index() {
                 </p>
               </div>
 
-              <img
-                className="index__media"
-                src={row.image.src}
-                srcSet={row.image.srcSet}
-                alt=""
-                width={296}
-                height={296}
-                loading="lazy"
-                decoding="async"
-              />
+              <picture className="index__media">
+                <source type="image/webp" srcSet={row.image.srcSet} />
+                <img
+                  src={row.image.src}
+                  alt=""
+                  width={296}
+                  height={296}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </picture>
             </div>
           </Reveal>
         ))}
