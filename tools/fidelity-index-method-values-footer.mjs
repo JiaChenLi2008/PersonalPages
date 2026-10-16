@@ -595,10 +595,10 @@ if (rowReport.length !== 4) {
 }
 
 /* Values cards, per design node: the generic colour pass above matches the
-   section pool, so a card whose label ink is wrong still passes while another
-   declaration in the section resolves to the same hex. Each card's K fill is
-   therefore paired with its own --card-label-ink, the way the index rows pair
-   theirs. */
+   section pool, so a card whose fill or ink is wrong still passes while another
+   declaration in the section resolves to the same hex. Each card's container
+   fill, T fill and K fill are therefore paired with its own --card-fill,
+   --card-title-ink and --card-label-ink, the way the index rows pair theirs. */
 const valuesSubtree = findNode(root, "F9LxTP");
 const valuesDeclarations = allDeclarations(parseSheet(
   readdirSync(SECTIONS.find((section) => section.name === "values").dir)
@@ -607,33 +607,47 @@ const valuesDeclarations = allDeclarations(parseSheet(
     .join("\n"),
 ));
 
+const CARD_COLOUR_PROPS = ["--card-fill", "--card-title-ink", "--card-label-ink"];
+
 const cardReport = [];
 (valuesSubtree?.children ?? []).forEach((card, index) => {
   const k = card.children?.find((child) => child.name === "K");
   if (k === undefined || typeof k.fill !== "string") {
     return;
   }
+  const title = card.children?.find((child) => child.name === "T");
   const position = valuesDeclarations.findIndex(
-    (declaration) => declaration.prop === "--card-label-ink" && declaration.selector.includes(`:nth-child(${index + 1})`),
+    (declaration) =>
+      CARD_COLOUR_PROPS.includes(declaration.prop) && declaration.selector.includes(`:nth-child(${index + 1})`),
   );
   const cardBlock = position === -1 ? [] : valuesDeclarations[position].block;
 
-  const label = `card${index + 1}(${card.name})`;
-  checked += 1;
-  const declared = cardBlock.find((declaration) => declaration.prop === "--card-label-ink");
-  if (declared === undefined) {
-    failures.push(`values ${k.id}: :nth-child(${index + 1}) ${card.name} does not declare --card-label-ink (design ${k.fill})`);
-    cardReport.push(`${label}=missing`);
-    return;
+  const parts = [];
+  for (const [prop, node] of [
+    ["--card-fill", card],
+    ["--card-title-ink", title],
+    ["--card-label-ink", k],
+  ]) {
+    if (node === undefined || typeof node.fill !== "string") {
+      continue;
+    }
+    checked += 1;
+    const declared = cardBlock.find((declaration) => declaration.prop === prop);
+    if (declared === undefined) {
+      failures.push(`values ${node.id}: :nth-child(${index + 1}) ${card.name} does not declare ${prop} (design ${node.fill})`);
+      parts.push(`${prop}=missing`);
+      continue;
+    }
+    const name = tokenNameOf(declared.value, cardBlock);
+    const resolved = resolveValue(declared.value, cardBlock, tokens).toLowerCase();
+    if (resolved !== node.fill.toLowerCase()) {
+      failures.push(`values ${node.id}: :nth-child(${index + 1}) ${card.name} ${prop} resolves to ${resolved}, design says ${node.fill}`);
+      parts.push(`${prop}=${name}!`);
+      continue;
+    }
+    parts.push(`${prop}=${name}`);
   }
-  const name = tokenNameOf(declared.value, cardBlock);
-  const resolved = resolveValue(declared.value, cardBlock, tokens).toLowerCase();
-  if (resolved !== k.fill.toLowerCase()) {
-    failures.push(`values ${k.id}: :nth-child(${index + 1}) ${card.name} --card-label-ink resolves to ${resolved}, design says ${k.fill}`);
-    cardReport.push(`${label}=${name}!`);
-    return;
-  }
-  cardReport.push(`${label}=${name}`);
+  cardReport.push(`card${index + 1}(${card.name}) ${parts.join(" ")}`);
 });
 console.log(`values cards: ${cardReport.join(" | ")}`);
 

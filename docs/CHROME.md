@@ -89,3 +89,5 @@
 | 7 | `elder.body` | 待补 | `layout-brief.md#段[5]` | 02 节无素材，设计稿该处占位是注解（§2 第 5 条，不入字典、不渲染）；实现按 chrome 键 `elder.contentPending` 渲染 `CONTENT PENDING` | ui.pen `hGNQz:Note` = `※ 本板块内容待补（素材未提供）`；`elder.body` 记 `pending:true`（BLUEPRINT §6.6 第 1 条） |
 
 上表 7 键 = 门禁实测未引用键全集；删键会破坏 `docs/verify-copy.mjs` 规则①「两字典键集合一致」，故保留条目、登记于此。页面上真实渲染的 `内容待补（素材未提供）`（`index.row2.body`，Index 行 02 的描述）与 `FIG. 02/03 — 配图待补（docx 段[…] 标记）`（`scholarly.figcap2/3`，`Fig` 图注）都不是死键渲染，不在本节登记范围。
+
+各门禁能证什么、不能证什么、以及已知盲区与假绿历史，见 `docs/GATES.md`（门禁强度登记）。
