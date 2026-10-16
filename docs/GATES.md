@@ -16,6 +16,17 @@ T3b 轮落地**默认英文 + 单语纯度**（裁决：`.agents/briefs/lang-pur
 P15 轮把三条自足门禁接进 CI（`tools/verify-motion.mjs`、`tools/verify-lang-purity.mjs`、`tools/verify-assets.py`），
 只动 `.github/workflows/deploy.yml`、本文件与 `README.md` 的登记；另一处改动是 `hir-fig-2688` 一对派生图按全幅宽白名单上限（≤320 KB）以更高画质重编，`tools/verify-assets.py` 因此多一条白名单判据。判据强度未放宽：白名单只增两条分支，其余图位仍判 250 KB。
 
+G2 轮收口两条门禁口径，只改口径、未放宽强度：`tools/verify-motion.mjs` 的 `SECTIONS` 表 `nav` 行由
+`state: "deferred", lane: "S1"` 翻为 `state: "wired", lane: ""`（该节已接线，属状态翻牌、非口径变更；`requires`
+与断言的既有写法逐条未动）。`tools/verify-lang-toggle.mjs` 的 `hero.h1` 由 `kind: "dual"` 改为 `kind: "single"`
+（沿用该门禁既有的单侧 pair 语义，§3 早已用在四条 nav 条目上）：期望由「两侧英文并存」改为「当页语言一侧在场 +
+另一语言侧不在场」，其中标题由「markup 里出现过」收紧为「h1 元素文本**逐字等于**该模式自己的 title 键」
+（`TITLE[模式]`，换行折叠按本门禁口径）—— 理由＝T3b 立下的单语纯度契约（BLUEPRINT §6.4）：hero 只有一个
+h1、一个变体，旧的 dual 期望是双语并存时期的残留。门禁自身输出由 `single=4 dual=9` 变为
+`pairs_checked=13 single=5 dual=8 missing=0`。「另一语言不在场」仍限 hero 节内，全页无 CJK 归
+`tools/verify-lang-purity.mjs`；`nav.brand` / `nav.brand.cn` 本门禁未断言，无需更新。本轮 `src/**`、
+`docs/copy-*.json`、`docs/CHROME.md` 未动。
+
 ## 1 总表
 
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |

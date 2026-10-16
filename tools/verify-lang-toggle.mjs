@@ -205,7 +205,11 @@ const PAIRS = [
   { pair: "nav.item2", kind: "single", where: "nav", zh: "nav.item2.zh", en: "nav.item2.en" },
   { pair: "nav.item3", kind: "single", where: "nav", zh: "nav.item3.zh", en: "nav.item3.en" },
   { pair: "nav.item4", kind: "single", where: "nav", zh: "nav.item4.zh", en: "nav.item4.en" },
-  { pair: "hero.h1", kind: "dual", where: "hero", zh: "hero.h1cn", en: "hero.h1" },
+  /* single, not dual: ui.pen draws one title variant and the hero renders one h1 node, so
+     only the page language's own side is in the DOM (BLUEPRINT §6.4). The model's existing
+     `single` semantics cover it (the four nav items below); the h1 verbatim check below is
+     what a title element needs on top of presence. */
+  { pair: "hero.h1", kind: "single", where: "hero", zh: "hero.h1cn", en: "hero.h1" },
   { pair: "index.row1.title", kind: "dual", where: "index", zh: "index.row1.title", en: "index.row1.titleEn" },
   { pair: "index.row2.title", kind: "dual", where: "index", zh: "index.row2.title", en: "index.row2.titleEn" },
   { pair: "index.row3.title", kind: "dual", where: "index", zh: "index.row3.title", en: "index.row3.titleEn" },
@@ -251,6 +255,20 @@ for (const { pair, kind, where, zh, en } of PAIRS) {
         `      foreign (${OTHER_MODE[DEFAULT_MODE]}): ${JSON.stringify(foreign)}`,
     );
   }
+}
+
+/* The hero h1 is the one single-node pair with an element of its own: its text must BE the
+   page language's own title — copy-en.json's `hero.h1` (copy-zh.json's `hero.h1cn` in a
+   zh-Hans build, as TITLE already maps), newline folded as the tab title above — not merely
+   present somewhere, which is all the presence/absence check above can prove. */
+const heroTitle = scope.hero.match(/<h1\b[^>]*>([\s\S]*?)<\/h1>/);
+const heroTitleText =
+  heroTitle === null ? null : heroTitle[1].replace(/<[^>]*>/g, "").replace(/\s*\n\s*/g, " ");
+if (heroTitleText !== TITLE[DEFAULT_MODE]) {
+  fail(
+    `hero.h1 (single): the hero h1 reads ${JSON.stringify(heroTitleText)} verbatim, not ` +
+      `${DEFAULT_MODE}'s own title ${JSON.stringify(TITLE[DEFAULT_MODE])}`,
+  );
 }
 
 console.log(
