@@ -41,9 +41,12 @@ node tools/verify-copy-wiring.mjs # 文案键确实进了 dist/assets/*.js
 ```bash
 npx tsc --noEmit                  # 仅类型检查（src）
 node docs/verify-copy.mjs         # 双语字典键集合与文案逐字溯源
+node tools/verify-head.mjs        # index.html 文档头与字典 hero.* 逐字一致
+node tools/verify-render.mjs      # 真渲染矩阵（需宿主 Chrome 开着 CDP）
+for f in tools/fidelity-*.mjs; do node "$f"; done   # 逐节设计稿保真
 ```
 
-这两条之所以只在本地跑：`docs/verify-copy.mjs` 会上溯查找同时含 `ui.pen` 与 `.agents/briefs/` 的目录，而这些素材只在**仓库上级目录**，CI 的 checkout 里不存在（同理，`tools/` 下并行 lane 产出的 `fidelity-*.mjs` 保真脚本也都读仓库外素材，一律不进 workflow）。所有命令都以 rc=0 为准；rc≠0 会打印具体是哪一条断言不成立。
+这几条之所以只在本地跑：它们的输入不在仓库里。`docs/verify-copy.mjs` 与四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`）要读仓库上级目录的素材——`ui.pen`、`.agents/briefs/**`、HIR 竞赛文书 PDF——并各自按 `ui.pen` 的 sha256 + 字节数校验冻版基线，CI 的 checkout 里不存在这些文件；`tools/verify-render.mjs` 则要连宿主浏览器的 CDP 端点（容器内没有浏览器），没有端点时以 rc=2 `ENV:` 退出而非静默通过。`tools/verify-head.mjs` 只读仓库内文件，但同样没有接进 workflow。所有命令都以 rc=0 为准；rc≠0 会打印具体是哪一条断言不成立。
 
 ## 部署到 GitHub Pages
 

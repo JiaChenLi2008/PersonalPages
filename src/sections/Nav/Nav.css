@@ -166,6 +166,9 @@ html {
   .nav__links {
     order: 1;
     flex-basis: 100%;
+    /* The English labels are wider than the 320/375 bar, so the row breaks
+       rather than carrying the nav (and the page) past the viewport edge. */
+    flex-wrap: wrap;
   }
 }
 

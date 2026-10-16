@@ -61,6 +61,10 @@
 
 .scholarly__subtitle {
   margin: 0;
+  /* A long unbreakable English word (“anatomy&physiology”) is this h3's
+     min-content width, and as a flex item it cannot shrink below that; letting
+     the word break keeps the 320/375 column from overflowing the section. */
+  overflow-wrap: anywhere;
   color: var(--c-ink);
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-22);
