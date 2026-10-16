@@ -16,9 +16,10 @@
  * or moved node fails loudly instead of silently checking nothing.
  *
  * Usage: node tools/fidelity-elder-music-sport.mjs   (exit 0 = faithful, 1 = drift)
+ *        ui.pen is looked up beside the repo root or in its ancestors; PEN_PATH overrides.
  */
 
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { join } from "node:path";
@@ -26,7 +27,6 @@ import { join } from "node:path";
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 /* The frozen design lives outside the repo (one shared source for the whole
    project); the sha is pinned so the check is against the reviewed revision. */
-const PEN_PATH = "/mnt/code/JC_Project/ui.pen";
 const PEN_SHA16 = "8816b923b24c00e4";
 const PEN_BYTES = 137536;
 const TOKENS = "src/styles/tokens.css";
@@ -132,13 +132,35 @@ function fail(label, detail) {
 
 // ---------------------------------------------------------------- ui.pen guard
 
+/* The board is searched for beside the repo root and in its ancestors — the same
+   upward lookup as tools/fidelity-index-method-values-footer.mjs. No absolute path:
+   a missing board is rc=2, never a silent read of some other checkout's copy. */
+function findPen() {
+  const candidates = [
+    process.env.PEN_PATH,
+    join(ROOT, "ui.pen"),
+    join(ROOT, "..", "ui.pen"),
+    join(ROOT, "..", "..", "ui.pen"),
+    join(ROOT, "..", "..", "..", "ui.pen"),
+  ].filter(Boolean);
+  return candidates.find((candidate) => existsSync(candidate));
+}
+
 function readPen() {
+  const penPath = findPen();
+  if (penPath === undefined) {
+    console.error(
+      "UNAVAILABLE: ui.pen — not found beside the repo root or in its ancestors; " +
+        "this gate needs the frozen board there (or PEN_PATH=/path/to/ui.pen)",
+    );
+    process.exit(2);
+  }
   let raw;
   try {
-    raw = readFileSync(PEN_PATH);
+    raw = readFileSync(penPath);
   } catch (error) {
     console.error(
-      `UNAVAILABLE: ui.pen — frozen design not readable (${error.code}): ${PEN_PATH}; ` +
+      `UNAVAILABLE: ui.pen — frozen design not readable (${error.code}): ${penPath}; ` +
         "this gate reads the frozen board from that path",
     );
     process.exit(2);

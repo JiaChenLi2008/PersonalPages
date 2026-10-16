@@ -9,12 +9,14 @@ P12 轮（本轮）只动两处判据，均属收紧：`tools/fidelity-index-met
 逐卡配对从 `--card-label-ink` 扩到 `--card-fill` / `--card-title-ink`（P9 已建的逐卡模式），
 `tools/verify-responsive.mjs` 的档位值改按「承接该 token 的选择器」断言。设计稿与 `src/**` 未动。
 
+P14 轮只改两条 fidelity 的**输入解析**（`nav-hero-photoband` / `elder-music-sport` 去掉硬编码绝对路径兜底，改与另两条一致的向上查找）：缺 `ui.pen` 一律以 rc=2 单行 `UNAVAILABLE:` 退出，不再静默改成别的副本；判据、阈值与成功路径输出逐字未动，设计稿与 `src/**` 未动。
+
 ## 1 总表
 
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |
 |---|---|---|---|
 | `tools/verify-tokens.mjs` | `src/styles/tokens.css` 156 个 token 与设计简报 §9 + 实现补充表**逐字节同值** | 谁消费了哪个 token、某节档位取值、视觉结果 | CI |
-| `tools/verify-deploy.mjs` | Pages 发布链静态约定 56 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序） | 运行结果、UI | CI |
+| `tools/verify-deploy.mjs` | Pages 发布链静态约定 57 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序） | 运行结果、UI | CI |
 | `npm run build`（`tsc --noEmit` + vite） | 类型可编译、可打包 | 视觉、设计值、布局 | CI |
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
@@ -25,11 +27,11 @@ P12 轮（本轮）只动两处判据，均属收紧：`tools/fidelity-index-met
 | `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`） | CI 无此环境 | 本地 |
 | `tools/verify-assets.py` | 资源体积与完整性 | 版式、设计值 | 本地 |
 | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对 | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；另三条本轮**未审**（§2 C） | 本地 |
-| `tools/verify-fonts.mjs` | **本轮不在树中**（另 lane 在建）——落地后须补登其能证/不能证，未补登前不得引用 | — | — |
+| `tools/verify-fonts.mjs` | 抽样 6 个节点的**实际选中**字体族（CDP `CSS.getPlatformFontsForNode`）：4 个声明 Inter / IBM Plex Mono 的节点确由该族绘制且 `isCustomFont=true`（自托管 woff2 已加载），2 个中文节点落在含 CJK 的系统字体上且 `isCustomFont=false` | 未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机与其它浏览器 | 本地（需宿主 CDP `127.0.0.1:9222`，可 `CDP=` 覆盖）；端点不可达以 rc=2 单行 `UNAVAILABLE:` 退出，不进 CI |
 
 上表 7 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-deploy →
 build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom）。
-四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、assets **未接入 CI**，其假绿 CI 不会拦下。
+四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、fonts、assets **未接入 CI**，其假绿 CI 不会拦下。
 
 ## 2 逐条盲区
 
@@ -45,17 +47,17 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 | B-残留 | 同文件 §3.3 非 token 数字锚 | values @≤1200 的「`h` 216」、index 的「色块 56/方图 120」、photoband 的「**464px**」、gap、`padding` | 节内池级（不看选择器） | 把 `.values__card { height: var(--card-h-t1200) }` 挪到同块另一选择器 `.values__cell` → 卡片失去高度，而 `verify-responsive` rc=0 **且** `fidelity-index-method-values-footer` rc=0（两门禁皆漏） | 未修 | 实测双 rc=0 |
 | C | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs` | 各节全部节点值 | **未审**：本轮未读其逐节点绑定强度，也未跑反例 | 若其判据同为节级池，节点级错值可被同节顶掉——**未证明**，不得写作「已完备」 | 未审 | 无（未实测） |
 
-`tools/verify-fonts.mjs` 本轮不在树中，故其强度与盲区一并**未审**。
+`tools/verify-fonts.mjs`（在树 12614 B；P14 登记）：**能证**——上表抽样的 6 个节点实际选中族与声明族一致，拉丁两族的 `isCustomFont=true`（自托管 woff2 确已加载），中文节点为含 CJK 的系统字体；**不能证**——未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机/其它浏览器；跑在本地（需宿主 CDP），不进 CI，端点不可达 rc=2。
 
 ## 3 假绿历史
 
 | 轮次 | 位置 | 修前反例（rc） | 修后（rc） |
 |---|---|---|---|
-| P8（`6f3524a`「补三门禁的覆盖盲区」：copy-wiring 引用下限、lang-toggle 逐条、deploy 依赖） | 三条 CI 门禁 | 未复现（**未实测**） | 提交内含新增断言，本轮未跑 |
+| P8（`6f3524a`「补三门禁的覆盖盲区」：copy-wiring 引用下限、lang-toggle 逐条、deploy 依赖） | 三条 CI 门禁 | 未复现（修前状态**未实测**，P13 只跑了修后反例） | **已复现 rc=1**（P13 复验：F1-A/B/C 各一次，见其终树 `753f352` 报告；本 lane 未重跑） |
 | P9（`d11c497`） | Values `--card-label-ink` 由节级池 → 逐卡配对 | 互换卡3/卡4 label-ink：**rc=0**（`checked=320`，以 `d11c497^` 判据 + 当前冻版哈希复跑） | **rc=1**（`checked=324`，`missing` 指名 `J565aY`/`iaMEM`） |
 | P12（本轮） | Values `--card-fill` / `--card-title-ink` 由节级池 → 逐卡配对 | 互换卡1/卡2 fill：**rc=0**（`checked=324`） | **rc=1**（`checked=332`，`missing` 指名两卡） |
 | P12（本轮） | `verify-responsive` 档位值由节级池 → 载体选择器绑定 | 挪 `--pad-row-t1200` 声明到 `.index__body`：**rc=0** | **rc=1**（`values_checked=84` 不变） |
-| 早期 | Index 四行 `--num-fill`/`--no-ink`/`--en-ink` 逐行配对（自 `46f0cbd` 起即在树中） | **未实测**（其修前状态不在本轮范围） | 现状 rc=0 且逐行打印 |
+| 早期 | Index 四行 `--num-fill`/`--no-ink`/`--en-ink` 逐行配对（自 `46f0cbd` 起即在树中） | **未实测**（其修前状态不在本轮范围） | 现状 rc=0 且逐行打印；互换 `--num-fill` **已复现 rc=1**（P13 复验，见其终树 `753f352` 报告；本 lane 未重跑） |
 
 ## 4 最小反例复现（本轮实测口径）
 
