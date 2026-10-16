@@ -507,6 +507,57 @@ for (const key of referencedKeys) {
 const normalise = (text) => text.replace(/\s+/g, " ").trim().toLowerCase();
 const normalised = referencedTexts.map(normalise);
 
+/* Two narrow exemptions, both about one mismatch: the board writes one text node where
+   the site writes one language per page (BLUEPRINT §6.4). Nothing below touches
+   `normalise`: every other board string still folds case and whitespace only.
+
+   1. `PUNCTUATION_FOLDED` — the board sets these three in full-width punctuation
+      (，；？ with the spacing of the Chinese setting), while the site's EN text keeps the
+      ASCII marks EN mode requires (no CJK and no full-width mark in an English string).
+      Their two spellings differ in punctuation alone, so these three keys — and only
+      these — are also compared with full-width marks folded to ASCII and the whitespace
+      around a mark dropped. The key must still be referenced by src/ to enter the pool.
+   2. `MIXED_TITLE` — `scholarly-hir.title` is a single mixed-script board node
+      (`HIR writing contest-哈佛国际评论学术写作竞赛`) while the dictionary keeps an EN value
+      and a ZH value; the node is covered when its two halves, split at the separator, sit
+      in the value of the matching side. Only this key is compared that way. */
+const PUNCTUATION_FOLDED = new Set([
+  "scholarly-igem.title",
+  "scholarly-jhu.q1",
+  "scholarly-jhu.q2",
+]);
+const MIXED_TITLE = { key: "scholarly-hir.title", separator: /[-—–]+/ };
+
+/** Full-width mark -> the ASCII mark the EN page carries. */
+const WIDE_TO_ASCII = {
+  "，": ",",
+  "；": ";",
+  "：": ":",
+  "？": "?",
+  "！": "!",
+  "、": ",",
+  "（": "(",
+  "）": ")",
+  "—": "-",
+};
+
+/** `normalise`, plus full-width marks folded to ASCII and the space around a mark dropped. */
+function foldPunctuation(text) {
+  return normalise(text)
+    .replace(/[，；：？！、（）—]/g, (mark) => WIDE_TO_ASCII[mark])
+    .replace(/\s*([,;:.?!])\s*/g, "$1");
+}
+
+const foldedTexts = [...referencedKeys]
+  .filter((key) => PUNCTUATION_FOLDED.has(key))
+  .flatMap((key) => ["en", "zh"].map((locale) => dictionaries[locale][key]?.text))
+  .filter((text) => typeof text === "string" && text !== "")
+  .map(foldPunctuation);
+
+const mixedValues = ["en", "zh"].map((locale) =>
+  foldPunctuation(dictionaries[locale][MIXED_TITLE.key]?.text ?? ""),
+);
+
 const boardTexts = [];
 (function collect(node) {
   if (typeof node.content === "string") boardTexts.push({ id: node.id, name: node.name, text: node.content });
@@ -515,6 +566,8 @@ const boardTexts = [];
 
 let concatenated = 0;
 let insideNode = 0;
+let punctuationFolded = 0;
+let mixedScript = 0;
 for (const boardText of boardTexts) {
   if (boardText.text.startsWith("※")) continue;
   checked += 1;
@@ -529,6 +582,18 @@ for (const boardText of boardTexts) {
   // holds it with a prefix (or suffix) the board keeps elsewhere, so containment counts.
   if (normalised.some((text) => text.includes(wanted))) {
     insideNode += 1;
+    continue;
+  }
+  // Exemption 1: the punctuation-only difference, against the three keys that carry it.
+  const folded = foldPunctuation(boardText.text);
+  if (foldedTexts.includes(folded) || foldedTexts.some((text) => text.includes(folded))) {
+    punctuationFolded += 1;
+    continue;
+  }
+  // Exemption 2: the one mixed-script node, against its key's EN half and ZH half.
+  const halves = folded.split(MIXED_TITLE.separator).map((half) => half.trim()).filter(Boolean);
+  if (halves.length === 2 && mixedValues[0].includes(halves[0]) && mixedValues[1].includes(halves[1])) {
+    mixedScript += 1;
     continue;
   }
   fail(`[copy] board text ${boardText.id} <${boardText.name}> is not covered by a referenced key: ${JSON.stringify(boardText.text.slice(0, 60))}`);
@@ -753,7 +818,8 @@ console.log(`checked=${checked} missing=${problems.length}`);
 console.log(
   `PASS: ui.pen ${PEN_SHA256.slice(0, 16)}… ${PEN_BYTES} B — ${TEXT_ROLES.length} text roles, ` +
     `${GEOMETRY.length} geometry values, ${RATIOS.length + 1} media boxes, ${boardTexts.length} board strings ` +
-    `(${concatenated} joined, ${insideNode} split across board nodes), ${PHOTOS.length} photos + PDF byte-identical`,
+    `(${concatenated} joined, ${punctuationFolded} punctuation-folded, ${mixedScript} mixed-script, ` +
+    `${insideNode} split across board nodes), ${PHOTOS.length} photos + PDF byte-identical`,
 );
 for (const [what, why] of DEVIATIONS) {
   console.log(`deviation — ${what}: ${why}`);
