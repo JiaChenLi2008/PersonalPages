@@ -14,8 +14,11 @@
  *     and every non-※ text node in the frame is covered by some declared role;
  *   - copy: every non-※ string in the frame is accounted for by keys the section
  *     references in the dictionaries (§ CHROME.md comparison rules);
- *   - assets: the three JHU photos are the frozen MANIFEST files, and the essay PDF
- *     is byte-identical to its source;
+ *   - assets: the three JHU photos and the three wired figures are the frozen MANIFEST
+ *     files at their native size, and the essay PDF is byte-identical to its source;
+ *   - reveal: the nine pairs are nine `useRevealPanel({ panelId, triggerId, group })`
+ *     calls, each bound to exactly one trigger and one panel, in three groups of three
+ *     (motion spec §3, which replaced the old `useReveal` hidden-attribute pair);
  *   - hygiene: no hex colour, no Chinese literal and no h1 inside the section.
  *
  * Values the design itself leaves inconsistent are listed as DEVIATIONS below and
@@ -39,13 +42,15 @@ const SECTION_DIR = join(REPO, "src", "sections", "Scholarly");
 const TOKENS_CSS = join(REPO, "src", "styles", "tokens.css");
 const PRIMITIVES_CSS = join(REPO, "src", "components", "primitives", "primitives.css");
 
-const PEN_SHA256 = "8816b923b24c00e4617fd645af2140b12462424c02c81a0b61114bee75d45b46";
-const PEN_BYTES = 137536;
+const PEN_SHA256 = "41dd7140223515c28a506a6b75299ea86381618577f78afdbe29d7f28d410114";
+const PEN_BYTES = 140380;
 const FRAME = "ppRfL";
 const SUB_FRAMES = ["gE6yx", "EYW9F", "H1VYtj", "FMu2N"];
 
 const problems = [];
 const fail = (message) => problems.push(message);
+/** Values this run actually compared; reported next to the failures (see the report). */
+let checked = 0;
 
 /* ---------- board: localise, verify the pin, index the frame ---------- */
 
@@ -213,7 +218,6 @@ const TEXT_ROLES = [
   { node: "FgXhw", selector: ".scholarly__d" },
   { node: "xtokZ", selector: ".scholarly__cta" },
   { node: "FeAqL", selector: ".scholarly__url" },
-  { node: "FQiFu", selector: ".scholarly__pending" },
   { node: "I6zyH", selector: ".scholarly__cap" },
   { node: "c87Vy", selector: ".scholarly__onum" },
   { node: "juo5I", selector: ".scholarly__qtext" },
@@ -250,6 +254,7 @@ function roleValue(penNode, weightOf) {
 for (const role of TEXT_ROLES) {
   const penNode = pen(role.node);
   if (penNode === undefined) continue;
+  checked += 1;
   const body = declarationsOf(role.selector);
   const label = `${role.node} <${penNode.name}> -> ${[role.selector].flat().join(" + ")}`;
 
@@ -348,13 +353,12 @@ const GEOMETRY = [
   { node: "cg9Iw", property: "padding", selector: ".scholarly__docCard", declaration: "padding: 20px var(--sp-24);" },
   { node: "cg9Iw", property: "stroke", selector: ".scholarly__docCard", declaration: "border: var(--rule-h) solid var(--c-ink);" },
   { node: "RRkm3", property: "gap", selector: ".scholarly__docL", declaration: "gap: var(--sp-8);" },
-  { node: "u2okj", property: "fill", selector: ".scholarly__media", declaration: "background: var(--c-rule);" },
-  { node: "T0FU1", property: "fill", selector: ".scholarly__media", declaration: "background: var(--c-rule);" },
 ];
 
 for (const entry of GEOMETRY) {
   const penNode = pen(entry.node);
   if (penNode === undefined) continue;
+  checked += 1;
   const body = declarationsOf(entry.selector);
   const board = penNode[entry.property];
   if (board === undefined) {
@@ -383,6 +387,18 @@ for (const entry of GEOMETRY) {
   assertNumbers(`geom ${label}`, board, entry.declaration);
 }
 
+/* The media slots' own face. The current board revision fills `u2okj` and `T0FU1` with
+   an image (the figure assets derive from those nodes), so it carries no colour for
+   them any more; what stays checkable is that the box keeps the --c-rule face under the
+   photo (BLUEPRINT §5's placeholder face, which is also the letterbox of `cover`). */
+for (const node of ["u2okj", "T0FU1"]) {
+  checked += 1;
+  if (pen(node) === undefined) continue;
+  if (!declarationsOf(".scholarly__media").includes("background: var(--c-rule);")) {
+    fail(`[geom] .scholarly__media does not declare background: var(--c-rule); (the ${node} slot face)`);
+  }
+}
+
 /* Panel and rule strokes: 1px --c-rule, 2px --c-ink, hairline 1px --c-rule. */
 const panelStroke = pen("k7ToY");
 if (panelStroke !== undefined && (panelStroke.stroke !== "#D8D4CC" || panelStroke.strokeWidth !== 1)) {
@@ -407,6 +423,7 @@ const RULES = [
 for (const rule of RULES) {
   const penNode = pen(rule.node);
   if (penNode === undefined) continue;
+  checked += 1;
   if (penNode.height !== (rule.variant === "baseline" ? 2 : 1)) {
     fail(`[rule] board ${rule.node} height ${penNode.height} != ${rule.variant}`);
   }
@@ -439,6 +456,7 @@ const RATIOS = [
 for (const ratio of RATIOS) {
   const penNode = pen(ratio.node);
   if (penNode === undefined) continue;
+  checked += 1;
   const designed = ratio.width / penNode.height;
   const declared = (() => {
     const match = ratio.declaration.match(/aspect-ratio:\s*(\d+)\s*\/\s*(\d+)/);
@@ -453,6 +471,7 @@ for (const ratio of RATIOS) {
 }
 const hirMedia = pen("T0FU1");
 if (hirMedia !== undefined) {
+  checked += 1;
   const declaredHeight = declaration(declarationsOf(".scholarly__media--hir"), "height");
   assertNumbers("[ratio] T0FU1 height", hirMedia.height, declaredHeight ?? "");
   const fullWidth = BOARD_WIDTH - 2 * framePaddingX;
@@ -498,6 +517,7 @@ let concatenated = 0;
 let insideNode = 0;
 for (const boardText of boardTexts) {
   if (boardText.text.startsWith("※")) continue;
+  checked += 1;
   const wanted = normalise(boardText.text);
   if (normalised.includes(wanted)) continue;
   // The board joins the two CTA halves in one node; the dictionary keeps them apart.
@@ -519,6 +539,7 @@ for (const boardText of boardTexts) {
 const manifest = JSON.parse(readFileSync(join(REPO, "public", "media", "MANIFEST.json"), "utf8"));
 const PHOTOS = ["image1-1600.webp", "image2-400.webp", "image3-600.webp"];
 for (const name of PHOTOS) {
+  checked += 1;
   const entry = manifest[name];
   if (entry === undefined) {
     fail(`[assets] ${name} is not in public/media/MANIFEST.json`);
@@ -535,6 +556,46 @@ for (const name of PHOTOS) {
   const maxWidth = name.startsWith("image1") ? 1600 : Number(name.split("-")[1].split(".")[0]);
   if (displayWidth > maxWidth) {
     fail(`[assets] ${name} is ${displayWidth}px wide, the brief caps it at ${maxWidth}px (BLUEPRINT §5)`);
+  }
+}
+
+/* The three slots the image-wiring lane filled (`.agents/briefs/image-wiring-map.md`
+   §2.3–§2.5): each is a MANIFEST derivative of the board's own media node — 720×540 for
+   the two 4:3 iGEM figures, 2688×840 for the 16:5 HIR figure — rendered at that native
+   size with the alt key T3b added for the slot. */
+const FIGURES = [
+  { file: "igem-fig1-720.webp", node: "u2okj", width: 720, height: 540, altKey: "scholarly-igem.fig1.alt" },
+  { file: "igem-fig2-720.webp", node: "I2wlYa", width: 720, height: 540, altKey: "scholarly-igem.fig2.alt" },
+  { file: "hir-fig-2688.webp", node: "T0FU1", width: 2688, height: 840, altKey: "scholarly-hir.fig.alt" },
+];
+for (const figure of FIGURES) {
+  checked += 1;
+  const entry = manifest[figure.file];
+  if (entry === undefined) {
+    fail(`[assets] ${figure.file} is not in public/media/MANIFEST.json`);
+    continue;
+  }
+  if (entry.nodeId !== figure.node) {
+    fail(`[assets] ${figure.file} derives from board node ${entry.nodeId}, expected ${figure.node}`);
+  }
+  if (entry.w !== figure.width || entry.h !== figure.height) {
+    fail(`[assets] MANIFEST says ${figure.file} is ${entry.w}×${entry.h}, the slot renders ${figure.width}×${figure.height}`);
+  }
+  const size = statSync(join(REPO, "public", "media", figure.file)).size;
+  if (size !== entry.bytes) {
+    fail(`[assets] public/media/${figure.file} is ${size} B, MANIFEST says ${entry.bytes} B`);
+  }
+  if (!sectionSource.includes(`./media/${figure.file}`)) {
+    fail(`[assets] ${figure.file} is not referenced by the section`);
+  }
+  if (!sectionSource.includes(`alt={text("${figure.altKey}")}`)) {
+    fail(`[assets] ${figure.file} does not take its alt from ${figure.altKey}`);
+  }
+  if (!sectionSource.includes(`width={${figure.width}}`) || !sectionSource.includes(`height={${figure.height}}`)) {
+    fail(`[assets] ${figure.file} does not render at its native ${figure.width}×${figure.height}`);
+  }
+  if (sectionSource.includes("scholarly__pending")) {
+    fail("[assets] the section still renders an `image pending` placeholder box");
   }
 }
 
@@ -568,27 +629,15 @@ if (/<h1\b/.test(sectionSource)) {
   fail("[hygiene] the section renders an h1; the page's only h1 is Hero's (BLUEPRINT §6.1)");
 }
 
-const revealPanels = [...sectionSource.matchAll(/useReveal\s*\(\s*"([^"]+)"\s*\)/g)].map((match) => match[1]);
-const revealTriggers = [...sectionSource.matchAll(/\{\.\.\.([\w$]+)\.triggerProps\}/g)].map((match) => match[1]);
-const paired = [...sectionSource.matchAll(/const\s+([\w$]+)\s*=\s*useReveal\(\s*"([^"]+)"\s*\)/g)].map(
-  (match) => ({ handle: match[1], panel: match[2] }),
-);
-if (revealPanels.length !== 9 || revealTriggers.length !== 9 || new Set(revealPanels).size !== 9) {
-  fail(`[reveal] ${revealPanels.length} panels / ${revealTriggers.length} triggers, expected 3 + 3 + 3`);
-}
-for (const { handle, panel } of paired) {
-  const bound = revealTriggers.filter((name) => name === handle).length;
-  if (bound !== 1) {
-    fail(`[reveal] ${handle} is bound to ${bound} triggers, expected 1 (panel ${panel})`);
-  }
-  if (!sectionSource.includes(`id="${panel.replace(/-a(\d)$/, "-q$1")}"`)) {
-    fail(`[reveal] no trigger carries the id that ${panel} is labelled by`);
-  }
-}
-
 /* ---------- deviations: what the board and the dictionary disagree on ---------- */
 
 const DEVIATIONS = [
+  [
+    "media slot face",
+    "the current board revision fills u2okj/T0FU1 with an image and carries no colour for " +
+      "them, so the gate checks the slot's --c-rule background declaration instead of comparing " +
+      "it to a board fill",
+  ],
   [
     "01.2 card ordinals",
     "the board numbers the three cards 1/2/3; the dictionaries hold those three strings only as " +
@@ -611,6 +660,87 @@ const DEVIATIONS = [
   ],
 ];
 
+/* ---------- 6. the reveal skeleton (motion spec §3, the §3.7 replacement) ---------- */
+
+/* Every pair is one `useRevealPanel({ panelId, triggerId, group })` call: the three
+   fields are literal strings, so the server and client agree and a typo in an id
+   cannot pass. The hook owns the markup — the section spreads `triggerProps` onto
+   exactly one trigger and `panelProps` onto exactly one panel, and writes neither a
+   `hidden` attribute nor an inline style. */
+const paired = [
+  ...sectionSource.matchAll(/const\s+([\w$]+)\s*=\s*useRevealPanel\(\{([\s\S]*?)\}\)/g),
+].map((match) => ({
+  handle: match[1],
+  panel: (match[2].match(/panelId:\s*"([^"]+)"/) ?? [])[1],
+  trigger: (match[2].match(/triggerId:\s*"([^"]+)"/) ?? [])[1],
+  group: (match[2].match(/group:\s*"([^"]+)"/) ?? [])[1],
+}));
+const revealTriggers = [...sectionSource.matchAll(/\{\.\.\.([\w$]+)\.triggerProps\}/g)].map(
+  (match) => match[1],
+);
+const revealPanels = [...sectionSource.matchAll(/\{\.\.\.([\w$]+)\.panelProps\}/g)].map(
+  (match) => match[1],
+);
+if (paired.length !== 9 || revealTriggers.length !== 9 || revealPanels.length !== 9) {
+  fail(
+    `[reveal] ${paired.length} useRevealPanel calls / ${revealTriggers.length} trigger spreads / ` +
+      `${revealPanels.length} panel spreads, expected 3 + 3 + 3`,
+  );
+}
+for (const { handle, panel, trigger, group } of paired) {
+  checked += 1;
+  if (panel === undefined || trigger === undefined || group === undefined) {
+    fail(`[reveal] ${handle}: the call must carry literal panelId, triggerId and group fields`);
+    continue;
+  }
+  const boundTriggers = revealTriggers.filter((name) => name === handle).length;
+  const boundPanels = revealPanels.filter((name) => name === handle).length;
+  if (boundTriggers !== 1 || boundPanels !== 1) {
+    fail(`[reveal] ${handle} is bound to ${boundTriggers} trigger(s) and ${boundPanels} panel(s), expected 1 and 1 (panel ${panel})`);
+  }
+  if (panel.replace(/-a(\d)$/, "-q$1") !== trigger) {
+    fail(`[reveal] ${handle}: trigger id ${trigger} does not answer panel id ${panel}`);
+  }
+}
+if (new Set(paired.map((pair) => pair.panel)).size !== paired.length) {
+  fail("[reveal] the nine panel ids are not distinct");
+}
+if (new Set(paired.map((pair) => pair.trigger)).size !== paired.length) {
+  fail("[reveal] the nine trigger ids are not distinct");
+}
+const groups = new Map();
+for (const pair of paired) {
+  groups.set(pair.group, (groups.get(pair.group) ?? 0) + 1);
+}
+if (groups.size !== 3 || [...groups.values()].some((size) => size !== 3)) {
+  fail(`[reveal] ${groups.size} group(s) ${JSON.stringify([...groups])}, expected three groups of three`);
+}
+
+/* The class tokens of this section, counted by name: the motion hooks land as mark-up
+   classes, so these counts are what the browser is handed (spec §4 device matrix). */
+const classes = [...sectionSource.matchAll(/className="([^"]*)"/g)].flatMap((match) => match[1].split(/\s+/));
+const classCount = (hook) => classes.filter((name) => name === hook).length;
+for (const [hook, expected, why] of [
+  ["motion-reveal-group", 3, "one per group container (spec §3.4)"],
+  ["motion-reveal-clip", 9, "the clip layer of every panel"],
+  ["motion-answer", 18, "the answer label and the answer of every panel"],
+  ["motion-clip", 6, "the three puzzle slots and the three wired figures (spec §4 device ②)"],
+  ["motion-slide", 9, "the nine ordinals (spec §4 device ③)"],
+  ["motion-hover", 9, "the nine question cards (spec §4 device ④)"],
+]) {
+  checked += 1;
+  if (classCount(hook) !== expected) {
+    fail(`[reveal] .${hook} appears on ${classCount(hook)} element(s), expected ${expected}: ${why}`);
+  }
+}
+for (const tier of ["1", "2"]) {
+  checked += 1;
+  const declared = [...sectionSource.matchAll(new RegExp(`data-stagger="${tier}"`, "g"))].length;
+  if (declared !== 9) {
+    fail(`[reveal] answer tier ${tier} is declared ${declared} time(s), expected 9`);
+  }
+}
+
 /* ---------- report ---------- */
 
 if (problems.length > 0) {
@@ -619,6 +749,7 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
+console.log(`checked=${checked} missing=${problems.length}`);
 console.log(
   `PASS: ui.pen ${PEN_SHA256.slice(0, 16)}… ${PEN_BYTES} B — ${TEXT_ROLES.length} text roles, ` +
     `${GEOMETRY.length} geometry values, ${RATIOS.length + 1} media boxes, ${boardTexts.length} board strings ` +

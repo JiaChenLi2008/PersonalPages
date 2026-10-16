@@ -1,6 +1,7 @@
 import { Rule } from "../../components/primitives/Rule";
+import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy } from "../../i18n/copy";
-import { useReveal } from "./useReveal";
+import { useRevealPanel } from "../../lib/useRevealPanel";
 
 /**
  * 01.4 HIR writing contest (ui.pen `FMu2N`): figure slot, three long questions
@@ -9,12 +10,33 @@ import { useReveal } from "./useReveal";
  * The board stacks a blue mono number (`Onum`) above each question (`Qtext`) inside a
  * 10px-gap frame, so each question renders as two nodes: `scholarly-hir.q<n>.no` and
  * `scholarly-hir.q<n>` (the same split the Immunotherapy block uses).
+ *
+ * The three answers are one reveal group of the shared skeleton (motion spec §3.5);
+ * the pull-quotes between them belong to no group, so the group wrapper is the whole
+ * body.
+ *
+ * The shared motion hooks of §4 land here too: `.motion-clip` on the figure slot
+ * (device ②), `.motion-slide` on the question ordinal (device ③) and
+ * `.motion-hover` on the question button (device ④); `Reveal` adds the `.is-in`
+ * both clip and slide wait for.
  */
 export function ScholarlyHir() {
   const { text, langOf } = useCopy();
-  const q1 = useReveal("scholarly-hir-a1");
-  const q2 = useReveal("scholarly-hir-a2");
-  const q3 = useReveal("scholarly-hir-a3");
+  const q1 = useRevealPanel({
+    panelId: "scholarly-hir-a1",
+    triggerId: "scholarly-hir-q1",
+    group: "scholarly-hir",
+  });
+  const q2 = useRevealPanel({
+    panelId: "scholarly-hir-a2",
+    triggerId: "scholarly-hir-q2",
+    group: "scholarly-hir",
+  });
+  const q3 = useRevealPanel({
+    panelId: "scholarly-hir-a3",
+    triggerId: "scholarly-hir-q3",
+    group: "scholarly-hir",
+  });
 
   return (
     <div className="scholarly__sub">
@@ -28,42 +50,54 @@ export function ScholarlyHir() {
       </div>
       <Rule variant="hairline" />
 
-      <div className="scholarly__body scholarly__body--hir">
-        <div className="scholarly__media scholarly__media--hir" aria-hidden="true">
-          <span className="scholarly__pending" lang={langOf("scholarly.imagePending")}>
-            {text("scholarly.imagePending")}
-          </span>
+      <div className="scholarly__body scholarly__body--hir motion-reveal-group">
+        <div className="scholarly__media scholarly__media--hir">
+          <Reveal className="scholarly__clip motion-clip">
+            <img
+              className="scholarly__photo"
+              src="./media/hir-fig-2688.webp"
+              alt={text("scholarly-hir.fig.alt")}
+              width={2688}
+              height={840}
+              loading="lazy"
+              decoding="async"
+            />
+          </Reveal>
         </div>
 
         <p className="scholarly__hint" lang={langOf("scholarly.revealTap")}>
           {text("scholarly.revealTap")}
         </p>
 
-        <button
-          type="button"
-          className="scholarly__question scholarly__question--hir"
-          id="scholarly-hir-q1"
-          {...q1.triggerProps}
-        >
-          <span className="scholarly__onum" lang={langOf("scholarly-hir.q1.no")}>
-            {text("scholarly-hir.q1.no")}
-          </span>
+        <button type="button" className="scholarly__question scholarly__question--hir motion-hover" {...q1.triggerProps}>
+          <Reveal as="span" className="motion-slide">
+            <span className="scholarly__onum" lang={langOf("scholarly-hir.q1.no")}>
+              {text("scholarly-hir.q1.no")}
+            </span>
+          </Reveal>
           <span className="scholarly__qtext scholarly__qtext--hir" lang={langOf("scholarly-hir.q1")}>
             {text("scholarly-hir.q1")}
           </span>
         </button>
-        <div
-          className="scholarly__panel scholarly__panel--hir"
-          role="region"
-          aria-labelledby="scholarly-hir-q1"
-          {...q1.panelProps}
-        >
-          <p className="scholarly__panelLabel" lang={langOf("scholarly-hir.answerLabel")}>
-            {text("scholarly-hir.answerLabel")}
-          </p>
-          <p className="scholarly__answer scholarly__answer--hir" lang={langOf("scholarly-hir.a1")}>
-            {text("scholarly-hir.a1")}
-          </p>
+        <div {...q1.panelProps}>
+          <div className="motion-reveal-clip">
+            <div className="scholarly__panel scholarly__panel--hir">
+              <p
+                className="scholarly__panelLabel motion-answer"
+                data-stagger="1"
+                lang={langOf("scholarly-hir.answerLabel")}
+              >
+                {text("scholarly-hir.answerLabel")}
+              </p>
+              <p
+                className="scholarly__answer scholarly__answer--hir motion-answer"
+                data-stagger="2"
+                lang={langOf("scholarly-hir.a1")}
+              >
+                {text("scholarly-hir.a1")}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="scholarly__pull">
           <span className="scholarly__accent" aria-hidden="true" />
@@ -72,31 +106,35 @@ export function ScholarlyHir() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="scholarly__question scholarly__question--hir"
-          id="scholarly-hir-q2"
-          {...q2.triggerProps}
-        >
-          <span className="scholarly__onum" lang={langOf("scholarly-hir.q2.no")}>
-            {text("scholarly-hir.q2.no")}
-          </span>
+        <button type="button" className="scholarly__question scholarly__question--hir motion-hover" {...q2.triggerProps}>
+          <Reveal as="span" className="motion-slide">
+            <span className="scholarly__onum" lang={langOf("scholarly-hir.q2.no")}>
+              {text("scholarly-hir.q2.no")}
+            </span>
+          </Reveal>
           <span className="scholarly__qtext scholarly__qtext--hir" lang={langOf("scholarly-hir.q2")}>
             {text("scholarly-hir.q2")}
           </span>
         </button>
-        <div
-          className="scholarly__panel scholarly__panel--hir"
-          role="region"
-          aria-labelledby="scholarly-hir-q2"
-          {...q2.panelProps}
-        >
-          <p className="scholarly__panelLabel" lang={langOf("scholarly-hir.answerLabel")}>
-            {text("scholarly-hir.answerLabel")}
-          </p>
-          <p className="scholarly__answer scholarly__answer--hir" lang={langOf("scholarly-hir.a2")}>
-            {text("scholarly-hir.a2")}
-          </p>
+        <div {...q2.panelProps}>
+          <div className="motion-reveal-clip">
+            <div className="scholarly__panel scholarly__panel--hir">
+              <p
+                className="scholarly__panelLabel motion-answer"
+                data-stagger="1"
+                lang={langOf("scholarly-hir.answerLabel")}
+              >
+                {text("scholarly-hir.answerLabel")}
+              </p>
+              <p
+                className="scholarly__answer scholarly__answer--hir motion-answer"
+                data-stagger="2"
+                lang={langOf("scholarly-hir.a2")}
+              >
+                {text("scholarly-hir.a2")}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="scholarly__pull">
           <span className="scholarly__accent" aria-hidden="true" />
@@ -105,31 +143,35 @@ export function ScholarlyHir() {
           </p>
         </div>
 
-        <button
-          type="button"
-          className="scholarly__question scholarly__question--hir"
-          id="scholarly-hir-q3"
-          {...q3.triggerProps}
-        >
-          <span className="scholarly__onum" lang={langOf("scholarly-hir.q3.no")}>
-            {text("scholarly-hir.q3.no")}
-          </span>
+        <button type="button" className="scholarly__question scholarly__question--hir motion-hover" {...q3.triggerProps}>
+          <Reveal as="span" className="motion-slide">
+            <span className="scholarly__onum" lang={langOf("scholarly-hir.q3.no")}>
+              {text("scholarly-hir.q3.no")}
+            </span>
+          </Reveal>
           <span className="scholarly__qtext scholarly__qtext--hir" lang={langOf("scholarly-hir.q3")}>
             {text("scholarly-hir.q3")}
           </span>
         </button>
-        <div
-          className="scholarly__panel scholarly__panel--hir"
-          role="region"
-          aria-labelledby="scholarly-hir-q3"
-          {...q3.panelProps}
-        >
-          <p className="scholarly__panelLabel" lang={langOf("scholarly-hir.answerLabel")}>
-            {text("scholarly-hir.answerLabel")}
-          </p>
-          <p className="scholarly__answer scholarly__answer--hir" lang={langOf("scholarly-hir.a3")}>
-            {text("scholarly-hir.a3")}
-          </p>
+        <div {...q3.panelProps}>
+          <div className="motion-reveal-clip">
+            <div className="scholarly__panel scholarly__panel--hir">
+              <p
+                className="scholarly__panelLabel motion-answer"
+                data-stagger="1"
+                lang={langOf("scholarly-hir.answerLabel")}
+              >
+                {text("scholarly-hir.answerLabel")}
+              </p>
+              <p
+                className="scholarly__answer scholarly__answer--hir motion-answer"
+                data-stagger="2"
+                lang={langOf("scholarly-hir.a3")}
+              >
+                {text("scholarly-hir.a3")}
+              </p>
+            </div>
+          </div>
         </div>
         <div className="scholarly__pull">
           <span className="scholarly__accent" aria-hidden="true" />

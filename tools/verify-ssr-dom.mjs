@@ -9,18 +9,28 @@
  *
  *   1. no h1 and exactly one h2 (the page's single h1 is Hero's, BLUEPRINT §6.1);
  *      h3 = the four sub-blocks, h4 = the two iGEM sections
- *   2. all nine reveal triggers are <button aria-expanded="false" aria-controls="…">,
- *      each aria-controls names an existing panel id, that panel is a role="region"
- *      in the DOM, hidden, labelled by its trigger, and never aria-hidden
+ *   2. the reveal skeleton of src/lib/useRevealPanel.ts (motion spec §3): nine
+ *      <button aria-expanded="false" aria-controls="…" data-state="closed">, each
+ *      aria-controls naming a live panel that is a role="region" in the DOM, closed by
+ *      `data-state` alone — no `hidden` attribute (it cannot carry the height
+ *      transition), no `aria-hidden`, no inline style — labelled by its trigger, whose
+ *      single child is the `.motion-reveal-clip` layer, and holding two `.motion-answer`
+ *      blocks on the two answer tiers; plus the three `.motion-reveal-group` containers
+ *      and the §4 devices that land in this section (`.motion-clip` on the six media
+ *      slots, `.motion-slide` on the nine ordinals, `.motion-hover` on the nine triggers)
  *   3. the iGEM CTA is a real link to the project site, opened in a new tab with
  *      rel="noopener noreferrer"
  *   4. the HIR card links to the copied essay PDF
  *   5. the default product is the en page: the section carries its own language only —
  *      no CJK character, and every lang mark is "en" (BLUEPRINT §6.4: one language per
- *      page, element-level lang only for text in another language) — while the three real
- *      photos carry their answer text as alt plus loading/decoding/width/height (§6.3)
- *   6. no ※ design annotation and no hex colour reaches the markup
- *   7. every aria-label whose text is a dictionary entry declares that entry's own
+ *      page, element-level lang only for text in another language) — while the six real
+ *      photos (three JHU puzzles, three wired figures) carry their alt plus
+ *      loading/decoding/width/height (§6.3), and no `image pending` placeholder slot is
+ *      left behind
+ *   6. a paired key renders one side only: the iGEM CTA and the section title each
+ *      appear exactly once in a page that carries their two dictionary keys
+ *   7. no ※ design annotation and no hex colour reaches the markup
+ *   8. every aria-label whose text is a dictionary entry declares that entry's own
  *      language: a screen reader must not read the English JHU riddles as Chinese
  *      (BLUEPRINT §6.4)
  *
@@ -48,7 +58,7 @@ const fail = (message) => failures.push(message);
 
 /* The shared i18n module writes the page language onto document.documentElement at import
    time, so the renderer provides that one property and keeps the object it writes to —
-   it is not an implementation hook, and assertion 7 reads the language from it. */
+   it is not an implementation hook, and assertion 8 reads the language from it. */
 const documentElement = {};
 
 /* ---------- build + render ---------- */
@@ -105,6 +115,11 @@ function tagsOf(name) {
 }
 
 const count = (name) => [...html.matchAll(new RegExp(`<${name}\\b`, "g"))].length;
+/** Every element carrying one of the shared motion hooks (spec §4). */
+const withHook = (hook) =>
+  [...html.matchAll(new RegExp(`<([a-z]+)\\b[^>]*class="[^"]*\\b${hook}\\b[^"]*"[^>]*>`, "g"))].map(
+    (match) => ({ tag: match[1], markup: match[0] }),
+  );
 
 const en = JSON.parse(readFileSync(join(REPO, "docs", "copy-en.json"), "utf8"));
 const zh = JSON.parse(readFileSync(join(REPO, "docs", "copy-zh.json"), "utf8"));
@@ -132,17 +147,21 @@ if (h2.lang !== "en") {
 }
 const h2Text = en["scholarly.title.en"].text;
 if (!html.includes(`>${h2Text}</h2>`)) {
-  fail(`the h2 does not render scholarly.title.en verbatim (${JSON.stringify(h2Text)})`);
+  fail(`the h2 does not render the page's own title key verbatim (${JSON.stringify(h2Text)})`);
 }
 
-/* ---------- 2. reveal triggers and their panels ---------- */
+/* ---------- 2. the reveal skeleton and the §4 devices ---------- */
 
 const buttons = tagsOf("button");
 const triggers = buttons.filter((attrs) => "aria-controls" in attrs);
 if (triggers.length !== 9) {
   fail(`reveal trigger count ${triggers.length} != 9 (three per question block)`);
 }
-const panelIds = new Set(tagsOf("div").map((attrs) => attrs.id).filter(Boolean));
+const panels = tagsOf("div").filter((attrs) => "data-reveal-panel" in attrs);
+if (panels.length !== 9) {
+  fail(`reveal panel count ${panels.length} != 9 (one per trigger)`);
+}
+const panelIds = new Set(panels.map((attrs) => attrs.id).filter(Boolean));
 const triggerIds = new Set(triggers.map((attrs) => attrs.id));
 
 for (const trigger of triggers) {
@@ -150,22 +169,27 @@ for (const trigger of triggers) {
   if (trigger["aria-expanded"] !== "false") {
     fail(`trigger ${id}: aria-expanded=${JSON.stringify(trigger["aria-expanded"])} != "false" initially`);
   }
+  if (trigger["data-state"] !== "closed") {
+    fail(`trigger ${id}: data-state=${JSON.stringify(trigger["data-state"])} != "closed" initially`);
+  }
   if (!panelIds.has(trigger["aria-controls"])) {
     fail(`trigger ${id}: aria-controls=${JSON.stringify(trigger["aria-controls"])} has no panel with that id`);
   }
 }
 if (triggers.some((trigger) => trigger["aria-expanded"] === "true")) {
-  fail("a trigger renders aria-expanded=\"true\" before any interaction");
+  fail('a trigger renders aria-expanded="true" before any interaction');
 }
 
-const panels = tagsOf("div").filter((attrs) => attrs.role === "region");
-if (panels.length !== 9) {
-  fail(`answer panel count ${panels.length} != 9`);
-}
 for (const panel of panels) {
   const id = panel.id;
-  if (!("hidden" in panel)) {
-    fail(`panel ${id}: answers must start hidden`);
+  if (panel.role !== "region") {
+    fail(`panel ${id}: role=${JSON.stringify(panel.role)} != "region"`);
+  }
+  if (panel["data-state"] !== "closed") {
+    fail(`panel ${id}: data-state=${JSON.stringify(panel["data-state"])} != "closed" initially`);
+  }
+  if ("hidden" in panel) {
+    fail(`panel ${id}: a hidden attribute cannot carry the height transition; the state is data-state`);
   }
   if (panel["aria-hidden"] !== undefined) {
     fail(`panel ${id}: aria-hidden must stay off so the answer is reachable once revealed`);
@@ -174,6 +198,58 @@ for (const panel of panels) {
     fail(`panel ${id}: aria-labelledby=${JSON.stringify(panel["aria-labelledby"])} is not a reveal trigger`);
   }
 }
+
+/* The panel's single child is the clip layer, and the clip layer's own child is the
+   bordered answer box: that nesting is what lets the frame grow with the content. */
+for (const match of html.matchAll(/<div[^>]*data-reveal-panel=""[^>]*>/g)) {
+  const id = (match[0].match(/ id="([^"]*)"/) ?? [])[1];
+  const child = html.slice(match.index + match[0].length);
+  if (!child.startsWith('<div class="motion-reveal-clip">')) {
+    fail(`panel ${id}: its single child must be the .motion-reveal-clip layer, got ${JSON.stringify(child.slice(0, 48))}`);
+    continue;
+  }
+  const box = child.slice('<div class="motion-reveal-clip">'.length);
+  if (!/^<div class="scholarly__panel scholarly__panel--(qa|hir)">/.test(box)) {
+    fail(`panel ${id}: the clip layer must wrap the bordered answer box, got ${JSON.stringify(box.slice(0, 48))}`);
+  }
+}
+
+const answerBlocks = tagsOf("p").filter((attrs) => (attrs.class ?? "").split(" ").includes("motion-answer"));
+if (answerBlocks.length !== 18) {
+  fail(`.motion-answer block count ${answerBlocks.length} != 18 (an answer label and an answer per panel)`);
+}
+const tiers = new Map();
+for (const block of answerBlocks) {
+  tiers.set(block["data-stagger"], (tiers.get(block["data-stagger"]) ?? 0) + 1);
+}
+if (tiers.get("1") !== 9 || tiers.get("2") !== 9) {
+  fail(`answer stagger tiers ${JSON.stringify([...tiers])} != nine on tier 1 and nine on tier 2`);
+}
+
+const groups = tagsOf("ul").concat(tagsOf("div")).filter((attrs) => (attrs.class ?? "").split(" ").includes("motion-reveal-group"));
+if (groups.length !== 3) {
+  fail(`.motion-reveal-group count ${groups.length} != 3 (JHU / Immunotherapy / HIR)`);
+}
+
+/* The §4 devices: six media slots swept by a mask, nine ordinals sliding in, nine
+   question cards with pointer micro-motion. */
+const DEVICES = [
+  { hook: "motion-clip", expected: 6, why: "three JHU puzzle slots + three wired figure slots (device ②)" },
+  { hook: "motion-slide", expected: 9, why: "the nine question ordinals (device ③)" },
+  { hook: "motion-hover", expected: 9, why: "the nine question cards (device ④)" },
+];
+for (const { hook, expected, why } of DEVICES) {
+  const found = withHook(hook);
+  if (found.length !== expected) {
+    fail(`.${hook} count ${found.length} != ${expected}: ${why}`);
+  }
+}
+
+/* No inline style anywhere: the height, the clip and the lift all come from motion.css. */
+if (/\sstyle="/.test(html)) {
+  fail("an inline style reached the markup; the reveal terminal state is aria-expanded + data-state");
+}
+
 const allIds = [...html.matchAll(/ id="([^"]+)"/g)].map((match) => match[1]);
 if (new Set(allIds).size !== allIds.length) {
   fail("duplicate id in the section markup");
@@ -206,7 +282,7 @@ if (pdf === undefined) {
 /* The default product is the en page (lang.ts DEFAULT_LANG), so the section renders one
    language: its own. Both halves of the old "both languages coexist" criterion are kept
    at the same strength — the other language must not appear at all, and the text that does
-   appear must be the en dictionary's (§7 checks the accessible names the same way). */
+   appear must be the en dictionary's (§8 checks the accessible names the same way). */
 if (documentElement.lang !== "en") {
   fail(`lang.ts wrote <html lang>=${JSON.stringify(documentElement.lang)} at import time, expected "en"`);
 }
@@ -221,13 +297,34 @@ if (JSON.stringify(langAttrs) !== JSON.stringify(["en"])) {
   );
 }
 
+/* Six real photos: the three JHU puzzles (their alt is the answer text, §6.3) and the
+   three wired figures (their alt is the T3b alt key of the slot). */
+const FIGURES = [
+  { src: "media/igem-fig1-720.webp", width: 720, height: 540, altKey: "scholarly-igem.fig1.alt" },
+  { src: "media/igem-fig2-720.webp", width: 720, height: 540, altKey: "scholarly-igem.fig2.alt" },
+  { src: "media/hir-fig-2688.webp", width: 2688, height: 840, altKey: "scholarly-hir.fig.alt" },
+];
 const photos = tagsOf("img");
-if (photos.length !== 3) {
-  fail(`img count ${photos.length} != 3: the JHU puzzles use the three real dissection photos`);
+if (photos.length !== FIGURES.length + 3) {
+  fail(`img count ${photos.length} != ${FIGURES.length + 3}: the three JHU puzzles plus the three wired figures`);
 }
 const answers = ["scholarly-jhu.a1", "scholarly-jhu.a2", "scholarly-jhu.a3"].map((key) => en[key].text);
-if (JSON.stringify(photos.map((photo) => photo.alt).slice().sort()) !== JSON.stringify(answers.slice().sort())) {
-  fail(`img alt texts ${JSON.stringify(photos.map((photo) => photo.alt))} != the three answer texts`);
+const puzzleAlts = photos.map((photo) => photo.alt).filter((alt) => answers.includes(alt));
+if (puzzleAlts.length !== 3) {
+  fail(`JHU puzzle photos carrying an answer text as alt: ${puzzleAlts.length} != 3`);
+}
+for (const figure of FIGURES) {
+  const photo = photos.find((attrs) => (attrs.src ?? "").endsWith(figure.src));
+  if (photo === undefined) {
+    fail(`no <img src="…/${figure.src}">: the figure slot is not wired`);
+    continue;
+  }
+  if (photo.alt !== en[figure.altKey].text) {
+    fail(`img ${figure.src}: alt ${JSON.stringify(photo.alt)} != ${figure.altKey}`);
+  }
+  if (Number(photo.width) !== figure.width || Number(photo.height) !== figure.height) {
+    fail(`img ${figure.src}: width/height ${photo.width}×${photo.height} != the asset's native ${figure.width}×${figure.height}`);
+  }
 }
 for (const photo of photos) {
   if (photo.loading !== "lazy" || photo.decoding !== "async") {
@@ -237,8 +334,34 @@ for (const photo of photos) {
     fail(`img ${JSON.stringify(photo.src)}: explicit width/height required against layout shift`);
   }
 }
+/* The wired slots replaced their `image pending` boxes: no placeholder element and no
+   placeholder label may stay behind. (The two figure captions are dictionary text and
+   are not this check's business — their wording belongs to the copy lane.) */
+if (html.includes("scholarly__pending")) {
+  fail("a .scholarly__pending placeholder box is still rendered");
+}
+if (/>image pending</.test(html)) {
+  fail("the `image pending` placeholder label is still rendered");
+}
 
-/* ---------- 6. annotations and colours ---------- */
+/* ---------- 6. one side per paired key ---------- */
+
+/* A paired key (`…zh` / `…en`) renders only the page's own side (BLUEPRINT §6.4, run in
+   one mode). Both dictionaries hold the same text for the two sides of a pair, so the
+   count of the string is what proves it: twice would mean both sides reached the DOM. */
+const PAIRED_TEXTS = [
+  { key: "scholarly-igem.cta.en", label: "iGEM CTA" },
+  { key: "scholarly.title.en", label: "section title" },
+];
+for (const { key, label } of PAIRED_TEXTS) {
+  const text = en[key].text;
+  const seen = html.split(text).length - 1;
+  if (seen !== 1) {
+    fail(`${label}: ${JSON.stringify(text)} appears ${seen} time(s), expected 1 (one side of the pair only)`);
+  }
+}
+
+/* ---------- 7. annotations and colours ---------- */
 
 if (html.includes("※")) {
   fail("the ※ design annotation is rendered (BLUEPRINT §6.4 / CHROME.md §2)");
@@ -247,7 +370,7 @@ if (/#[0-9a-fA-F]{3,8}\b/.test(html)) {
   fail("a hex colour leaked into the markup");
 }
 
-/* ---------- 7. dictionary-sourced accessible names ---------- */
+/* ---------- 8. dictionary-sourced accessible names ---------- */
 
 /* Every visible string the dictionaries carry, mapped to the language of its entry (the
    two dictionaries hold the same text for fallback entries, so the set can hold two). */
@@ -294,13 +417,7 @@ for (const id of ["scholarly-jhu-q1", "scholarly-jhu-q2", "scholarly-jhu-q3"]) {
 
 /* ---------- chrome texts and sub-block order ---------- */
 
-const texts = [
-  "scholarly.revealTap",
-  "scholarly.revealSwipe",
-  "scholarly.imagePending",
-  "scholarly.meta",
-  "scholarly.linkPdf",
-];
+const texts = ["scholarly.revealTap", "scholarly.revealSwipe", "scholarly.meta", "scholarly.linkPdf"];
 for (const key of texts) {
   if (!html.includes(en[key].text)) {
     fail(`chrome text missing from the markup: ${key}`);
@@ -328,9 +445,12 @@ if (failures.length > 0) {
 
 console.log(
   `PASS: SSR markup (${html.length} B, ${HTML_OUT}) — h2=1 h3=4 h4=2 h1=0, ` +
-    `${triggers.length} reveal triggers all collapsed with a live panel id, ` +
-    `${panels.length} hidden regions, ${photos.length} lazy photos, ` +
-    `en only (no CJK, lang=["en"])`,
+    `${triggers.length} reveal triggers closed with a live panel id, ` +
+    `${panels.length} panels on data-state="closed" (no hidden, no aria-hidden, no inline style), ` +
+    `${answerBlocks.length} answer blocks on tiers ${[...tiers.keys()].sort().join("/")}, ` +
+    `${groups.length} groups, ${withHook("motion-clip").length} mask sweeps / ` +
+    `${withHook("motion-slide").length} ordinals / ${withHook("motion-hover").length} hover cards, ` +
+    `${photos.length} lazy photos, en only (no CJK, lang=["en"]), one side per paired key`,
 );
 console.log(
   `PASS: ${named.length} dictionary-sourced aria-label(s) carry their entry's language ` +
