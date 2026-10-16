@@ -16,6 +16,16 @@ T3b 轮落地**默认英文 + 单语纯度**（裁决：`.agents/briefs/lang-pur
 P15 轮把三条自足门禁接进 CI（`tools/verify-motion.mjs`、`tools/verify-lang-purity.mjs`、`tools/verify-assets.py`），
 只动 `.github/workflows/deploy.yml`、本文件与 `README.md` 的登记；另一处改动是 `hir-fig-2688` 一对派生图按全幅宽白名单上限（≤320 KB）以更高画质重编，`tools/verify-assets.py` 因此多一条白名单判据。判据强度未放宽：白名单只增两条分支，其余图位仍判 250 KB。
 
+M1 轮修一处**已实测**的高影响缺陷并补其门禁判据：`.motion-clip`（`src/styles/motion.css`）初态
+`clip-path: inset(0 100% 0 0)` 把槽位面积归零，而 `Reveal` 用 `useInView` 观察**它自己**——归零的裁剪使 IO 恒读
+`intersectionRatio:0`（滚到视口正中亦然），默认阈值 15% 永不达成，全站 10 个槽（photo-band 主图 + scholarly 6 图 +
+elder/music/sport 三图）永久 `is-in=false`，其中 10 张 `loading="lazy"` 图因无可见面积**从不被请求**。修法：
+`useInView` 新增 `observeUnclippedAncestor`（沿 `parentElement` 上溯至第一个不带 `.motion-clip` 的祖先作为
+`observer.observe` 目标，`once`/`rootMargin`/`threshold`/SSR 与 reduced-motion 短路、返回值签名均未动），
+`Reveal` 在 `className` 含 `motion-clip` 时自动启用，调用点未动；冻版设计值与 `src/sections/**` 未动。
+`tools/verify-render.mjs` 新增第 6/7 条断言（判据见 §1），汇总行末追加
+`clips_checked/clips_closed/images_checked/images_unloaded` 四键，既有键名未动。
+
 G2 轮收口两条门禁口径，只改口径、未放宽强度：`tools/verify-motion.mjs` 的 `SECTIONS` 表 `nav` 行由
 `state: "deferred", lane: "S1"` 翻为 `state: "wired", lane: ""`（该节已接线，属状态翻牌、非口径变更；`requires`
 与断言的既有写法逐条未动）。`tools/verify-lang-toggle.mjs` 的 `hero.h1` 由 `kind: "dual"` 改为 `kind: "single"`
@@ -41,7 +51,7 @@ h1、一个变体，旧的 dual 期望是双语并存时期的残留。门禁自
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 140 键）、字段类型、材料侧 `text` 逐字溯源、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」、chrome/src 归属、※ 禁止 | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
 | `tools/verify-lang-toggle.mjs` | 语言切换逐条键（默认 `en`）、不重载、同值点击持久化 | 视觉 | 本地 |
-| `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`） | CI 无此环境 | 本地 |
+| `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`）：7 宽 × 2 语言逐格量横向溢出 / 11 区块高度 / 逐元素自溢 / nav 锚落点 / 占位盒离树，**加本轮两条**——滚过全页后每个 `.motion-clip` 已揭开（`is-in` 且 `getComputedStyle().clipPath` 不含 `100%`）、页内每个 `<img>` 已加载（`naturalWidth>0`，含 `loading="lazy"`）；本轮输出 `clips_checked=140 clips_closed=0 images_checked=196 images_unloaded=0`（14 格 × 10 槽 / 14 图） | CI 无此环境；不证 mask sweep 的时长与缓动（归 `verify-motion`）、不证版式；第 7 条不区分「lazy 未被调度」与「文件缺失」（两者同为 `naturalWidth=0`），也不证「仅靠滚动手势即能触发 lazy」（§2 R1） | 本地 |
 | `tools/verify-assets.py` | `MANIFEST.json` 38 条目的字段/存在/字节/尺寸/格式/禁放大、清单集合==磁盘集合、总字节须少于源图、10 组图位派生图（存在 / 像素尺寸精确匹配 / webp+jpg 成对 / 非空白 / 单文件 ≤250 KB，全幅宽白名单 `hir-fig-2688`+`photoband-2880` ≤320 KB） | 版式、设计值、画面内容是否就是设计稿那张图（只判非空白） | CI（`python3` + Pillow，见 §5） |
 | `tools/verify-motion.mjs` | 动效层 7 类：12 个冻结 motion token 逐字同值且被样式消费、无作废旧名（`--dur-fast` 等）、每个动效钩子（7 个 animated 加全部 `motion-*`/`reveal*` 选择器）都有 `prefers-reduced-motion: reduce` 终态、揭晓契约（`0fr→1fr`、`overflow-anchor: none`、`aria-expanded`/`aria-controls`/`aria-labelledby`/`data-state`、无内联 style）、11 节均有入场钩子、禁用项（过冲缓动、动画 `top/left/height/margin`、`transition: all`、scroll 监听）、时长预算（单条 ≤800ms、首屏链 ≤800ms）、BLUEPRINT §2.11 同名同值 | 实际观感、真机帧率、`reduced-motion` 下的渲染结果（不跑浏览器）；`motion-spec-frozen.md` 自身的措辞（仓外文件，只比三处同源物） | CI（自带 `--self-test` 自毁副本反例） |
 | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对 | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；另三条本轮**未审**（§2 C） | 本地 |
@@ -66,6 +76,7 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 | Bn | `tools/verify-responsive.mjs` 的 `declarations()` 解析 | —（判据基础） | 本轮修：`@media` 块**整块**屏蔽（原先只屏蔽块头，块体被再次收集为 tier=null 声明） | 修前每个档位声明同时被当作 1440 声明：既让上面的选择器绑定失效，也让「同/保持」判据可被块内声明顶掉 | 已修（本轮） | 修整块屏蔽后基线仍 rc=0；选择器另去注释前缀（否则节首带注释的选择器与块内同名选择器对不上） |
 | B-残留 | 同文件 §3.3 非 token 数字锚 | values @≤1200 的「`h` 216」、index 的「色块 56/方图 120」、photoband 的「**464px**」、gap、`padding` | 节内池级（不看选择器） | 把 `.values__card { height: var(--card-h-t1200) }` 挪到同块另一选择器 `.values__cell` → 卡片失去高度，而 `verify-responsive` rc=0 **且** `fidelity-index-method-values-footer` rc=0（两门禁皆漏） | 未修 | 实测双 rc=0 |
 | C | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs` | 各节全部节点值 | **未审**：本轮未读其逐节点绑定强度，也未跑反例 | 若其判据同为节级池，节点级错值可被同节顶掉——**未证明**，不得写作「已完备」 | 未审 | 无（未实测） |
+| R1 | `tools/verify-render.mjs` 第 6/7 条（本轮新增） | —（`.motion-clip` 初态/终态为冻版设计值，门禁只读运行期事实） | 终态断言：快滚过全页后 1s 内轮询至「`is-in` 且 `clipPath` 无 `100%`」，未达成即指名；图片先快滚、漏网者居中重试一次后判 `naturalWidth>0` | 只读终态——不证揭开过程真的播放；`prefers-reduced-motion: reduce` 下 `.motion-clip` 初态即 `clip-path:none`，第 6 条恒真（该模式下探针不区分）；`naturalWidth=0` 不区分「lazy 未被调度」与「文件缺失/路径错」 | 已修（本轮） | §4 M1-N1/M1-N2/M1-N0 |
 
 `tools/verify-fonts.mjs`（在树 12614 B；P14 登记）：**能证**——上表抽样的 6 个节点实际选中族与声明族一致，拉丁两族的 `isCustomFont=true`（自托管 woff2 确已加载），中文节点为含 CJK 的系统字体；**不能证**——未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机/其它浏览器；跑在本地（需宿主 CDP），不进 CI，端点不可达 rc=2。
 
@@ -78,6 +89,7 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 | P12（本轮） | Values `--card-fill` / `--card-title-ink` 由节级池 → 逐卡配对 | 互换卡1/卡2 fill：**rc=0**（`checked=324`） | **rc=1**（`checked=332`，`missing` 指名两卡） |
 | P12（本轮） | `verify-responsive` 档位值由节级池 → 载体选择器绑定 | 挪 `--pad-row-t1200` 声明到 `.index__body`：**rc=0** | **rc=1**（`values_checked=84` 不变） |
 | 早期 | Index 四行 `--num-fill`/`--no-ink`/`--en-ink` 逐行配对（自 `46f0cbd` 起即在树中） | **未实测**（其修前状态不在本轮范围） | 现状 rc=0 且逐行打印；互换 `--num-fill` **已复现 rc=1**（P13 复验，见其终树 `753f352` 报告；本 lane 未重跑） |
+| M1 | `verify-render` 此前无「`.motion-clip` 揭开 / 图片加载」判据 | 旧判据（`HEAD~1` 的 `verify-render.mjs` 在 /tmp 旧树实跑）：全站 10 槽永隐、10 张 lazy 图零请求，**rc=0** | **rc=1**（同一旧树 + 新判据：98 条 clip 未揭 ＋ 84 条图未载，逐条指名元素/文件） |
 
 ## 4 最小反例复现（本轮实测口径）
 
@@ -105,6 +117,9 @@ P15 轮新增的三条自足门禁不与 `ui.pen` 相干，其反例在**干净�
 | P15-L1 | 干净克隆里 `docs/copy-en.json` 的 `nav.brand.name.text` 追加「中文」二字 | verify-lang-purity | 1（`en: CJK=2`）；复原 0 |
 | P15-A1 | 把 `public/media/hir-fig-2688.jpg` 重编成 474742 B（q85）；另把 `FULL_BLEED` 白名单加一个不存在的图位名 | verify-assets.py | 1（字节数不符 ＋ `474742 字节 > 320 KB 上限（全幅宽白名单）`）；另 1（`白名单含未知图位: ['nope-1x1']`）；两次复原均 0 |
 | P15-D1 | 从 `.github/workflows/deploy.yml` 删掉 `Verify motion layer` 步骤 | verify-deploy | **0**（未覆盖，见 §5） |
+| M1-N0 | 旧树旧判据（`git archive HEAD~1` 到 /tmp/m1-pre，`node_modules` 软链后实跑） | verify-render（`HEAD~1`） | **0**（10 槽永隐、10 图零请求，门禁仍绿——§3 M1 的假绿面） |
+| M1-N1 | worktree 内把 `src/lib/useInView.ts` / `src/components/primitives/Reveal.tsx` 回退为 `HEAD` 前的观察自身行为（只改这两文件，门禁不动） | verify-render | **1**：`clips_checked=140 clips_closed=98`、`images_checked=196 images_unloaded=84`，逐条点名 `div.photo-band__media.motion-clip`（`is-in=false, clip-path=inset(0px 100% 0px 0px)`）与 `igem-fig1-720.webp` 等；复原 rc=0 |
+| M1-N2 | 探针取读数前把 `.photo-band__img` 的 `src` 指向不存在的 `./media/m1-missing-file.webp`（改 DOM，仓内未动；临时改门禁文件、跑完即复原） | verify-render | **1**：`images_unloaded=14`，14 格各点名 `m1-missing-file.webp`，同轮 `clips_closed=0`（两组断言互不遮蔽）；复原 rc=0 |
 
 计数口径：`fidelity-index-method-values-footer` 的 `checked` 由 324 增至 332（+8 = 新绑定的 2 属性 × 4 卡；
 P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 84（`--token` 锚的数字从共用数字集合
@@ -120,4 +135,5 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 - 元素级 `lang`：中文页上的白名单拉丁 token 已带 `lang="en"`（`tools/verify-lang-purity.mjs` 第 3 项逐元素断言）；英文页上分节仍输出冗余 `lang="en"`（BLUEPRINT §6.4 #5 待分节 lane 成对锁定收口），本门禁不断言该冗余，只断言「无 CJK 且无其它语言」。
 - 四条 fidelity 门禁都依赖 `ui.pen` 冻结哈希（`PEN_SHA256_PREFIX`）与字节大小，改冻版必须同步改门禁常量，否则先红在哈希检查。
 - 逐节点配对只覆盖已显式列出的属性（Index 三色、Values 三属性）；其余节点值仍是节级池，见 §2 A2/A3/A4。
+- `tools/verify-render.mjs` 本轮新增的第 6/7 条按矩阵逐格取读数并累加（14 格 → `clips_checked=140`、`images_checked=196`），键名追加在既有汇总行末，既有键名与既有断言口径未动；整门实测耗时约 90s（含自带 `npm run build`）。
 - 设计稿上两处取值相同（如卡2/卡3 的 title-ink）时，互换不可判——这是信息不足，不是可修的缺口。
