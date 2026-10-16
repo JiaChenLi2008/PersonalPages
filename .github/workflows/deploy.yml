@@ -48,6 +48,19 @@ jobs:
       - name: Verify copy wiring in the bundle
         run: node tools/verify-copy-wiring.mjs
 
+      # Repo-internal gates, ordered cheapest first: both read only files in the
+      # checkout (index.html + dictionary, tokens.css + sections).
+      - name: Verify document head vs dictionary
+        run: node tools/verify-head.mjs
+
+      - name: Verify responsive values
+        run: node tools/verify-responsive.mjs
+
+      # Runs its own vite SSR build into /tmp (Vite JS API), so it needs
+      # node_modules but not dist/: slowest of the three, hence last.
+      - name: Verify SSR DOM
+        run: node tools/verify-ssr-dom.mjs
+
       - name: Configure Pages
         uses: actions/configure-pages@v6
 
