@@ -19,6 +19,9 @@
  *      (BLUEPRINT §6.4), the three real photos carry their answer text as alt plus
  *      loading/decoding/width/height (BLUEPRINT §6.3)
  *   6. no ※ design annotation and no hex colour reaches the markup
+ *   7. every aria-label whose text is a dictionary entry declares that entry's own
+ *      language: a screen reader must not read the English JHU riddles as Chinese
+ *      (BLUEPRINT §6.4)
  *
  * Usage: node tools/verify-ssr-dom.mjs   (exit 0 = pass, 1 = any failed assertion)
  *
@@ -41,6 +44,11 @@ const I18N = join(REPO, "src", "i18n", "index.tsx");
 
 const failures = [];
 const fail = (message) => failures.push(message);
+
+/* The shared i18n module writes the page language onto document.documentElement at import
+   time, so the renderer provides that one property and keeps the object it writes to —
+   it is not an implementation hook, and assertion 7 reads the language from it. */
+const documentElement = {};
 
 /* ---------- build + render ---------- */
 
@@ -75,7 +83,7 @@ await build({
   ],
 });
 
-globalThis.document = { documentElement: {} };
+globalThis.document = { documentElement };
 const { renderScholarly } = await import(pathToFileURL(join(OUT_DIR, "entry.js")).href);
 const html = renderScholarly();
 writeFileSync(HTML_OUT, html);
@@ -98,6 +106,7 @@ function tagsOf(name) {
 const count = (name) => [...html.matchAll(new RegExp(`<${name}\\b`, "g"))].length;
 
 const en = JSON.parse(readFileSync(join(REPO, "docs", "copy-en.json"), "utf8"));
+const zh = JSON.parse(readFileSync(join(REPO, "docs", "copy-zh.json"), "utf8"));
 
 /* ---------- 1. heading ladder ---------- */
 
@@ -223,6 +232,51 @@ if (/#[0-9a-fA-F]{3,8}\b/.test(html)) {
   fail("a hex colour leaked into the markup");
 }
 
+/* ---------- 7. dictionary-sourced accessible names ---------- */
+
+/* Every visible string the dictionaries carry, mapped to the language of its entry (the
+   two dictionaries hold the same text for fallback entries, so the set can hold two). */
+const langsOfText = new Map();
+for (const dictionary of [en, zh]) {
+  for (const entry of Object.values(dictionary)) {
+    if (!langsOfText.has(entry.text)) {
+      langsOfText.set(entry.text, new Set());
+    }
+    langsOfText.get(entry.text).add(entry.lang);
+  }
+}
+
+/** Every element of the markup that carries an accessible name, with its attributes. */
+const labelled = [];
+for (const match of html.matchAll(/<([a-zA-Z][a-zA-Z0-9-]*)\b([^>]*)>/g)) {
+  if (!match[2].includes("aria-label=")) {
+    continue;
+  }
+  const attrs = {};
+  for (const attr of match[2].matchAll(/([a-zA-Z-]+)="([^"]*)"/g)) {
+    attrs[attr[1]] = attr[2];
+  }
+  labelled.push({ selector: attrs.id ? `#${attrs.id}` : `<${match[1]}>`, attrs });
+}
+
+/* The i18n module wrote the page language onto the stubbed documentElement at import time. */
+const named = labelled.filter((element) => langsOfText.has(element.attrs["aria-label"]));
+for (const element of named) {
+  const expected = [...langsOfText.get(element.attrs["aria-label"])];
+  const actual = element.attrs.lang ?? documentElement.lang;
+  if (!expected.includes(actual)) {
+    fail(
+      `${element.selector}: aria-label ${JSON.stringify(element.attrs["aria-label"])} ` +
+        `expects lang ${expected.join("/")}, got ${JSON.stringify(actual)}`,
+    );
+  }
+}
+for (const id of ["scholarly-jhu-q1", "scholarly-jhu-q2", "scholarly-jhu-q3"]) {
+  if (!named.some((element) => element.attrs.id === id)) {
+    fail(`#${id}: no dictionary-sourced aria-label to check`);
+  }
+}
+
 /* ---------- chrome texts and sub-block order ---------- */
 
 const texts = [
@@ -261,4 +315,8 @@ console.log(
   `PASS: SSR markup (${html.length} B, ${HTML_OUT}) — h2=1 h3=4 h4=2 h1=0, ` +
     `${triggers.length} reveal triggers all collapsed with a live panel id, ` +
     `${panels.length} hidden regions, ${photos.length} lazy photos, lang en+zh-Hans present`,
+);
+console.log(
+  `PASS: ${named.length} dictionary-sourced aria-label(s) carry their entry's language ` +
+    `(${[...new Set(named.map((element) => element.selector))].join(", ")})`,
 );

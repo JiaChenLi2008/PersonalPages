@@ -2,9 +2,14 @@
    Values are the node's own, via tokens.css (BLUEPRINT §2.2). */
 html {
   /* Anchor jumps glide and land below the sticky bar; global.css forces `auto`
-     under prefers-reduced-motion (BLUEPRINT §4 #2, §2.11). */
+     under prefers-reduced-motion (BLUEPRINT §4 #2, §2.11).
+
+     The offset follows the bar's real height, which Nav.tsx measures into
+     --nav-h-measured (the bar wraps to a second row on narrow screens). The design
+     token --nav-h is the single-row height and remains the no-JS fallback; 8px is the
+     same clearance Nav.tsx adds to its scroll-spy band. */
   scroll-behavior: smooth;
-  scroll-padding-top: var(--nav-h);
+  scroll-padding-top: calc(var(--nav-h-measured, var(--nav-h)) + 8px);
 }
 
 .nav {

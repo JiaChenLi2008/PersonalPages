@@ -34,6 +34,7 @@ export function ScholarlyJhu() {
               className="scholarly__puzzle scholarly__media scholarly__media--4x3"
               id="scholarly-jhu-q1"
               aria-label={text("scholarly-jhu.q1")}
+              lang={langOf("scholarly-jhu.q1")}
               {...card1.triggerProps}
             >
               <img
@@ -78,6 +79,7 @@ export function ScholarlyJhu() {
               className="scholarly__puzzle scholarly__media scholarly__media--4x3"
               id="scholarly-jhu-q2"
               aria-label={text("scholarly-jhu.q2")}
+              lang={langOf("scholarly-jhu.q2")}
               {...card2.triggerProps}
             >
               <img
@@ -119,6 +121,7 @@ export function ScholarlyJhu() {
               className="scholarly__puzzle scholarly__media scholarly__media--4x3"
               id="scholarly-jhu-q3"
               aria-label={text("scholarly-jhu.q3")}
+              lang={langOf("scholarly-jhu.q3")}
               {...card3.triggerProps}
             >
               <img

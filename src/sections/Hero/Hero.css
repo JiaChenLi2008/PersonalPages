@@ -107,6 +107,8 @@
 .hero__btn {
   padding: var(--pad-btn);
   border: 0;
+  /* The mail CTA is an anchor: the design's buttons carry no underline. */
+  text-decoration: none;
   font-family: var(--ff-mono);
   font-size: var(--fs-13);
   font-weight: var(--fw-normal);
