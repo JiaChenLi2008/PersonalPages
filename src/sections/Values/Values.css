@@ -27,15 +27,19 @@
   --card-title-ink: var(--c-white);
 }
 
+/* The blue and green fills are dark: ui.pen gives their VALUE label --c-white,
+   because --c-label-on-color reaches only 3.755:1 / 2.751:1 there, under WCAG
+   AA's 4.5:1 for small text, while --c-white reaches 7.368:1 / 5.397:1. The
+   brown card keeps --c-label-on-color. */
 .values__card:nth-child(2) {
   --card-fill: var(--c-blue);
-  --card-label-ink: var(--c-label-on-color);
+  --card-label-ink: var(--c-white);
   --card-title-ink: var(--c-white);
 }
 
 .values__card:nth-child(3) {
   --card-fill: var(--c-green);
-  --card-label-ink: var(--c-label-on-color);
+  --card-label-ink: var(--c-white);
   --card-title-ink: var(--c-white);
 }
 

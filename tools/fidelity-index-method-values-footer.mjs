@@ -28,7 +28,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const PEN_SHA256_PREFIX = "9f9f23f9a7291b5f";
+const PEN_SHA256_PREFIX = "8816b923b24c00e4";
 const TOKENS_PATH = join(ROOT, "src/styles/tokens.css");
 const PRIMITIVES_PATH = join(ROOT, "src/components/primitives/primitives.css");
 
@@ -592,6 +592,53 @@ console.log(`index rows: ${rowReport.join(" | ")}`);
 
 if (rowReport.length !== 4) {
   failures.push(`index: expected 4 rows in ui.pen, found ${rowReport.length}`);
+}
+
+/* Values cards, per design node: the generic colour pass above matches the
+   section pool, so a card whose label ink is wrong still passes while another
+   declaration in the section resolves to the same hex. Each card's K fill is
+   therefore paired with its own --card-label-ink, the way the index rows pair
+   theirs. */
+const valuesSubtree = findNode(root, "F9LxTP");
+const valuesDeclarations = allDeclarations(parseSheet(
+  readdirSync(SECTIONS.find((section) => section.name === "values").dir)
+    .filter((name) => name.endsWith(".css"))
+    .map((name) => readFileSync(join(SECTIONS.find((section) => section.name === "values").dir, name), "utf8"))
+    .join("\n"),
+));
+
+const cardReport = [];
+(valuesSubtree?.children ?? []).forEach((card, index) => {
+  const k = card.children?.find((child) => child.name === "K");
+  if (k === undefined || typeof k.fill !== "string") {
+    return;
+  }
+  const position = valuesDeclarations.findIndex(
+    (declaration) => declaration.prop === "--card-label-ink" && declaration.selector.includes(`:nth-child(${index + 1})`),
+  );
+  const cardBlock = position === -1 ? [] : valuesDeclarations[position].block;
+
+  const label = `card${index + 1}(${card.name})`;
+  checked += 1;
+  const declared = cardBlock.find((declaration) => declaration.prop === "--card-label-ink");
+  if (declared === undefined) {
+    failures.push(`values ${k.id}: :nth-child(${index + 1}) ${card.name} does not declare --card-label-ink (design ${k.fill})`);
+    cardReport.push(`${label}=missing`);
+    return;
+  }
+  const name = tokenNameOf(declared.value, cardBlock);
+  const resolved = resolveValue(declared.value, cardBlock, tokens).toLowerCase();
+  if (resolved !== k.fill.toLowerCase()) {
+    failures.push(`values ${k.id}: :nth-child(${index + 1}) ${card.name} --card-label-ink resolves to ${resolved}, design says ${k.fill}`);
+    cardReport.push(`${label}=${name}!`);
+    return;
+  }
+  cardReport.push(`${label}=${name}`);
+});
+console.log(`values cards: ${cardReport.join(" | ")}`);
+
+if (cardReport.length !== 4) {
+  failures.push(`values: expected 4 cards in ui.pen, found ${cardReport.length}`);
 }
 
 /* BLUEPRINT §3 tiers. */

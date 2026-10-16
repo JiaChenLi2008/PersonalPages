@@ -27,7 +27,7 @@ const ROOT = fileURLToPath(new URL("..", import.meta.url));
 /* The frozen design lives outside the repo (one shared source for the whole
    project); the sha is pinned so the check is against the reviewed revision. */
 const PEN_PATH = "/mnt/code/JC_Project/ui.pen";
-const PEN_SHA16 = "9f9f23f9a7291b5f";
+const PEN_SHA16 = "8816b923b24c00e4";
 const PEN_BYTES = 137536;
 const TOKENS = "src/styles/tokens.css";
 const PRIMITIVES = "src/components/primitives/primitives.css";

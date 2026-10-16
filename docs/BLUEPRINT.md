@@ -55,7 +55,7 @@
 | `--c-rule-strong` | `#111111` | 页头基线 1px / index 段基线 2px |
 | `--c-muted` | `#6E6E6E` | 品牌中文名 `CN`、hero 键名 `K`、index 区间 `R`、`SPORT` |
 | `--c-muted-on-dark` | `#9A9A9A` | 黑底次要字（图注 `C`、Footer 版权 `R`） |
-| `--c-label-on-color` | `#B9B9B9` | 深色卡上的 `VALUE` 标签（棕/蓝/绿卡） |
+| `--c-label-on-color` | `#B9B9B9` | 深色卡上的 `VALUE` 标签（棕卡；蓝/绿卡 2026-10-16 改值 → `--c-white`，达 AA 4.5:1） |
 | `--c-white` | `#FFFFFF` | 反白字（按钮、图注主句、序号、卡标题） |
 | `--c-blue` | `#1B4BC4` | 品牌点、导航序号、eyebrow、`RESEARCH`、方法强调线、序号色块 01、民生健康卡底 |
 | `--c-green` | `#0E7A46` | 序号色块 02 / `MUSIC`、尊严卡底 |
@@ -143,8 +143,8 @@
 |---|---|---|
 | `Values` | 容器 | 四等分满宽、**无 gap**、卡高 `--card-h` 260px、上下贴边 `space_between` |
 | `Values > 生命` | 卡 1 | 底 `--c-brown`；`K` `--c-label-on-color`；`T` `--c-white` |
-| `Values > 民生健康` | 卡 2 | 底 `--c-blue`；`K` `--c-label-on-color`；`T` `--c-white` |
-| `Values > 尊严` | 卡 3 | 底 `--c-green`；`K` `--c-label-on-color`；`T` `--c-white` |
+| `Values > 民生健康` | 卡 2 | 底 `--c-blue`；`K` `--c-white`（2026-10-16 改值，AA）；`T` `--c-white` |
+| `Values > 尊严` | 卡 3 | 底 `--c-green`；`K` `--c-white`（2026-10-16 改值，AA）；`T` `--c-white` |
 | `Values > 智慧` | 卡 4 | 底 `--c-sand`；`K` `--c-brown`；`T` `--c-ink` |
 | `卡 > K` | `values.label` = `VALUE` | IBM Plex Mono `--fs-10`、`--ls-caps` +3px |
 | `卡 > T` | 卡标题 `values.card1..4` | Noto `--fs-42`、`--fw-black` 900 |
@@ -325,37 +325,46 @@
 
 1. 页面级：`<html lang="zh-Hans">`（默认中文页）/ `<html lang="en">`（切换后）；语言切换为**页内切换**，不整页重载（裁决）。
 2. 元素级：文本语言 ≠ 页面语言时，在承载该文本的元素上加 `lang="<该条 text 的真实语言>"`，取值直接来自 `copy-*.json` 的 `lang` 字段（`zh-Hans` / `en`）。
-3. **回落清单（`copy-zh.json` 中 `fallback: true`，共 57 条 —— 中文页上这些元素必须加 `lang="en"`）**：
+3. **回落清单（`copy-zh.json` 中 `fallback: true`，共 80 条 —— 中文页上这些元素必须加 `lang="en"`）**：
 
 | 分组 | 条目 |
 |---|---|
-| `nav`（6） | `nav.brand.name`、`nav.mail`、`nav.item1.en`、`nav.item2.en`、`nav.item3.en`、`nav.item4.en` |
+| `nav`（11） | `nav.brand.name`、`nav.mail`、`nav.item1.en`、`nav.item1.no`、`nav.item2.en`、`nav.item2.no`、`nav.item3.en`、`nav.item3.no`、`nav.item4.en`、`nav.item4.no`、`nav.lang.en` |
 | `hero`（4） | `hero.eyebrow`、`hero.h1`、`hero.btn1`、`hero.btn2` |
-| `index`（4） | `index.head.range`、`index.row1.titleEn`、`index.row2.titleEn`、`index.row3.titleEn` |
-| `scholarly`（1） | `scholarly.title.en` |
-| `scholarly-igem`（7） | `scholarly-igem.title`、`scholarly-igem.sub1`、`scholarly-igem.para1`、`scholarly-igem.sub2`、`scholarly-igem.para2`、`scholarly-igem.cta.en`、`scholarly-igem.cta.url` |
-| `scholarly-jhu`（7） | `scholarly-jhu.title`、`scholarly-jhu.q1`、`scholarly-jhu.a1`、`scholarly-jhu.q2`、`scholarly-jhu.a2`、`scholarly-jhu.q3`、`scholarly-jhu.a3` |
-| `scholarly-immuno`（10） | `scholarly-immuno.title`、`.q1.no`、`.q1`、`.a1`、`.q2.no`、`.q2`、`.a2`、`.q3.no`、`.q3`、`.a3` |
-| `scholarly-hir`（11） | `scholarly-hir.answerLabel`、`.q1`、`.a1`、`.bridge1`、`.q2`、`.a2`、`.bridge2`、`.q3`、`.a3`、`.closing`、`.card.title` |
-| `elder` / `music` / `sport`（3） | `elder.title.en`、`music.titleEn`、`sport.titleEn` |
-| `method` / `values` / `footer`（4） | `method.title`、`values.label`、`footer.cta`、`footer.mail` |
+| `index`（9） | `index.head.range`、`index.row1.titleEn`、`index.row1.no`、`index.row2.titleEn`、`index.row2.no`、`index.row3.titleEn`、`index.row3.no`、`index.row4.titleEn`、`index.row4.no` |
+| `scholarly`（6） | `scholarly.title.en`、`scholarly.imagePending`、`scholarly.revealTap`、`scholarly.revealSwipe`、`scholarly.meta`、`scholarly.linkPdf` |
+| `scholarly-igem`（8） | `scholarly-igem.title`、`scholarly-igem.no`、`scholarly-igem.sub1`、`scholarly-igem.para1`、`scholarly-igem.sub2`、`scholarly-igem.para2`、`scholarly-igem.cta.en`、`scholarly-igem.cta.url` |
+| `scholarly-jhu`（8） | `scholarly-jhu.title`、`scholarly-jhu.no`、`scholarly-jhu.q1`、`scholarly-jhu.a1`、`scholarly-jhu.q2`、`scholarly-jhu.a2`、`scholarly-jhu.q3`、`scholarly-jhu.a3` |
+| `scholarly-immuno`（11） | `scholarly-immuno.title`、`scholarly-immuno.no`、`scholarly-immuno.q1.no`、`scholarly-immuno.q1`、`scholarly-immuno.a1`、`scholarly-immuno.q2.no`、`scholarly-immuno.q2`、`scholarly-immuno.a2`、`scholarly-immuno.q3.no`、`scholarly-immuno.q3`、`scholarly-immuno.a3` |
+| `scholarly-hir`（15） | `scholarly-hir.no`、`scholarly-hir.answerLabel`、`scholarly-hir.q1.no`、`scholarly-hir.q1`、`scholarly-hir.a1`、`scholarly-hir.bridge1`、`scholarly-hir.q2.no`、`scholarly-hir.q2`、`scholarly-hir.a2`、`scholarly-hir.bridge2`、`scholarly-hir.q3.no`、`scholarly-hir.q3`、`scholarly-hir.a3`、`scholarly-hir.closing`、`scholarly-hir.card.title` |
+| `elder`（2） | `elder.title.en`、`elder.contentPending` |
+| `music`（1） | `music.titleEn` |
+| `sport`（1） | `sport.titleEn` |
+| `method`（1） | `method.title` |
+| `values`（1） | `values.label` |
+| `footer`（2） | `footer.cta`、`footer.mail` |
 
-合计 **6+4+4+1+7+7+10+11+3+4 = 57** 条（= `node -e` 过滤 `copy-zh.json` 的 `fallback === true` 的实际条数）。
-4. **反向清单（`copy-en.json` 中 `lang: "zh-Hans"`，共 45 条）**：英文页上这些元素必须加 `lang="zh-Hans"`（材料无英文原文，**不得翻译**）：
+合计 **11+4+9+6+8+8+11+15+2+1+1+1+1+2 = 80** 条（= `node -e` 过滤 `copy-zh.json` 的 `fallback === true` 的实际条数；本表 2026-10-16 按当前字典重新生成，较旧表新增 chrome 条目（`*.no`、`*.kicker`、`lang.*` 类）、Index 第四行 `index.row4.*` 与 HIR 独立题号 `scholarly-hir.q1.no/q2.no/q3.no`）。
+4. **反向清单（`copy-en.json` 中 `lang: "zh-Hans"`，共 54 条）**：英文页上这些元素必须加 `lang="zh-Hans"`（材料无英文原文，**不得翻译**）：
 
 | 分组 | 条目 |
 |---|---|
-| `nav`（5） | `nav.brand.cn`、`nav.item1.zh`、`nav.item2.zh`、`nav.item3.zh`、`nav.item4.zh` |
+| `nav`（6） | `nav.brand.cn`、`nav.item1.zh`、`nav.item2.zh`、`nav.item3.zh`、`nav.item4.zh`、`nav.lang.zh` |
 | `hero`（8） | `hero.h1cn`、`hero.summary`、`hero.key.subject`、`hero.val.subject`、`hero.key.instrument`、`hero.val.instrument`、`hero.key.sport`、`hero.val.sport` |
 | `photoband`（2） | `photoband.figcap`、`photoband.altnote` |
-| `index`（7） | `index.head.eyebrow`、`index.row1.title`、`index.row2.title`、`index.row3.title`、`index.row1.body`、`index.row2.body`、`index.row3.body` |
-| `scholarly` 族（5） | `scholarly.title.zh`、`scholarly-igem.cta.zh`、`scholarly-jhu.hint`、`scholarly-hir.title`、`scholarly-hir.card.file` |
-| `elder`（2） | `elder.title.zh`、`elder.body` |
-| `music` / `sport`（4） | `music.title`、`music.body`、`sport.title`、`sport.body` |
-| `method`（7） | `method.eyebrow`、`method.col1.title`、`method.col2.title`、`method.col3.title`、`method.col1.body`、`method.col2.body`、`method.col3.body` |
-| `values` / `footer`（5） | `values.card1`、`values.card2`、`values.card3`、`values.card4`、`footer.legal` |
+| `index`（9） | `index.head.eyebrow`、`index.row1.title`、`index.row1.body`、`index.row2.title`、`index.row2.body`、`index.row3.title`、`index.row3.body`、`index.row4.title`、`index.row4.body` |
+| `scholarly`（4） | `scholarly.title.zh`、`scholarly.kicker`、`scholarly.figcap2`、`scholarly.figcap3` |
+| `scholarly-igem`（1） | `scholarly-igem.cta.zh` |
+| `scholarly-jhu`（1） | `scholarly-jhu.hint` |
+| `scholarly-hir`（2） | `scholarly-hir.title`、`scholarly-hir.card.file` |
+| `elder`（3） | `elder.title.zh`、`elder.kicker`、`elder.body` |
+| `music`（3） | `music.title`、`music.kicker`、`music.body` |
+| `sport`（3） | `sport.title`、`sport.kicker`、`sport.body` |
+| `method`（7） | `method.eyebrow`、`method.col1.title`、`method.col1.body`、`method.col2.title`、`method.col2.body`、`method.col3.title`、`method.col3.body` |
+| `values`（4） | `values.card1`、`values.card2`、`values.card3`、`values.card4` |
+| `footer`（1） | `footer.legal` |
 
-合计 **5+8+2+7+5+2+4+7+5 = 45** 条。
+合计 **6+8+2+9+4+1+1+2+3+3+3+7+4+1 = 54** 条（= `node -e` 过滤 `copy-en.json` 的 `lang === "zh-Hans"` 的实际条数；本表 2026-10-16 按当前字典重新生成）。
 
 ### 6.5 SEO
 
