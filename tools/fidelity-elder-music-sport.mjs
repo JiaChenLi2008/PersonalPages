@@ -137,8 +137,11 @@ function readPen() {
   try {
     raw = readFileSync(PEN_PATH);
   } catch (error) {
-    console.error(`FAIL: frozen design not readable (${error.code}): ${PEN_PATH}`);
-    process.exit(1);
+    console.error(
+      `UNAVAILABLE: ui.pen — frozen design not readable (${error.code}): ${PEN_PATH}; ` +
+        "this gate reads the frozen board from that path",
+    );
+    process.exit(2);
   }
   const sha = createHash("sha256").update(raw).digest("hex");
   if (sha.slice(0, 16) !== PEN_SHA16 || raw.byteLength !== PEN_BYTES) {

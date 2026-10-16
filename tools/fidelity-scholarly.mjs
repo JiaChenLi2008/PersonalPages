@@ -64,10 +64,28 @@ function findRoot(start) {
   return null;
 }
 
+/* External inputs live in the repo's parent directory. A missing one is an
+   unavailable environment, not a failed assertion: one line, rc=2 (the same
+   convention as verify-render.mjs for an unreachable host). Assertion failures
+   stay rc=1. */
+function unavailable(what, detail) {
+  console.error(
+    `UNAVAILABLE: ${what} — ${detail}; this gate needs ui.pen / .agents/briefs/** / ` +
+      "HIR 竞赛文书.pdf from the repo's parent directory",
+  );
+  process.exit(2);
+}
+
 const PEN_ROOT = findRoot(REPO);
 if (PEN_ROOT === null) {
-  console.error(`FAIL: no ui.pen + .agents/briefs above ${REPO}`);
-  process.exit(1);
+  unavailable("ui.pen + .agents/briefs", `no such pair above ${REPO}`);
+}
+
+/* Checked here, not at the PDF comparison below, so nothing is printed before the
+   UNAVAILABLE line. */
+const PDF_SOURCE = join(PEN_ROOT, "HIR 竞赛文书.pdf");
+if (!existsSync(PDF_SOURCE)) {
+  unavailable("HIR 竞赛文书.pdf", `not found beside ui.pen at ${PEN_ROOT}`);
 }
 
 const penBytes = readFileSync(join(PEN_ROOT, "ui.pen"));
@@ -520,7 +538,7 @@ for (const name of PHOTOS) {
   }
 }
 
-const pdfSource = join(PEN_ROOT, "HIR 竞赛文书.pdf");
+const pdfSource = PDF_SOURCE;
 const pdfCopy = join(REPO, "public", "media", "hir-essay.pdf");
 if (!existsSync(pdfCopy)) {
   fail(`[assets] ${pdfCopy} is missing`);

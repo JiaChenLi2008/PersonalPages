@@ -2,7 +2,7 @@
 
 Vite + React + TypeScript 静态站点。构建命令 `npm run build`（= `tsc --noEmit && vite build`），产物是 `dist/`——一份纯静态的 HTML / CSS / JS，可直接托管在任意静态主机上。部署路径**只有一条：GitHub Pages**。
 
-当前仓库是**工程骨架**：只有页面结构、设计 token、双语运行时与共享动效层，**不含任何页面文案与 section 视觉实现**（由后续 lane 补齐）。
+十一节（`nav` / `hero` / `photo-band` / `index` / `scholarly` / `elder` / `music` / `sport` / `method` / `values` / `footer`）的视觉与文案已全部实现，页面结构、设计 token、双语运行时与共享动效层均已就位：设计值由四条 `tools/fidelity-*.mjs` 对设计稿 `ui.pen` 逐条比对（本仓 `missing=0`），产物可直接部署。
 
 ## 环境
 
@@ -43,8 +43,8 @@ node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite 
 
 | 命令 / 门禁 | 不进 CI 的原因 |
 |---|---|
-| `node docs/verify-copy.mjs` | 读仓库上级目录的 `ui.pen` 与 `.agents/briefs/**`，并按 `ui.pen` 的 sha256 + 字节数校验冻版基线；CI 的 checkout 里没有这些文件 |
-| 四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`） | 同上，另需 HIR 竞赛文书 PDF |
+| `node docs/verify-copy.mjs` | 读仓库上级目录的 `ui.pen` 与 `.agents/briefs/**`，并按 `ui.pen` 的 sha256 + 字节数校验冻版基线；CI 的 checkout 里没有这些文件。缺输入时以 rc=2 单行报 `UNAVAILABLE:` 退出 |
+| 四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`） | 同上，另需仓库上级目录的 HIR 竞赛文书 PDF；缺输入时同样以 rc=2 单行报 `UNAVAILABLE:` 退出 |
 | `node tools/verify-render.mjs` | 连宿主浏览器 CDP 端点（默认 `127.0.0.1:9222`，可用 `CDP=` 覆盖）；CI 容器内没有浏览器，端点不可用时以 rc=2 明确退出而非静默通过 |
 | `node tools/verify-lang-toggle.mjs` | 同上：其浏览器节同样依赖宿主 CDP 端点 |
 
@@ -54,7 +54,7 @@ node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite 
 node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
 ```
 
-所有命令都以 rc=0 为准；rc≠0 会打印具体是哪一条断言不成立。
+所有命令都以 rc=0 为准；rc=1 打印具体是哪一条断言不成立，rc=2 表示运行环境或仓外输入不可用（单行 `UNAVAILABLE:`，见下表）。
 
 ## 部署到 GitHub Pages
 
@@ -82,7 +82,7 @@ node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build &&
 `tools/verify-tokens.mjs` 把 tokens.css 与简报数值逐条比对：**缺 token、数值不符、出现未登记的多余 token** 都会以 rc≠0 退出并打印 token 名、期望值、实际值。文件内 token 分两组并标注来源：
 
 - `design brief §9`：设计稿实测值（83 项）
-- `implementation supplement (motion layer)`：动效层新增的时长/缓动 token（8 项，设计稿中无此值）
+- `implementation supplement`：设计稿中未单列的值（73 项）——单尺寸补齐、响应式分档（BLUEPRINT §3.1–§3.3）与动效层
 
 ## 目录结构
 
@@ -92,17 +92,18 @@ src/
   i18n/index.tsx         双语运行时（Locale 类型、LocaleProvider、useLocale）
   lib/useInView.ts       IntersectionObserver 观察 + reduced-motion / SSR 降级
   components/primitives/ Section / Rule / TextRole / Reveal + primitives.css
-  sections/              Nav / Hero / PhotoBand / Index / Method / Values / Footer（占位）
+  sections/              Nav / Hero / PhotoBand / Index / Elder / Music / Sport / Method / Values / Footer（各一节）
+  sections/Scholarly/    Scholarly.tsx / ScholarlyIgem / ScholarlyJhu / ScholarlyImmuno / ScholarlyHir.tsx / useReveal.ts / scholarly.css
 tools/                   verify-tokens / verify-deploy / verify-copy-wiring / verify-head / verify-responsive / verify-ssr-dom（进 CI），其余留在本地
 docs/                    verify-copy.mjs / copy-en.json / copy-zh.json
 .github/workflows/       deploy.yml（唯一的部署路径）
 ```
 
-- 区块与 `data-section` 名一一对应：`nav` / `hero` / `photo-band` / `index` / `method` / `values` / `footer`。
-- 双语文案约定：各区块自己的文案放 `src/sections/<Name>/<name>.en.ts` 与 `src/sections/<Name>/<name>.zh.ts`，由区块组件消费；`src/i18n` 内不放任何文案。
-- locale 持久化用 localStorage 键 `jc-locale`，默认 `en`，切换时同步 `<html lang>`（en / zh-Hans）。
+- 区块与 `data-section` 名一一对应（ui.pen 的十一节顺序）：`nav` / `hero` / `photo-band` / `index` / `scholarly` / `elder` / `music` / `sport` / `method` / `values` / `footer`。
+- 双语文案约定：全站文案在中心字典 `docs/copy-en.json` / `docs/copy-zh.json`（各 134 键），由组件经 `useCopy()`（`src/i18n/copy.ts`）以 `text("key")` / `langOf("key")` 消费；`src/i18n` 内不放任何文案。
+- locale 持久化用 localStorage 键 `jc-lang`（`src/i18n/lang.ts`），默认 `zh-Hans`，解析序 `?lang=` → localStorage → 默认；切换时同步 `<html lang>`（en / zh-Hans）。
 
 ## 已知事项
 
 - `package-lock.json` 的 `resolved` 字段统一指向公共源 `https://registry.npmjs.org/`（本机 npm 配置了镜像也无妨：`replace-registry-host=npmjs` 会在安装时自动换回镜像源）。
-- 骨架页面的 `<h1>`、焦点态等无障碍细节随文案一起在后续 lane 落地；全局 `:focus-visible` 与 `prefers-reduced-motion` 已在 `global.css` / `motion.css` 就位。
+- 页面唯一的 `<h1>` 在 Hero 节（`src/sections/Hero/Hero.tsx`，`id="hero-title"`）；全局 `:focus-visible` 与 `prefers-reduced-motion` 已在 `global.css` / `motion.css` 就位。
