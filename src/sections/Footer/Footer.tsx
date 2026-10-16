@@ -26,7 +26,8 @@ export function Footer() {
 
   return (
     <footer id="footer" data-section="footer" aria-labelledby="footer-title" className="footer">
-      <Reveal className="footer__top">
+      {/* The footer closes the page's entrance chain, so it takes the last stagger tier. */}
+      <Reveal delay={3} className="footer__top">
         <div className="footer__contact">
           <h2 id="footer-title" className="footer__cta" data-role="T">
             {t("footer.cta")}

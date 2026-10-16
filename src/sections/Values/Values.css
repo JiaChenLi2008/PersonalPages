@@ -11,7 +11,11 @@
   list-style: none;
 }
 
-.values__card {
+/* The card is its fill box, and that box is the inner one: the hover (④) then lifts the
+   whole card, while the li the entrance reveals stays where the grid put it. `.motion-hover`
+   and `.reveal` cannot share an element — the hover's transition shorthand would drop the
+   entrance's opacity. */
+.values__card-inner {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -67,7 +71,7 @@
 }
 
 @media (max-width: 1200px) {
-  .values__card {
+  .values__card-inner {
     height: var(--card-h-t1200);
     padding: var(--pad-card-t1200);
   }
@@ -82,7 +86,7 @@
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .values__card {
+  .values__card-inner {
     height: var(--card-h-t900);
     padding: var(--pad-card-t900);
   }
@@ -97,7 +101,7 @@
     grid-template-columns: 1fr;
   }
 
-  .values__card {
+  .values__card-inner {
     height: var(--card-h-t600);
   }
 

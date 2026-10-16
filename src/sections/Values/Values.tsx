@@ -17,7 +17,8 @@ type ValueCard = {
   delay: 0 | 1 | 2 | 3;
 };
 
-/** The four cards of ui.pen `Values`, in page order. */
+/** The four cards of ui.pen `Values`, in page order; each card's fill and ink pair comes from
+    its design node through the nth-child block of Values.css. */
 const CARDS: ValueCard[] = [
   { title: "values.card1", delay: 0 },
   { title: "values.card2", delay: 1 },
@@ -42,12 +43,16 @@ export function Values() {
       <ul className="values__cards" role="list">
         {CARDS.map((card) => (
           <Reveal as="li" key={card.title} delay={card.delay} className="values__card">
-            <p className="values__label" data-role="K">
-              {t("values.label")}
-            </p>
-            <h2 className="values__title" data-role="T">
-              {t(card.title)}
-            </h2>
+            <div className="values__card-inner motion-hover">
+              {/* The card's mark, the shared VALUE label, slides in (③), so the Reveal is
+                  the label's own element and the data-role marker moves inside it. */}
+              <Reveal as="p" className="values__label motion-slide">
+                <span data-role="K">{t("values.label")}</span>
+              </Reveal>
+              <h2 className="values__title" data-role="T">
+                {t(card.title)}
+              </h2>
+            </div>
           </Reveal>
         ))}
       </ul>
