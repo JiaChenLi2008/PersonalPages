@@ -49,6 +49,39 @@ check("package.json scripts.build runs `vite build`", has(pkg?.scripts?.build ??
 check("package.json scripts.preview exists", Boolean(pkg?.scripts?.preview));
 
 const workflow = text(WORKFLOW);
+
+/** The job ids declared under `jobs:` (two-space indent), in file order. */
+function jobIds() {
+  const lines = workflow.split("\n");
+  const start = lines.findIndex((line) => /^jobs:\s*$/.test(line));
+  if (start < 0) {
+    return [];
+  }
+  const ids = [];
+  for (const line of lines.slice(start + 1)) {
+    if (/^\S/.test(line)) {
+      break; // the next top-level key ends the jobs block
+    }
+    const id = /^ {2}([A-Za-z0-9_-]+):\s*$/.exec(line);
+    if (id !== null) {
+      ids.push(id[1]);
+    }
+  }
+  return ids;
+}
+
+/** The lines of one job's block, so a `needs:` is read where it belongs and not elsewhere. */
+function jobBlock(id) {
+  const lines = workflow.split("\n");
+  const start = lines.findIndex((line) => line === `  ${id}:`);
+  if (start < 0) {
+    return [];
+  }
+  const rest = lines.slice(start + 1);
+  const end = rest.findIndex((line) => /^ {0,2}\S/.test(line));
+  return end < 0 ? rest : rest.slice(0, end);
+}
+
 const workflowLiterals = [
   ["triggers on push", "push:"],
   ["workflow_dispatch", "workflow_dispatch:"],
@@ -80,6 +113,28 @@ for (const [label, pattern] of workflowPatterns) {
   check(`${WORKFLOW} ${label}`, pattern.test(workflow));
 }
 
+// Publishing must be downstream of the gates, not a sibling of them: the publish job has
+// to wait on the gate job, and no publish step may sit before a gate step in the file.
+const jobs = jobIds();
+check(
+  `${WORKFLOW} declares exactly the gate job and the publish job (found: ${jobs.join(", ") || "none"})`,
+  jobs.length === 2 && jobs.includes("build") && jobs.includes("deploy"),
+);
+const needs = /^\s+needs:\s*(\[build\]|build)\s*$/m.exec(jobBlock("deploy").join("\n"));
+check(
+  `${WORKFLOW} publish job waits for the gate job — needs: build (found: ${
+    needs === null ? "none — 发布 job 未等待门禁 job" : needs[1]
+  })`,
+  needs !== null,
+);
+const publishAt = workflow.indexOf("actions/deploy-pages@");
+// Every `run: node tools/verify-*.mjs` step, wherever it sits: none may follow the publish step.
+const gateSteps = [...workflow.matchAll(/^\s*run:\s*node\s+(tools\/verify-[\w.-]+\.mjs)\s*$/gm)];
+const lateGates = gateSteps.filter((match) => match.index > publishAt).map((match) => match[1]);
+check(
+  `${WORKFLOW} runs every gate step before the publish step (late: ${lateGates.join(", ") || "none"})`,
+  publishAt >= 0 && gateSteps.length > 0 && lateGates.length === 0,
+);
 // Checks that need assets outside the repo (ui.pen, .agents/briefs/) cannot run
 // on a CI checkout, so they must stay out of the workflow.
 check(`${WORKFLOW} excludes docs/verify-copy.mjs`, !has(workflow, "docs/verify-copy.mjs"));

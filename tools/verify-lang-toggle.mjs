@@ -11,10 +11,11 @@
  *   2. Nav › Row › Right holds the toggle then Mail: two focusable button[aria-pressed],
  *      labelled verbatim from `nav.lang.zh` / `nav.lang.en`, with the 1×12 hairline between
  *      them and the pressed side on zh-Hans
- *   3. the 13 frozen key pairs of the label/title layer behave as ui.pen draws them:
- *      a single-node pair has only its zh side in the default mode (the design renders one
- *      variant, so the other arrives by switching); a dual pair has both sides side by side,
- *      because the design shows both at once (element-level `lang` only, BLUEPRINT §6.4)
+ *   3. in that default-mode markup the 13 frozen key pairs of the label/title layer coexist
+ *      as ui.pen draws them: a single-node pair carries only its zh side there (the design
+ *      renders one variant; the other arrives by switching, which the browser section below
+ *      drives item by item); a dual pair carries both sides side by side, because the design
+ *      shows both at once (element-level `lang` only, BLUEPRINT §6.4)
  *
  * Output: pairs_checked=13 single=<n> dual=<n> missing=<n>, then one line per missing pair.
  *
@@ -248,9 +249,11 @@ console.log(
  * values it read, so the same script before and after a fix compares line by line:
  *
  *   scenario 1 (Back/Forward): ?lang=zh-Hans -> Nav anchor (new history entry) -> EN
- *     (replaceState on the current entry) -> Back: <html lang>, document.title, the first
- *     nav label and the toggle's aria-pressed must all follow the URL's lang=zh-Hans;
- *     Forward must put all four back on lang=en.
+ *     (replaceState on the current entry) -> Back: <html lang>, document.title, every one of
+ *     the four nav labels (ordinal and §6.4 `lang` marks included), the toggle's aria-pressed
+ *     and the two dual head pairs must all follow the URL's lang=zh-Hans; Forward must put the
+ *     whole set back on lang=en. Each checkpoint compares the whole set, so a label pinned to
+ *     one mode (say an item that ignores the switch) is reported by name.
  *   scenario 2 (same-value click): storage zh-Hans + ?lang=en -> clicking the already
  *     pressed EN must persist `en`; a later query-less `/` must then render en.
  *
@@ -272,10 +275,56 @@ const WANT = {
   },
 };
 
+/** The nav's four links, in the design's order; the zh/en pair of each is in PAIRS above. */
+const NAV_LINKS = [
+  { id: "scholarly", no: "nav.item1.no", zh: "nav.item1.zh", en: "nav.item1.en" },
+  { id: "elder", no: "nav.item2.no", zh: "nav.item2.zh", en: "nav.item2.en" },
+  { id: "music", no: "nav.item3.no", zh: "nav.item3.zh", en: "nav.item3.en" },
+  { id: "sport", no: "nav.item4.no", zh: "nav.item4.zh", en: "nav.item4.en" },
+];
+
+/**
+ * The two dual head pairs the browser section drives as well. Their zh side has no element
+ * of its own: the design's `Section/Head` draws L (the zh kicker, a chrome key) beside R
+ * (the English title) and no Chinese title variant — which is exactly why
+ * scholarly.title.zh and elder.title.zh are the dead keys docs/CHROME.md §4 registers.
+ */
+const HEAD_PAIRS = [
+  {
+    pair: "scholarly.title",
+    zh: "scholarly.title.zh",
+    en: "scholarly.title.en",
+    kicker: "#scholarly .scholarly__kicker",
+    title: "#scholarly .scholarly__title",
+  },
+  {
+    pair: "elder.title",
+    zh: "elder.title.zh",
+    en: "elder.title.en",
+    kicker: "#elder .elder__kicker",
+    title: "#elder .elder__title-en",
+  },
+];
+
+/** The `heads` field of PROBE, built from the very selectors HEAD_PAIRS asserts against. */
+const HEAD_PROBE = `{${HEAD_PAIRS.map(
+  ({ pair, kicker, title }) =>
+    `${JSON.stringify(pair)}: { kicker: label(document.querySelector(${JSON.stringify(kicker)})), ` +
+    `title: label(document.querySelector(${JSON.stringify(title)})) }`,
+).join(", ")}}`;
+
 /** Raw values of every surface the two scenarios compare, read in one round trip. */
 const PROBE = `(() => {
   const label = (el) => (el === null ? null : el.textContent.trim());
+  const langOf = (el) => (el === null ? null : el.getAttribute("lang"));
   const option = (button) => label(button) + ":" + button.getAttribute("aria-pressed");
+  const navLink = (link) => ({
+    id: (link.getAttribute("href") ?? "").replace(/^#/, ""),
+    no: label(link.querySelector(".nav__no")),
+    noLang: langOf(link.querySelector(".nav__no")),
+    label: label(link.querySelector(".nav__label")),
+    labelLang: langOf(link.querySelector(".nav__label")),
+  });
   let stored = null;
   try { stored = localStorage.getItem("jc-lang"); } catch (error) { stored = "unavailable"; }
   return {
@@ -284,6 +333,8 @@ const PROBE = `(() => {
     htmlLang: document.documentElement.lang,
     title: document.title,
     navFirst: label(document.querySelector(".nav__links .nav__label")),
+    navLinks: [...document.querySelectorAll(".nav__links .nav__link")].map(navLink),
+    heads: ${HEAD_PROBE},
     options: [...document.querySelectorAll(".nav__lang-btn")].map(option).join(" "),
     stored,
     historyLength: history.length,
@@ -419,11 +470,20 @@ async function walk(tab, direction) {
 
 /** One line of raw values, then one assertion per surface against the expected language. */
 function report(label, probe) {
+  const navRaw = (probe.navLinks ?? [])
+    .map((link) => {
+      const mark = (value, lang) => `${value ?? "null"}${lang === null ? "" : `@${lang}`}`;
+      return `${link.id}=${mark(link.no, link.noLang)}/${mark(link.label, link.labelLang)}`;
+    })
+    .join(" ");
+  const headsRaw = HEAD_PAIRS.map(
+    (pair) => `${pair.pair}=${probe.heads?.[pair.pair]?.title ?? "null"}`,
+  ).join(" ");
   console.log(
     `${label}: url=${probe.url} query=${JSON.stringify(probe.query)} html.lang=${probe.htmlLang} ` +
       `title=${JSON.stringify(probe.title)} navFirst=${JSON.stringify(probe.navFirst)} ` +
       `toggle=[${probe.options}] stored=${JSON.stringify(probe.stored)} ` +
-      `history.length=${probe.historyLength}`,
+      `history.length=${probe.historyLength} nav=[${navRaw}] heads=[${headsRaw}]`,
   );
 }
 
@@ -433,11 +493,74 @@ function expectEqual(label, actual, wanted) {
   }
 }
 
+/**
+ * One text surface must show `key`'s text, and must carry `lang` only when the key's own
+ * language differs from the page's (BLUEPRINT §6.4). The label names the surface it read.
+ */
+function expectSurface(label, actual, key, pageLang) {
+  expectEqual(`${label} = ${key}`, actual.text, text(key));
+  const own = dict.zh[key].lang;
+  expectEqual(`${label} lang (${key})`, actual.lang, own === pageLang ? null : own);
+}
+
+/** Every nav link: its mode's own label key, the ordinal, and both `lang` marks (BLUEPRINT §6.4). */
+function expectNavLinks(label, probe, lang) {
+  const found = new Map((probe.navLinks ?? []).map((link) => [link.id, link]));
+  expectEqual(`${label}: nav link count`, found.size, NAV_LINKS.length);
+  for (const item of NAV_LINKS) {
+    const link = found.get(item.id);
+    if (link === undefined) {
+      fail(`${label}: nav link ${item.id} is missing from the page`);
+      continue;
+    }
+    expectSurface(`${label}: nav ${item.id} no`, { text: link.no, lang: link.noLang }, item.no, lang);
+    expectSurface(
+      `${label}: nav ${item.id} label`,
+      { text: link.label, lang: link.labelLang },
+      lang === "zh-Hans" ? item.zh : item.en,
+      lang,
+    );
+  }
+}
+
+/**
+ * The two dual head pairs: the zh side sits inside the L kicker (it has no element of its
+ * own — docs/CHROME.md §4), the English title in R; both stay put in both modes.
+ */
+function expectHeadPairs(label, probe) {
+  for (const pair of HEAD_PAIRS) {
+    const head = probe.heads?.[pair.pair];
+    if (head === undefined) {
+      fail(`${label}: ${pair.pair} head is missing from the page`);
+      continue;
+    }
+    expectEqual(`${label}: ${pair.pair} kicker carries ${pair.zh}`, head.kicker?.includes(text(pair.zh)), true);
+    expectEqual(`${label}: ${pair.pair} title = ${pair.en}`, head.title, text(pair.en));
+  }
+}
+
+/** Switching must move every nav label; one that does not is a pair frozen to a single mode. */
+function expectLabelsMoved(label, before, after) {
+  const previous = new Map((before.navLinks ?? []).map((link) => [link.id, link.label]));
+  for (const item of NAV_LINKS) {
+    const from = previous.get(item.id);
+    const to = (after.navLinks ?? []).find((link) => link.id === item.id)?.label;
+    if (from === undefined || to === undefined || from === to) {
+      fail(
+        `${label}: nav ${item.id} label reads ${JSON.stringify(to)} in both modes; ` +
+          `expected ${item.zh} to change into ${item.en}`,
+      );
+    }
+  }
+}
+
 function expectSurfaces(label, probe, lang) {
   expectEqual(`${label}: html.lang`, probe.htmlLang, lang);
   expectEqual(`${label}: document.title`, probe.title, WANT.title[lang]);
   expectEqual(`${label}: first nav label`, probe.navFirst, WANT.navFirst[lang]);
   expectEqual(`${label}: toggle label+aria-pressed`, probe.options, WANT.toggle[lang]);
+  expectNavLinks(label, probe, lang);
+  expectHeadPairs(label, probe);
 }
 
 const cdp = await openCdp(CDP_HTTP);
@@ -473,6 +596,7 @@ try {
     report("  s1 after Nav anchor", probe);
     const historyAfterAnchor = probe.historyLength;
     expectEqual("s1 Nav anchor pushed an entry", historyAfterAnchor, historyOpened + 1);
+    const zhProbe = probe;
 
     await clickSelector(tab, ".nav__lang-btn--en");
     await settle(tab, `document.documentElement.lang === "en"`, "click EN");
@@ -480,6 +604,7 @@ try {
     report("  s1 after clicking EN", probe);
     const enUrl = probe.url;
     expectSurfaces("s1 after EN", probe, "en");
+    expectLabelsMoved("s1 after EN", zhProbe, probe);
     expectEqual("s1 after EN: URL carries lang", probe.query, "en");
 
     await walk(tab, "back");
@@ -546,5 +671,7 @@ if (failures.length > 0) {
 console.log(
   `PASS: default mode zh-Hans (${html.length} B, ${HTML_OUT}) — html lang=zh-Hans, ` +
     `title=${JSON.stringify(document.title)}, ${pressed.length} toggle buttons pressed on zh-Hans ` +
-    "with the 1×12 hairline between them, all 13 pairs as the design draws them",
+    "with the 1×12 hairline between them; all 13 pairs coexist in that default-mode markup, and " +
+    `the browser drove all ${NAV_LINKS.length} nav links plus both head pairs through both modes ` +
+    "(label, ordinal and §6.4 lang per item)",
 );
