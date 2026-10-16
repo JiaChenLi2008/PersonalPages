@@ -27,19 +27,22 @@ npm run typecheck               # src + vite.config.ts
 
 ```bash
 node tools/verify-tokens.mjs       # 设计 token 逐条比对设计稿数值
+python3 tools/verify-assets.py     # public/media 与 MANIFEST.json 逐条比对（表用 Pillow）
 node tools/verify-deploy.mjs       # 部署配置门禁（GitHub Pages 单路径）
+node tools/verify-motion.mjs       # 动效层（冻结 token / 钩子 / 揭晓契约 / 禁用项 / 时长预算）
 npm run build                      # 类型检查 + 产出 dist/
 node tools/verify-copy-wiring.mjs  # 文案键确实进了 dist/assets/*.js（读打包产物）
 node tools/verify-head.mjs         # index.html 文档头与字典 hero.* 逐字一致
 node tools/verify-responsive.mjs   # 蓝图 §3 的响应式数值逐条比对
 node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite SSR 构建）
+node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一份 SSR 产物）
 ```
 
-便宜的静态门禁先跑（fail fast）。后四条都排在 `npm run build` 之后：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` 用 Vite JS API 自建一份 SSR 产物到 `/tmp`（不读 `dist/`），是这批里最慢的一个，故排最后。
+便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的五条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），后者建两份（en / zh-Hans）故排最后。
 
 ### 只在本地跑（CI 不跑，因为不自足）
 
-上列七条全自足：只读 checkout、无浏览器、无仓库外输入。下面这些的输入或运行环境不在 CI 里，故留在本地：
+上列十条全自足：只读 checkout、无浏览器、无仓库外输入（`verify-assets.py` 需 `python3` 与 Pillow，故 workflow 里带一行守卫安装，见下）。下面这些的输入或运行环境不在 CI 里，故留在本地：
 
 | 命令 / 门禁 | 不进 CI 的原因 |
 |---|---|
@@ -49,10 +52,12 @@ node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite 
 | `node tools/verify-fonts.mjs` | 同上：靠 CDP `CSS.getPlatformFontsForNode` 读**实际选中**的字体族，端点不可用时以 rc=2 单行 `UNAVAILABLE:` 退出 |
 | `node tools/verify-lang-toggle.mjs` | 同上：其浏览器节同样依赖宿主 CDP 端点 |
 
-本地跑全量（CI 七条 + 上表）：
+`verify-assets.py` 的非标准库依赖只有 Pillow：workflow 的该步骤先 `python3 -c "import PIL"`，缺了才 `python3 -m pip install --quiet pillow`（GitHub 的 ubuntu 镜像 `/etc/pip.conf` 已设 `break-system-packages`），镜像自带则一行也不装。
+
+本地跑全量（CI 十条 + 上表）：
 
 ```bash
-node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
+node tools/verify-tokens.mjs && python3 tools/verify-assets.py && node tools/verify-deploy.mjs && node tools/verify-motion.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && node tools/verify-lang-purity.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
 ```
 
 所有命令都以 rc=0 为准；rc=1 打印具体是哪一条断言不成立，rc=2 表示运行环境或仓外输入不可用（单行 `UNAVAILABLE:`，见下表）。
@@ -64,8 +69,8 @@ node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build &&
 1. 把仓库推到 GitHub，默认分支 `main`。
 2. 仓库网页端 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**（不要选 "Deploy from a branch"）。
 3. 向 `main` 推送即触发 `.github/workflows/deploy.yml`：
-   `actions/checkout` → `actions/setup-node`（Node 22 + npm 缓存）→ `npm ci` → `node tools/verify-tokens.mjs` → `node tools/verify-deploy.mjs` → `npm run build` → `node tools/verify-copy-wiring.mjs` → `node tools/verify-head.mjs` → `node tools/verify-responsive.mjs` → `node tools/verify-ssr-dom.mjs` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: ./dist`）→ `actions/deploy-pages`。
-   静态门禁先跑（fail fast），靠后的四个门禁都排在 build 之后（`verify-copy-wiring` 要读 `dist/`）；任一脚本 rc≠0，job 即失败，不会发布半成品。进 CI 的只有自足脚本；依赖仓库外素材或宿主浏览器的门禁留在本地跑（见「验证套件」的 CI 边界表）。
+   `actions/checkout` → `actions/setup-node`（Node 22 + npm 缓存）→ `npm ci` → `node tools/verify-tokens.mjs` → `python3 tools/verify-assets.py` → `node tools/verify-deploy.mjs` → `node tools/verify-motion.mjs` → `npm run build` → `node tools/verify-copy-wiring.mjs` → `node tools/verify-head.mjs` → `node tools/verify-responsive.mjs` → `node tools/verify-ssr-dom.mjs` → `node tools/verify-lang-purity.mjs` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: ./dist`）→ `actions/deploy-pages`。
+   静态门禁先跑（fail fast），靠后的五条都排在 build 之后（`verify-copy-wiring` 要读 `dist/`）；任一脚本 rc≠0，job 即失败，不会发布半成品。进 CI 的只有自足脚本；依赖仓库外素材或宿主浏览器的门禁留在本地跑（见「验证套件」的 CI 边界表）。
    手动重跑：**Actions → Deploy to GitHub Pages → Run workflow**。
 4. 在 **Actions** 面板看这次 run 的 `build` / `deploy` 两个 job 变绿；`deploy` 的 environment 链接即站点地址。
 5. 访问 `https://<user>.github.io/<repo>/`。（用户主页仓库 `<user>.github.io` 则是 `https://<user>.github.io/`。）
@@ -83,7 +88,9 @@ node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build &&
 `tools/verify-tokens.mjs` 把 tokens.css 与简报数值逐条比对：**缺 token、数值不符、出现未登记的多余 token** 都会以 rc≠0 退出并打印 token 名、期望值、实际值。文件内 token 分两组并标注来源：
 
 - `design brief §9`：设计稿实测值（83 项）
-- `implementation supplement`：设计稿中未单列的值（73 项）——单尺寸补齐、响应式分档（BLUEPRINT §3.1–§3.3）与动效层
+- `implementation supplement`：设计稿中未单列的值（77 项）——单尺寸补齐、响应式分档（BLUEPRINT §3.1–§3.3）与动效层
+
+`tools/verify-motion.mjs` 把动效层钉在 **7 类断言**上：12 个冻结 motion token 与 `src/styles/tokens.css` 逐字同值且被样式消费、无作废旧名（`--dur-fast` / `--ease-inout`）、每个动效钩子都有 `prefers-reduced-motion: reduce` 终态、揭晓契约（`grid-template-rows: 0fr → 1fr`、`overflow-anchor: none`、`aria-expanded`/`aria-controls`/`aria-labelledby`/`data-state`、无内联 style）、11 节均有入场钩子、禁用项（过冲缓动、动画 `top`/`left`/`height`/`margin`、`transition: all`、scroll 监听）、时长预算（单条 ≤800ms、首屏链 ≤800ms）。`node tools/verify-motion.mjs --self-test` 自毁一份 /tmp 副本再跑同一套判据，拦住即 rc=1。
 
 ## 字体
 
@@ -107,7 +114,7 @@ src/
   components/primitives/ Section / Rule / TextRole / Reveal + primitives.css
   sections/              Nav / Hero / PhotoBand / Index / Elder / Music / Sport / Method / Values / Footer（各一节）
   sections/Scholarly/    Scholarly.tsx / ScholarlyIgem / ScholarlyJhu / ScholarlyImmuno / ScholarlyHir.tsx / useReveal.ts / scholarly.css
-tools/                   verify-tokens / verify-deploy / verify-copy-wiring / verify-head / verify-responsive / verify-ssr-dom（进 CI），其余留在本地
+tools/                   verify-tokens / verify-assets.py / verify-deploy / verify-motion / verify-copy-wiring / verify-head / verify-responsive / verify-ssr-dom / verify-lang-purity（进 CI），其余留在本地
 docs/                    verify-copy.mjs / copy-en.json / copy-zh.json
 .github/workflows/       deploy.yml（唯一的部署路径）
 ```

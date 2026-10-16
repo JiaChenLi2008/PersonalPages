@@ -34,6 +34,11 @@ DERIVED = {
     "photoband-2880": ("FvW5q", 2880, 1120),
 }
 DERIVED_MAX_BYTES = 250 * 1024
+# 全幅宽图（通栏、无左右留白，像素最密）单文件上限放宽到 320 KB，**只对下列白名单**生效；
+# 其余图位一律仍判 250 KB。hir-fig-2688 受限旧值只能压到 q23（画质偏软），故按此上限
+# 重编为 jpg q32 / webp q36；photoband-2880（另一张全幅宽图）同样上限，现文件远低于此值。
+FULL_BLEED_MAX_BYTES = 320 * 1024
+FULL_BLEED = {"hir-fig-2688", "photoband-2880"}
 BLANK_STDDEV_SUM = 5  # RGB 三通道标准差之和 <= 此值即为空白/占位图
 SOURCE_ORIGINALS = {"image1.jpeg", "image2.jpeg", "image3.jpeg"}
 NON_DERIVED = {"hir-essay.pdf"}  # 原样搬运的附件（非派生位图），不参与位图清单：无像素尺寸，且由 ScholarlyHir 直接 href 使用
@@ -125,7 +130,10 @@ def main():
         if e["w"] > s["w"] or e["h"] > s["h"]:
             errs.append(f"{key}: 放大违约 {e['w']}x{e['h']} > src {s['w']}x{s['h']}")
 
-    # ⑧ 图位派生图：存在、像素尺寸精确匹配、单文件 <=250KB、webp/jpg 成对、非空白
+    # ⑧ 图位派生图：存在、像素尺寸精确匹配、单文件 <=上限、webp/jpg 成对、非空白
+    if not FULL_BLEED <= set(DERIVED):
+        print(f"FAIL 全幅宽白名单含未知图位: {sorted(FULL_BLEED - set(DERIVED))}")
+        return 1
     derived_before = len(errs)
     for base, (node, dw, dh) in sorted(DERIVED.items()):
         for ext in ("webp", "jpg"):
@@ -138,8 +146,12 @@ def main():
                 errs.append(f"{name}: 未登记进清单（nodeId {node}）")
             elif entries[name].get("nodeId") != node:
                 errs.append(f"{name}: 清单 nodeId={entries[name].get('nodeId')!r} != {node!r}")
-            if path.stat().st_size > DERIVED_MAX_BYTES:
-                errs.append(f"{name}: {path.stat().st_size} 字节 > 250 KB 上限")
+            cap = FULL_BLEED_MAX_BYTES if base in FULL_BLEED else DERIVED_MAX_BYTES
+            if path.stat().st_size > cap:
+                errs.append(
+                    f"{name}: {path.stat().st_size} 字节 > {cap // 1024} KB 上限"
+                    f"（{'全幅宽白名单' if base in FULL_BLEED else '默认'}）"
+                )
             try:
                 with Image.open(path) as im:
                     got, spread = im.size, sum(ImageStat.Stat(im.convert("RGB")).stddev)
@@ -189,7 +201,8 @@ def main():
     if derived_failed:
         print(f"新增 {len(DERIVED)} 组图位：{derived_failed} 项不合格")
     else:
-        print(f"新增 {len(DERIVED)} 组图位通过：存在 / 尺寸精确匹配 / 单文件 <=250KB / webp+jpg 成对 / 非空白")
+        print(f"新增 {len(DERIVED)} 组图位通过：存在 / 尺寸精确匹配 / 单文件 <=250KB"
+              f"（全幅宽 {sorted(FULL_BLEED)} <=320KB）/ webp+jpg 成对 / 非空白")
     if errs:
         print(f"FAIL 共 {len(errs)} 条")
         return 1
