@@ -101,6 +101,8 @@ node tools/verify-tokens.mjs && node tools/verify-deploy.mjs && npm run build &&
 src/
   styles/                tokens.css / global.css / motion.css / fonts.css（自托管 @font-face）
   i18n/index.tsx         双语运行时（Locale 类型、LocaleProvider、useLocale）
+  i18n/lang.ts           语言状态（Lang、默认 zh-Hans；?lang= → localStorage → 默认 的解析与 <html lang> 同步）
+  i18n/copy.ts           文案访问（useCopy() → text() / langOf()，只读中心字典，不持有文案）
   lib/useInView.ts       IntersectionObserver 观察 + reduced-motion / SSR 降级
   components/primitives/ Section / Rule / TextRole / Reveal + primitives.css
   sections/              Nav / Hero / PhotoBand / Index / Elder / Music / Sport / Method / Values / Footer（各一节）

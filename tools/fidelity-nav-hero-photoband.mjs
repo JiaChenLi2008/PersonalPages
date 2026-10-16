@@ -16,7 +16,7 @@
  * Usage: node tools/fidelity-nav-hero-photoband.mjs
  *        (exit 0 = aligned; exit 1 = missing / out-of-range / unresolved values,
  *         each printed with its file and line)
- * PEN_PATH overrides the design-file lookup when the frozen file moves.
+ *        ui.pen is looked up beside the repo root or in its ancestors; PEN_PATH overrides.
  */
 
 import { createHash } from "node:crypto";
@@ -26,10 +26,16 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PEN_SHA = "8816b923b24c00e4";
+/* The frozen board lives outside the repo (one shared source for the whole project),
+   so it is searched for beside the repo root and in its ancestors — the same upward
+   lookup as tools/fidelity-index-method-values-footer.mjs. No absolute path: a missing
+   board is rc=2, never a silent read of some other checkout's copy. */
 const PEN_CANDIDATES = [
   process.env.PEN_PATH,
+  join(ROOT, "ui.pen"),
   join(ROOT, "..", "ui.pen"),
-  "/mnt/code/JC_Project/ui.pen",
+  join(ROOT, "..", "..", "ui.pen"),
+  join(ROOT, "..", "..", "..", "ui.pen"),
 ].filter(Boolean);
 
 const SECTIONS = [
@@ -224,8 +230,8 @@ function supplementValues(section, group) {
 const penFile = PEN_CANDIDATES.find((candidate) => existsSync(candidate));
 if (penFile === undefined) {
   console.error(
-    `UNAVAILABLE: ui.pen — not found (looked at ${PEN_CANDIDATES.join(", ")}); ` +
-      "this gate needs the frozen board in the repo's parent directory (or PEN_PATH=…)",
+    "UNAVAILABLE: ui.pen — not found beside the repo root or in its ancestors; " +
+      "this gate needs the frozen board there (or PEN_PATH=/path/to/ui.pen)",
   );
   process.exit(2);
 }
