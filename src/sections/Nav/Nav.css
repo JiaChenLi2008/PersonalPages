@@ -48,12 +48,10 @@ html {
   color: var(--c-ink);
 }
 
-.nav__cn {
+/* The brand in Chinese is the same element as the brand in English (single-side rendering,
+   BLUEPRINT §6.4): it keeps the name's metrics and swaps in the CJK face only. */
+.nav__name--cn {
   font-family: var(--ff-sans-cn);
-  font-size: var(--fs-14);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-none);
-  color: var(--c-muted);
 }
 
 .nav__links {
@@ -68,7 +66,9 @@ html {
   align-items: center;
   color: var(--c-ink);
   text-decoration: none;
-  transition: color var(--dur-3) var(--ease-out);
+  /* Colour and pointer feedback both come from the shared `.motion-hover` hook this link
+     carries (--dur-1): the local 600ms colour transition it used to declare is gone
+     (motion-spec §11 #1). */
 }
 
 /* Current section (BLUEPRINT §4 #2): number and label both flip to blue. */
@@ -144,6 +144,15 @@ html {
 .nav__rule {
   height: var(--rule-h);
   background: var(--c-rule-strong);
+}
+
+/* Language-switch FLIP (langSwap.ts, motion spec §5): the class is added to the surfaces the
+   switch reflows — the brand, the four labels, the hero title — once their movement has been
+   inverted, and the release transition carries them home. It is the page's only FLIP, at most
+   one group runs at a time, and reduce mode never gets here: langSwap.ts commits directly and
+   global.css drops every transition. */
+.is-lang-flip {
+  transition: transform var(--dur-1) var(--ease-out);
 }
 
 /* Responsive tiers: BLUEPRINT §3.1 (gutter, --nav-h) and §3.3 (two-row row, links gap). */

@@ -1,6 +1,8 @@
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useLang, type Lang } from "../../i18n/lang";
 import { useCopy, type CopyKey } from "../../i18n/copy";
+import { Reveal } from "../../components/primitives/Reveal";
+import { swapLanguage } from "./langSwap";
 import "./Nav.css";
 
 /** Frozen nav order and its anchor targets (BLUEPRINT §2.2): no fifth item, no `values` entry. */
@@ -86,14 +88,19 @@ export function Nav() {
 
   return (
     <header ref={header} id="nav" data-section="nav" className="nav">
-      <nav className="nav__row">
+      {/* Bar entrance (motion spec §2 nav, tier 0): the row lifts and fades in on first
+          intersection. The hairline below stays put — it is the page rule, not the bar. */}
+      <Reveal as="nav" className="nav__row" delay={0}>
         <div className="nav__brand">
           <span className="nav__mark" aria-hidden="true" />
-          <span className="nav__name" lang={copyLang("nav.brand.name")}>
-            {text("nav.brand.name")}
-          </span>
-          <span className="nav__cn" lang={copyLang("nav.brand.cn")}>
-            {text("nav.brand.cn")}
+          {/* Single-side brand (BLUEPRINT §6.4): the page renders one brand, its own
+              language's key, on the main element's metrics — the pair never doubles up
+              and the other key never reaches the DOM. */}
+          <span
+            className={lang === "zh-Hans" ? "nav__name nav__name--cn" : "nav__name"}
+            lang={copyLang(lang === "zh-Hans" ? "nav.brand.cn" : "nav.brand.name")}
+          >
+            {lang === "zh-Hans" ? text("nav.brand.cn") : text("nav.brand.name")}
           </span>
         </div>
         <div className="nav__links">
@@ -103,7 +110,7 @@ export function Nav() {
             return (
               <a
                 key={item.id}
-                className="nav__link"
+                className="nav__link motion-hover"
                 href={`#${item.id}`}
                 aria-current={current === item.id ? "true" : undefined}
               >
@@ -124,10 +131,10 @@ export function Nav() {
                 {option.lang === "en" && <span className="nav__lang-div" aria-hidden="true" />}
                 <button
                   type="button"
-                  className={`nav__lang-btn nav__lang-btn--${option.lang === "zh-Hans" ? "zh" : "en"}`}
+                  className={`nav__lang-btn nav__lang-btn--${option.lang === "zh-Hans" ? "zh" : "en"} motion-hover`}
                   aria-pressed={option.lang === lang}
                   lang={copyLang(option.label)}
-                  onClick={() => setLang(option.lang)}
+                  onClick={() => swapLanguage(() => setLang(option.lang))}
                 >
                   {text(option.label)}
                 </button>
@@ -138,7 +145,7 @@ export function Nav() {
             {text("nav.mail")}
           </span>
         </div>
-      </nav>
+      </Reveal>
       <div className="nav__rule" aria-hidden="true" />
     </header>
   );

@@ -10,16 +10,20 @@
   place-items: center;
   height: var(--hero-photo-h);
   overflow: hidden;
-  /* No placeholder surface exists in the node (it holds a photo): the hairline grey stands in. */
+  /* The photo covers the slot; the hairline grey stays behind it while it loads. */
   background: var(--c-rule);
 }
 
-.photo-band__pending {
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-none);
-  color: var(--c-ink);
+/* The design's photo (2880×1120, 18:7) fills the slot and, at 1.5× the slot in both
+   directions, carries the 0.3× parallax: its travel is 0.15 × its own height, which stays
+   inside the 25% overhang. Below ~1200px the band's tier height is taller than 18:7, so
+   `min-height` keeps that overhang while `aspect-ratio` keeps the source geometry above it. */
+.photo-band__img {
+  display: block;
+  width: 150%;
+  aspect-ratio: 2880 / 1120;
+  min-height: 150%;
+  object-fit: cover;
 }
 
 .photo-band__cap {
