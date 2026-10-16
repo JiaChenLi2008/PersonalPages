@@ -18,16 +18,22 @@
  *      fixed scroll-padding-top leaves the heading under it
  *   5. the Music/Sport placeholder boxes stay out of the accessibility tree
  *      (aria-hidden="true", no role="img") — BLUEPRINT §6.3
+ *   6. every `.motion-clip` slot is open once the page has been scrolled through: it has
+ *      `is-in` and its computed clip-path no longer holds `100%` — a slot held at
+ *      `inset(0 100% 0 0)` has zero area, so the observer feeding it never fires
+ *   7. every `<img>`, `loading="lazy"` included, has loaded (naturalWidth > 0) after that
+ *      same scroll — a lazy image inside a closed slot is never requested
  *
  * at 1440 only, the two interactive pieces are exercised for real:
  *
- *   6. the board reveal flips aria-expanded true → false over two clicks and the
+ *   8. the board reveal flips aria-expanded true → false over two clicks and the
  *      panel it controls gains height while open
- *   7. the language toggle rewrites <html lang> and the tab title, persists ?lang=,
+ *   9. the language toggle rewrites <html lang> and the tab title, persists ?lang=,
  *      and a second click restores the previous language
  *
  * Output: matrix=<w>×<langs> cells_checked=<n> overflow_cells=0 missing_blocks=0
- * offenders=0, then one line per failed assertion.
+ * offenders=0 clips_checked=<n> clips_closed=0 images_checked=<n> images_unloaded=0,
+ * then one line per failed assertion.
  *
  * Usage: node tools/verify-render.mjs      (CDP=http://… to point at another host)
  *
@@ -231,6 +237,39 @@ const A11Y_PROBE = `(async () => {
   return { anchors, placeholders };
 })()`;
 
+/* Mask and lazy-image probe (motion.css devices ①/②). A `.motion-clip` slot is clipped to
+   zero area and a `loading="lazy"` image inside it has no visible geometry to be scheduled
+   from, so both readings are only meaningful after the page has really been scrolled
+   through. A slot that never opens is reported by name, with its clip-path at the time of
+   the read — that pair is the whole defect this probe exists for. */
+const MOTION_PROBE = `(async () => {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const describe = (el) =>
+    el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (el.className ? "." + String(el.className).trim().split(/\\s+/).join(".") : "");
+  const clips = [...document.querySelectorAll(".motion-clip")];
+  const images = [...document.querySelectorAll("img")];
+  const step = Math.round(window.innerHeight * 0.75);
+  for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
+    window.scrollTo(0, y);
+    await sleep(120);
+  }
+  window.scrollTo(0, document.documentElement.scrollHeight);
+  /* Settle inside 1s: the mask sweep is --dur-slow (600ms) and the observer fires a frame or
+     two after the scroll stops, so poll rather than sleep the whole budget every cell. */
+  const opened = () => clips.every((el) => el.classList.contains("is-in") && !/100%/.test(getComputedStyle(el).clipPath));
+  for (let i = 0; i < 10 && !opened(); i++) await sleep(100);
+  const loaded = () => images.every((img) => img.naturalWidth > 0);
+  for (let i = 0; i < 20 && !loaded(); i++) await sleep(100);
+  return {
+    clips: clips.map((el) => ({ sel: describe(el), isIn: el.classList.contains("is-in"), clipPath: getComputedStyle(el).clipPath })),
+    images: images.map((img) => ({
+      file: (img.currentSrc || img.getAttribute("src") || "").split("/").pop(),
+      naturalWidth: img.naturalWidth,
+      loading: img.getAttribute("loading"),
+    })),
+  };
+})()`;
+
 const PROBE = `(() => {
   const de = document.documentElement;
   const blocks = {};
@@ -253,7 +292,7 @@ const cells = [];
 for (const width of WIDTHS) {
   for (const query of LANG_QUERIES) {
     await load(width, 900, query);
-    cells.push({ width, query, ...(await evalJs(PROBE)), a11y: await evalJs(A11Y_PROBE) });
+    cells.push({ width, query, ...(await evalJs(PROBE)), a11y: await evalJs(A11Y_PROBE), motion: await evalJs(MOTION_PROBE) });
   }
 }
 
@@ -264,6 +303,10 @@ let anchorsChecked = 0;
 let anchorMisses = 0;
 let placeholdersChecked = 0;
 let placeholderFailures = 0;
+let clipsChecked = 0;
+let clipsClosed = 0;
+let imagesChecked = 0;
+let imagesUnloaded = 0;
 for (const cell of cells) {
   const label = `width=${cell.width} lang=${cell.query || "default"}`;
   const overflow = cell.scrollW - cell.clientW;
@@ -311,6 +354,18 @@ for (const cell of cells) {
           `aria-hidden=${JSON.stringify(box.ariaHidden)} role=${JSON.stringify(box.role)} aria-label=${JSON.stringify(box.ariaLabel)}`,
       );
     }
+  }
+  for (const clip of cell.motion.clips) {
+    clipsChecked++;
+    if (clip.isIn && !/100%/.test(clip.clipPath)) continue;
+    clipsClosed++;
+    fail(`${label}: ${clip.sel} never opened after the scroll (is-in=${clip.isIn}, clip-path=${clip.clipPath})`);
+  }
+  for (const image of cell.motion.images) {
+    imagesChecked++;
+    if (image.naturalWidth > 0) continue;
+    imagesUnloaded++;
+    fail(`${label}: <img> ${image.file} did not load (naturalWidth=0, loading=${image.loading})`);
   }
 }
 
@@ -366,7 +421,7 @@ await send("Target.closeTarget", { targetId }).catch(() => {});
 ws.close();
 server.close();
 
-console.log(`matrix=${WIDTHS.length}x${LANG_QUERIES.length} cells_checked=${cells.length} overflow_cells=${overflowCells} missing_blocks=${missingBlocks} offenders=${offenders}`);
+console.log(`matrix=${WIDTHS.length}x${LANG_QUERIES.length} cells_checked=${cells.length} overflow_cells=${overflowCells} missing_blocks=${missingBlocks} offenders=${offenders} clips_checked=${clipsChecked} clips_closed=${clipsClosed} images_checked=${imagesChecked} images_unloaded=${imagesUnloaded}`);
 console.log(`anchors_checked=${anchorsChecked} anchor_misses=${anchorMisses} placeholders_checked=${placeholdersChecked} placeholder_failures=${placeholderFailures}`);
 for (const f of failures) console.log(" - " + f);
 process.exit(failures.length ? 1 : 0);

@@ -16,7 +16,26 @@ export type UseInViewOptions = {
   once?: boolean;
   /** Observer root margin; pulls the trigger 10% into the viewport by default. */
   rootMargin?: string;
+  /** Observe the nearest ancestor that carries no `.motion-clip` instead of the element. */
+  observeUnclippedAncestor?: boolean;
 };
+
+/**
+ * The element itself, or — for a `.motion-clip` slot — the block around it. A slot held at
+ * `inset(0 100% 0 0)` is clipped to zero area, so the observer reads intersectionRatio 0
+ * however far the page is scrolled and the threshold is never met: the trigger has to come
+ * from the nearest ancestor the mask does not zero out.
+ */
+function observerTarget(element: HTMLElement, observeUnclippedAncestor: boolean): Element {
+  if (!observeUnclippedAncestor) {
+    return element;
+  }
+  let node = element.parentElement;
+  while (node && node.classList.contains("motion-clip")) {
+    node = node.parentElement;
+  }
+  return node ?? element;
+}
 
 /** True when this environment must never animate: SSR, no IntersectionObserver, reduced motion. */
 function shouldSkipObserver(): boolean {
@@ -39,6 +58,7 @@ export function useInView<T extends HTMLElement>(
     threshold = DEFAULT_THRESHOLD,
     once = true,
     rootMargin = DEFAULT_ROOT_MARGIN,
+    observeUnclippedAncestor = false,
   } = options;
   const ref = useRef<T>(null);
   const [inView, setInView] = useState(shouldSkipObserver);
@@ -70,9 +90,9 @@ export function useInView<T extends HTMLElement>(
       { threshold, rootMargin },
     );
 
-    observer.observe(element);
+    observer.observe(observerTarget(element, observeUnclippedAncestor));
     return () => observer.disconnect();
-  }, [once, rootMargin, threshold]);
+  }, [observeUnclippedAncestor, once, rootMargin, threshold]);
 
   return [ref, inView];
 }

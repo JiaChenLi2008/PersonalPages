@@ -28,7 +28,10 @@ export function Reveal({
   className,
   children,
 }: RevealProps): JSX.Element {
-  const [ref, inView] = useInView<HTMLElement>({ threshold, rootMargin });
+  // A `.motion-clip` slot is clipped to zero area, so it can never trip its own observer:
+  // the trigger is read from the block around it. Callers ask for the mask by name only.
+  const observeUnclippedAncestor = (className ?? "").split(/\s+/).includes("motion-clip");
+  const [ref, inView] = useInView<HTMLElement>({ threshold, rootMargin, observeUnclippedAncestor });
   const classes = ["reveal", inView ? "is-in" : null, className].filter(Boolean).join(" ");
   // JSX cannot tie a ref to the chosen tag of a union, so the tag is widened here.
   const Element = as as ElementType;
