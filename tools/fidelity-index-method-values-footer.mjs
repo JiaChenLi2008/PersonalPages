@@ -241,8 +241,11 @@ function findPen() {
 function readPen() {
   const path = findPen();
   if (path === undefined) {
-    console.error("ui.pen not found; set UI_PEN=/path/to/ui.pen");
-    process.exit(1);
+    console.error(
+      "UNAVAILABLE: ui.pen — not found beside the repo root or in its ancestors; " +
+        "this gate needs the frozen board there (or UI_PEN=/path/to/ui.pen)",
+    );
+    process.exit(2);
   }
   const bytes = readFileSync(path);
   const sha = createHash("sha256").update(bytes).digest("hex");

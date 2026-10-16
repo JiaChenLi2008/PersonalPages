@@ -223,8 +223,11 @@ function supplementValues(section, group) {
 
 const penFile = PEN_CANDIDATES.find((candidate) => existsSync(candidate));
 if (penFile === undefined) {
-  console.error(`ui.pen not found (looked at ${PEN_CANDIDATES.join(", ")}); set PEN_PATH`);
-  process.exit(1);
+  console.error(
+    `UNAVAILABLE: ui.pen — not found (looked at ${PEN_CANDIDATES.join(", ")}); ` +
+      "this gate needs the frozen board in the repo's parent directory (or PEN_PATH=…)",
+  );
+  process.exit(2);
 }
 
 const penBytes = readFileSync(penFile);

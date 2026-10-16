@@ -11,7 +11,7 @@
 //   ⑧ 任何 text 不得以 ※ 开头（※ 是设计稿注解，不入字典、不渲染，见 docs/CHROME.md）
 //   ⑥ copy-zh.json 中 fallback 条目的 text 必须与 copy-en.json 同键同文
 //
-// 退出码：0 通过；1 有任一问题（逐条打印）。
+// 退出码：0 通过；1 有任一问题（逐条打印）；2 缺仓外只读输入（单行 UNAVAILABLE，非断言失败）。
 //
 // src 指针文法（见 docs/BLUEPRINT.md §2.10）：
 //   content-brief.md#段[N] / layout-brief.md#段[N]   → 段区间原文
@@ -43,13 +43,24 @@ function findRoot(start) {
 }
 const ROOT = findRoot(DOCS);
 if (!ROOT) {
-  console.error('✗ [env] 未找到含 ui.pen 与 .agents/briefs/ 的仓库根（自 ' + DOCS + ' 逐级向上）');
-  process.exit(1);
+  console.error('UNAVAILABLE: ui.pen + .agents/briefs — 未找到含二者的仓库根（自 ' + DOCS +
+                ' 逐级向上）；该门禁需要仓库上级目录');
+  process.exit(2);
 }
 const BRIEFS = path.join(ROOT, '.agents', 'briefs');
 const cache = new Map();
 const linesOf = (abs) => {
-  if (!cache.has(abs)) cache.set(abs, fs.readFileSync(abs, 'utf8').split('\n'));
+  if (!cache.has(abs)) {
+    let text;
+    try {
+      text = fs.readFileSync(abs, 'utf8');
+    } catch (error) {
+      console.error('UNAVAILABLE: ' + abs + ' — 仓外只读输入不可读（' + error.code +
+                    '）；该门禁需要仓库上级目录的 .agents/briefs/**');
+      process.exit(2);
+    }
+    cache.set(abs, text.split('\n'));
+  }
   return cache.get(abs);
 };
 
