@@ -17,6 +17,19 @@ export type CopyEntry = {
   chrome?: boolean;
 };
 
+/* Section-head title pairs. Each of the three sections names the `.en` / `…En` side in its
+   own JSX (`Elder.tsx` — `elder.title.en`; `Music.tsx` — `music.titleEn`; `Sport.tsx` —
+   `sport.titleEn`) and the base key beside it carries the same slot's Chinese text, so the
+   pair only holds together in this layer: both halves are named here, and the wiring check
+   (tools/verify-copy-wiring.mjs, shape 2) sees the zh side instead of a key nothing reaches.
+   The `satisfies` clause is the real work it does: a key that leaves either dictionary
+   stops compiling. */
+export const TITLE_PAIRS = {
+  "elder.title.en": "elder.title.zh",
+  "music.titleEn": "music.title",
+  "sport.titleEn": "sport.title",
+} as const satisfies Partial<Record<CopyKey, CopyKey>>;
+
 /* resolveJsonModule widens every JSON string to `string`, so the two imports are
    narrowed back to the frozen shape here — the only assertion in this module. */
 export const dictionaries: Record<"en" | "zh", Record<CopyKey, CopyEntry>> = {

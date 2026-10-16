@@ -75,7 +75,7 @@ const SUPPLEMENTS = {
     height: { values: [464, 352, 232, 150], why: "§3.3 band height tiers; 150% is the photo's parallax overhang" },
     gap: { values: [8], why: "§3.3 stacked caption gap at ≤900px" },
     color: { values: ["#D8D4CC"], why: "§5 photo background while it loads" },
-    width: { values: [150], why: "§5 the photo carries the 0.3× parallax, so it is 150% of the slot wide" },
+    width: { values: [100], why: "§5 the photo fills the slot's width; its overhang is vertical" },
   },
 };
 
@@ -407,8 +407,11 @@ for (const hook of ["photo-band__img motion-parallax", "photo-band__media motion
     structureProblem(`PhotoBand does not carry ${hook}`);
   }
 }
-if (!bandCss.includes("aspect-ratio: 2880 / 1120") || !bandCss.includes("object-fit: cover")) {
-  structureProblem("PhotoBand.css does not fit the photo by its 18:7 ratio with object-fit: cover");
+if (!bandCss.includes("width: 100%") || !bandCss.includes("height: 150%") || !bandCss.includes("object-fit: cover")) {
+  structureProblem(
+    "PhotoBand.css does not fill the slot's width and overhang it by 50% in height with object-fit: cover " +
+      "(the photo's 2880×1120 source geometry is asserted on the <img> elements above)",
+  );
 }
 if (bandSource.includes("imagePending") || bandCss.includes("photo-band__pending")) {
   structureProblem("PhotoBand still renders the image-pending placeholder");
