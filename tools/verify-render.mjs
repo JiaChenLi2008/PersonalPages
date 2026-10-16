@@ -12,12 +12,18 @@
  *   1. document-level horizontal overflow ≤ 1px (scrollWidth vs clientWidth)
  *   2. the eleven design blocks (nav … footer) all exist and have a non-zero height
  *   3. no element inside the page overflows its own box (scrollWidth > clientWidth)
+ *   4. every nav anchor lands its target heading below the sticky bar: after the click
+ *      settles, elementFromPoint at the heading's own top-left corner hits the heading
+ *      (itself or a descendant), never the bar — the bar wraps on narrow screens, so a
+ *      fixed scroll-padding-top leaves the heading under it
+ *   5. the Music/Sport placeholder boxes stay out of the accessibility tree
+ *      (aria-hidden="true", no role="img") — BLUEPRINT §6.3
  *
  * at 1440 only, the two interactive pieces are exercised for real:
  *
- *   4. the board reveal flips aria-expanded true → false over two clicks and the
+ *   6. the board reveal flips aria-expanded true → false over two clicks and the
  *      panel it controls gains height while open
- *   5. the language toggle rewrites <html lang> and the tab title, persists ?lang=,
+ *   7. the language toggle rewrites <html lang> and the tab title, persists ?lang=,
  *      and a second click restores the previous language
  *
  * Output: matrix=<w>×<langs> cells_checked=<n> overflow_cells=0 missing_blocks=0
@@ -39,7 +45,7 @@ const REPO = fileURLToPath(new URL("..", import.meta.url));
 const DIST = join(REPO, "dist");
 const CDP_HTTP = process.env.CDP || "http://127.0.0.1:9222";
 
-const WIDTHS = [320, 375, 600, 901, 1200, 1440];
+const WIDTHS = [320, 375, 600, 900, 901, 1200, 1440];
 const LANG_QUERIES = ["", "?lang=en"];
 const BLOCK_IDS = ["nav", "hero", "photoband", "index", "scholarly", "elder", "music", "sport", "method", "values", "footer"];
 
@@ -161,6 +167,70 @@ async function load(width, height, query) {
   die(`the served build did not render (#nav absent at ${ORIGIN}) — check dist/`);
 }
 
+const ANCHOR_IDS = ["scholarly", "elder", "music", "sport"];
+
+/* Anchor landing and placeholder probe (BLUEPRINT §6.2/§6.3). Each nav anchor is clicked
+   for real, the smooth scroll is given time to settle, and the target heading's own
+   top-left corner is hit-tested: a heading the sticky bar covers is reported as the hit
+   element, not as a number. The two placeholder boxes are read the way the accessibility
+   tree sees them — attributes only, so the visible placeholder text may stay. */
+const A11Y_PROBE = `(async () => {
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  const nav = document.getElementById("nav");
+  const describe = (el) =>
+    el === null ? "none" : el.tagName.toLowerCase() + (el.id ? "#" + el.id : "") + (el.className ? "." + String(el.className).split(" ")[0] : "");
+  const anchors = [];
+  for (const id of ${JSON.stringify(ANCHOR_IDS)}) {
+    const link = document.querySelector("#nav a[href='#" + id + "']");
+    const section = document.getElementById(id);
+    const title = section && (document.getElementById(id + "-title") || section.querySelector("h1, h2, h3"));
+    if (!link || !title) {
+      anchors.push({ id, error: !link ? "has no nav anchor" : "has no heading to land on" });
+      continue;
+    }
+    link.click();
+    /* The smooth scroll does not necessarily start in the first frames after the click, so
+       stillness only counts once the page has actually begun to move — otherwise the probe
+       samples the pre-click position and reports a heading that is simply off-screen. */
+    const startY = window.scrollY;
+    let previous = null;
+    let moved = false;
+    let still = 0;
+    for (let i = 0; i < 80 && still < 3; i++) {
+      await sleep(50);
+      const scrollY = Math.round(window.scrollY);
+      moved = moved || scrollY !== startY;
+      const now = scrollY + ":" + Math.round(title.getBoundingClientRect().top);
+      still = moved && now === previous ? still + 1 : 0;
+      previous = now;
+    }
+    const rect = title.getBoundingClientRect();
+    const x = Math.round(rect.left) + 5;
+    const y = Math.round(rect.top) + 5;
+    const hit = document.elementFromPoint(x, y);
+    anchors.push({
+      id,
+      navH: Math.round(nav.getBoundingClientRect().height),
+      padTop: getComputedStyle(document.documentElement).scrollPaddingTop,
+      title: describe(title),
+      x,
+      y,
+      hit: describe(hit),
+      landed: !!hit && (hit === title || title.contains(hit)) && !nav.contains(hit),
+    });
+  }
+  const placeholders = [];
+  for (const selector of ["music__media", "sport__media"]) {
+    const box = document.querySelector("." + selector);
+    placeholders.push(
+      box === null
+        ? { selector, error: "is not in the rendered page" }
+        : { selector, ariaHidden: box.getAttribute("aria-hidden"), role: box.getAttribute("role"), ariaLabel: box.getAttribute("aria-label") },
+    );
+  }
+  return { anchors, placeholders };
+})()`;
+
 const PROBE = `(() => {
   const de = document.documentElement;
   const blocks = {};
@@ -183,13 +253,17 @@ const cells = [];
 for (const width of WIDTHS) {
   for (const query of LANG_QUERIES) {
     await load(width, 900, query);
-    cells.push({ width, query, ...(await evalJs(PROBE)) });
+    cells.push({ width, query, ...(await evalJs(PROBE)), a11y: await evalJs(A11Y_PROBE) });
   }
 }
 
 let overflowCells = 0;
 let missingBlocks = 0;
 let offenders = 0;
+let anchorsChecked = 0;
+let anchorMisses = 0;
+let placeholdersChecked = 0;
+let placeholderFailures = 0;
 for (const cell of cells) {
   const label = `width=${cell.width} lang=${cell.query || "default"}`;
   const overflow = cell.scrollW - cell.clientW;
@@ -207,6 +281,36 @@ for (const cell of cells) {
   if (cell.offenders.length) {
     offenders += cell.offenders.length;
     for (const o of cell.offenders) fail(`${label}: ${o.tag}.${o.cls} overflows its box by ${o.ovf}px (w=${o.w} x=${o.x} text=${JSON.stringify(o.text)})`);
+  }
+  for (const anchor of cell.a11y.anchors) {
+    if (anchor.error) {
+      anchorMisses++;
+      fail(`${label}: anchor #${anchor.id} ${anchor.error}`);
+      continue;
+    }
+    anchorsChecked++;
+    if (!anchor.landed) {
+      anchorMisses++;
+      fail(
+        `${label}: anchor #${anchor.id} leaves ${anchor.title} at y=${anchor.y - 5} under the bar ` +
+          `(bar ${anchor.navH}px, scroll-padding-top ${anchor.padTop}); elementFromPoint(${anchor.x}, ${anchor.y}) hit ${anchor.hit}`,
+      );
+    }
+  }
+  for (const box of cell.a11y.placeholders) {
+    if (box.error) {
+      placeholderFailures++;
+      fail(`${label}: .${box.selector} ${box.error}`);
+      continue;
+    }
+    placeholdersChecked++;
+    if (box.ariaHidden !== "true" || box.role !== null || box.ariaLabel !== null) {
+      placeholderFailures++;
+      fail(
+        `${label}: .${box.selector} must stay out of the accessibility tree (BLUEPRINT §6.3): ` +
+          `aria-hidden=${JSON.stringify(box.ariaHidden)} role=${JSON.stringify(box.role)} aria-label=${JSON.stringify(box.ariaLabel)}`,
+      );
+    }
   }
 }
 
@@ -263,5 +367,6 @@ ws.close();
 server.close();
 
 console.log(`matrix=${WIDTHS.length}x${LANG_QUERIES.length} cells_checked=${cells.length} overflow_cells=${overflowCells} missing_blocks=${missingBlocks} offenders=${offenders}`);
+console.log(`anchors_checked=${anchorsChecked} anchor_misses=${anchorMisses} placeholders_checked=${placeholdersChecked} placeholder_failures=${placeholderFailures}`);
 for (const f of failures) console.log(" - " + f);
 process.exit(failures.length ? 1 : 0);

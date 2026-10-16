@@ -36,12 +36,10 @@ export function Music() {
           </dl>
         </div>
         <figure className="music__fig">
-          {/* No asset for this section: the box keeps the design's 4:3 proportion. */}
-          <div
-            className="music__media"
-            role="img"
-            aria-label={text("scholarly.imagePending")}
-          >
+          {/* No asset for this section: the box keeps the design's 4:3 proportion and
+              stays out of the accessibility tree rather than announcing an image that
+              is not there — the pending label is chrome, not alt text (BLUEPRINT §6.3). */}
+          <div className="music__media" aria-hidden="true">
             <span className="music__ph" lang={langOf("scholarly.imagePending")}>
               {text("scholarly.imagePending")}
             </span>

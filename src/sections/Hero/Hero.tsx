@@ -56,13 +56,26 @@ export function Hero() {
         </div>
       </div>
       <div className="hero__btns">
-        {/* Both CTAs are inert until a target exists: no CV file in the repo, no mail slot decided. */}
-        <button type="button" className="hero__btn hero__btn--solid" lang={copyLang("hero.btn1")}>
+        {/* The CV PDF is not in the repo yet: the button reports itself unavailable and
+            stays out of the tab order until the file lands (see .agents/briefs/to-fill.md). */}
+        <button
+          type="button"
+          className="hero__btn hero__btn--solid"
+          lang={copyLang("hero.btn1")}
+          aria-disabled="true"
+          tabIndex={-1}
+        >
           {text("hero.btn1")}
         </button>
-        <button type="button" className="hero__btn hero__btn--ghost" lang={copyLang("hero.btn2")}>
+        {/* A real mail link: the address is the dictionary's mail slot — the same entry
+            the page's JSON-LD carries (BLUEPRINT §5.1). */}
+        <a
+          className="hero__btn hero__btn--ghost"
+          href={`mailto:${text("nav.mail")}`}
+          lang={copyLang("hero.btn2")}
+        >
           {text("hero.btn2")}
-        </button>
+        </a>
       </div>
     </section>
   );

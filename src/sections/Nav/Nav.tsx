@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useLang, type Lang } from "../../i18n/lang";
 import { useCopy, type CopyKey } from "../../i18n/copy";
 import "./Nav.css";
@@ -17,24 +17,55 @@ const LANGS = [
   { lang: "en", label: "nav.lang.en" },
 ] as const satisfies readonly { lang: Lang; label: CopyKey }[];
 
-/** Distance below the viewport top at which a section counts as current (BLUEPRINT §4 #2). */
-const NAV_OFFSET = "80px";
+/** Clearance between the bar's bottom edge and a jumped-to heading (Nav.css adds the same 8px). */
+const ANCHOR_GAP = 8;
+
+/** The header's real height, as Nav.css consumes it: the bar is one row on the desktop
+    but wraps below 900px, so the design token `--nav-h` only fixes the no-JS fallback. */
+const NAV_H_VAR = "--nav-h-measured";
 
 /** Site header: brand, the four numbered section links, the language toggle and the mail slot. */
 export function Nav() {
   const { text, langOf } = useCopy();
   const { lang, setLang } = useLang();
   const [current, setCurrent] = useState<string | null>(null);
+  const [navHeight, setNavHeight] = useState(0);
+  const header = useRef<HTMLElement>(null);
 
   /* BLUEPRINT §6.4: a text carries `lang` only when its own language differs from the page's. */
   const copyLang = (key: CopyKey) => (langOf(key) === lang ? undefined : langOf(key));
 
-  /* Scroll spy (BLUEPRINT §4 #2): the bottom margin keeps the observed band one section tall. */
+  /* One source for both offsets: the bar's measured height feeds Nav.css's
+     `scroll-padding-top` (so an anchor jump lands below the wrapped bar) and the
+     scroll-spy band below. Re-measured whenever the bar changes height — a viewport
+     resize, or the language switch rewrapping the labels. */
+  useEffect(() => {
+    const element = header.current;
+    if (element === null) {
+      return;
+    }
+    const measure = () => {
+      const height = Math.round(element.getBoundingClientRect().height);
+      document.documentElement.style.setProperty(NAV_H_VAR, `${height}px`);
+      setNavHeight(height);
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const observer = new ResizeObserver(measure);
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  /* Scroll spy (BLUEPRINT §4 #2): the top margin is the bar's real height, the bottom
+     margin keeps the observed band one section tall. */
   useEffect(() => {
     const targets = ITEMS.map((item) => document.getElementById(item.id)).filter(
       (element): element is HTMLElement => element !== null,
     );
-    if (targets.length === 0) {
+    if (targets.length === 0 || navHeight === 0) {
       return;
     }
     const observer = new IntersectionObserver(
@@ -45,16 +76,16 @@ export function Nav() {
           }
         }
       },
-      { rootMargin: `-${NAV_OFFSET} 0px -80% 0px` },
+      { rootMargin: `-${navHeight + ANCHOR_GAP}px 0px -80% 0px` },
     );
     for (const target of targets) {
       observer.observe(target);
     }
     return () => observer.disconnect();
-  }, []);
+  }, [navHeight]);
 
   return (
-    <header id="nav" data-section="nav" className="nav">
+    <header ref={header} id="nav" data-section="nav" className="nav">
       <nav className="nav__row">
         <div className="nav__brand">
           <span className="nav__mark" aria-hidden="true" />
