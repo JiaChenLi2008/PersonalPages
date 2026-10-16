@@ -1,11 +1,24 @@
-/* Shared motion layer: scroll reveal.
-   Timing comes from the motion tokens in tokens.css; no component animates
-   on its own outside this file. */
+/* Shared motion layer: the one place this site animates.
+   Six hooks live here — entrance (.reveal), section/index number slide-in
+   (.motion-slide), image mask sweep (.motion-clip), PhotoBand parallax
+   (.motion-parallax), pointer micro-motion (.motion-hover) and the reveal
+   skeleton (useRevealPanel.ts + [data-reveal-panel]).
+   Every timing value comes from the motion tokens in tokens.css; no component
+   animates on its own outside this file. Frozen spec:
+   .agents/briefs/motion-spec-frozen.md
+
+   Only transform, opacity, clip-path and grid-template-rows ever move: no
+   per-frame top/left/height, no scroll listener, no overshoot easing. Every
+   hook below has its terminal state in the reduced-motion block at the end. */
+
+/* ---- Entrance: useInView adds .is-in once the block scrolls in ---- */
 
 .reveal {
   opacity: 0;
-  transform: translate3d(0, var(--reveal-shift, 12px), 0);
-  transition: opacity var(--dur-3) var(--ease-out), transform var(--dur-3) var(--ease-out);
+  transform: translate3d(0, var(--reveal-shift), 0);
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
 }
 
 .reveal.is-in {
@@ -14,24 +27,208 @@
 }
 
 .reveal[data-delay="1"] {
-  --reveal-delay: var(--reveal-delay-1);
-  transition-delay: var(--reveal-delay);
+  transition-delay: var(--reveal-delay-1);
 }
 
 .reveal[data-delay="2"] {
-  --reveal-delay: var(--reveal-delay-2);
-  transition-delay: var(--reveal-delay);
+  transition-delay: var(--reveal-delay-2);
 }
 
 .reveal[data-delay="3"] {
-  --reveal-delay: var(--reveal-delay-3);
-  transition-delay: var(--reveal-delay);
+  transition-delay: var(--reveal-delay-3);
 }
 
+/* ---- Number / section-number slide-in (same trigger as the entrance) ---- */
+
+.motion-slide {
+  opacity: 0;
+  transform: translate3d(calc(-1 * var(--slide-shift)), 0, 0);
+  transition:
+    opacity var(--dur-2) var(--ease-out),
+    transform var(--dur-2) var(--ease-out);
+}
+
+.motion-slide.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* ---- Image mask reveal: the clip sweeps left to right ---- */
+
+.motion-clip {
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path var(--dur-3) var(--ease-out);
+}
+
+.motion-clip.is-in {
+  clip-path: inset(0 0 0 0);
+}
+
+/* ---- PhotoBand parallax (travel = --parallax-factor × the element height) ----
+   Scroll-driven, so there is no scroll listener and no per-frame JS. The whole
+   rule sits behind @supports: an engine without `animation-timeline` would
+   otherwise run the keyframes on the document timeline and freeze the band at
+   one end of the travel. Unsupported engines keep the band static — the mask
+   sweep and the entrance still run. */
+
+@supports (animation-timeline: view()) {
+  .motion-parallax {
+    animation: motion-parallax linear both;
+    animation-timeline: view();
+    animation-range: cover;
+  }
+
+  @keyframes motion-parallax {
+    from {
+      transform: translate3d(0, calc(var(--parallax-factor) * -50%), 0);
+    }
+
+    to {
+      transform: translate3d(0, calc(var(--parallax-factor) * 50%), 0);
+    }
+  }
+}
+
+/* ---- Pointer micro-motion: hover, focus and press feedback ----
+   Transform and colour only, at most --hover-shift, and never a layout change
+   (no width/height/margin), so nothing under the pointer moves. */
+
+.motion-hover {
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    color var(--dur-1) var(--ease-out),
+    background-color var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .motion-hover:hover {
+    transform: translate3d(0, calc(-1 * var(--hover-shift)), 0);
+  }
+}
+
+.motion-hover:active {
+  transform: translate3d(0, calc(var(--hover-shift) / 2), 0);
+}
+
+/* ---- Reveal skeleton (useRevealPanel.ts, BLUEPRINT §4 #3/#5) ----
+   The height is CSS driven: the panel is a grid whose single row goes 0fr → 1fr,
+   so no inline height and no inline transition is ever written, and the terminal
+   state is expressed by aria-expanded plus data-state alone. `visibility` takes
+   the collapsed answer out of the tab order and the accessibility tree at the end
+   of the collapse; it flips instantly on open.
+
+   The group wrapper opts the panels out of the browser's own scroll anchoring:
+   useRevealPanel.ts corrects the scroll itself while a panel moves, and the two
+   corrections would otherwise add up. */
+
+.motion-reveal-group {
+  overflow-anchor: none;
+}
+
+[data-reveal-panel] {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition:
+    grid-template-rows var(--dur-2) var(--ease-out),
+    visibility 0s linear var(--dur-2);
+}
+
+[data-reveal-panel][data-state="open"] {
+  grid-template-rows: 1fr;
+  visibility: visible;
+  transition:
+    grid-template-rows var(--dur-2) var(--ease-out),
+    visibility 0s linear 0s;
+}
+
+/* The panel's single child: it clips the answer while the row is still 0fr. The
+   HIR long answer keeps its own `max-height: 60vh` + inner scroll (BLUEPRINT §2.11). */
+
+.motion-reveal-clip {
+  overflow: hidden;
+}
+
+/* Layered entrance: each answer block lifts --reveal-shift and fades in one
+   --stagger-step behind the previous one. Six tiers is the ceiling: one opening
+   panel + one collapsing sibling + six answers = 8 animations on screen. */
+
+.motion-answer {
+  opacity: 0;
+  transform: translate3d(0, var(--reveal-shift), 0);
+  transition:
+    opacity var(--dur-2) var(--ease-out) var(--answer-delay, 0ms),
+    transform var(--dur-2) var(--ease-out) var(--answer-delay, 0ms);
+}
+
+[data-reveal-panel][data-state="open"] .motion-answer {
+  opacity: 1;
+  transform: none;
+}
+
+.motion-answer[data-stagger="1"] {
+  --answer-delay: var(--stagger-step);
+}
+
+.motion-answer[data-stagger="2"] {
+  --answer-delay: calc(var(--stagger-step) * 2);
+}
+
+.motion-answer[data-stagger="3"] {
+  --answer-delay: calc(var(--stagger-step) * 3);
+}
+
+.motion-answer[data-stagger="4"] {
+  --answer-delay: calc(var(--stagger-step) * 4);
+}
+
+.motion-answer[data-stagger="5"] {
+  --answer-delay: calc(var(--stagger-step) * 5);
+}
+
+.motion-answer[data-stagger="6"] {
+  --answer-delay: calc(var(--stagger-step) * 6);
+}
+
+/* ---- Reduced motion: every hook above, straight to its terminal state ----
+   The anchor correction in useRevealPanel.ts still runs; it just has one frame to
+   work with, because the height changes without a transition. */
+
 @media (prefers-reduced-motion: reduce) {
-  .reveal {
+  .reveal,
+  .motion-slide,
+  .motion-answer {
     opacity: 1;
     transform: none;
     transition: none;
+  }
+
+  .motion-clip {
+    clip-path: none;
+    transition: none;
+  }
+
+  .motion-parallax {
+    animation: none;
+    transform: none;
+  }
+
+  .motion-hover {
+    transition: none;
+  }
+
+  .motion-hover:hover,
+  .motion-hover:active {
+    transform: none;
+  }
+
+  [data-reveal-panel] {
+    transition: none;
+  }
+
+  [data-reveal-panel][data-state="open"] {
+    grid-template-rows: 1fr;
+    visibility: visible;
   }
 }

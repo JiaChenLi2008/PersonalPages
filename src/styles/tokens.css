@@ -181,13 +181,22 @@
   --card-h-t900: 160px;
   --card-h-t600: 128px;
 
-  /* ---- Motion (implementation supplement: not in the design brief) ---- */
-  --dur-1: 200ms;
-  --dur-2: 400ms;
-  --dur-3: 600ms;
-  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
-  --reveal-shift: 12px;
-  --reveal-delay-1: 80ms;
-  --reveal-delay-2: 160ms;
-  --reveal-delay-3: 240ms;
+  /* ---- Motion (implementation supplement: not in the design brief).
+     One naming and one value set, frozen in .agents/briefs/motion-spec-frozen.md;
+     BLUEPRINT §2.11/§4 and tools/verify-tokens.mjs carry the same names, and
+     tools/verify-motion.mjs fails if a synonym comes back. The retired names are
+     --dur-fast / --dur-base / --dur-slow, --ease-inout and the motion names the
+     first draft invented (--dur-entrance, --dur-reveal, --ease-reveal, …). ---- */
+  --dur-1: 200ms; /* pointer micro-motion, focus and colour state changes */
+  --dur-2: 400ms; /* entrance, reveal height, layered answer entrance */
+  --dur-3: 600ms; /* image mask sweep (clip-path): the longest single animation */
+  --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1); /* the only easing: never overshoots */
+  --reveal-shift: 8px; /* entrance lift and answer lift (translateY) */
+  --reveal-delay-1: 80ms; /* entrance stagger tier 1 */
+  --reveal-delay-2: 160ms; /* entrance stagger tier 2 */
+  --reveal-delay-3: 240ms; /* entrance stagger tier 3 (last: 240 + 400 < 800 budget) */
+  --stagger-step: 40ms; /* answer-block stagger inside one revealed panel */
+  --hover-shift: 4px; /* pointer micro-motion ceiling: transform only, never layout */
+  --slide-shift: 24px; /* section / index number slide-in, horizontal */
+  --parallax-factor: 0.3; /* PhotoBand parallax travel = element height × 0.3 */
 }

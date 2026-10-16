@@ -12,6 +12,7 @@
  *   - "design brief": copied verbatim from design-system.md §9 (measured from ui.pen).
  *   - "implementation supplement": added by the motion layer, absent from the
  *     design brief, listed separately and labelled so the two sources stay apart.
+ *     Its motion rows are the frozen set from .agents/briefs/motion-spec-frozen.md.
  *
  * Usage: node tools/verify-tokens.mjs   (exit 0 = in sync, exit 1 = drift)
  */
@@ -185,14 +186,22 @@ const GROUPS = [
       "--card-h-t1200": "216px",
       "--card-h-t900": "160px",
       "--card-h-t600": "128px",
+      /* Motion layer. The one naming and one value set is frozen in
+         .agents/briefs/motion-spec-frozen.md; BLUEPRINT §2.11/§4 spells the same
+         names, and tools/verify-motion.mjs fails on a synonym or on a value that
+         drifts from these. */
       "--dur-1": "200ms",
       "--dur-2": "400ms",
       "--dur-3": "600ms",
       "--ease-out": "cubic-bezier(0.22, 0.61, 0.36, 1)",
-      "--reveal-shift": "12px",
+      "--reveal-shift": "8px",
       "--reveal-delay-1": "80ms",
       "--reveal-delay-2": "160ms",
       "--reveal-delay-3": "240ms",
+      "--stagger-step": "40ms",
+      "--hover-shift": "4px",
+      "--slide-shift": "24px",
+      "--parallax-factor": "0.3",
     },
   },
 ];

@@ -190,7 +190,7 @@
 | 按钮间距（`Hero.Btns` 无 gap） | 12px | 风险 R3；文档无值，取 4 倍数组最小档 |
 | `No` 居中修正 | 补显式宽度 64px | 风险 R4：`No` 绝对定位且无宽度，`textAlign:center` 不生效 |
 | 中文标题行高（`T` 22/34/42/48、`No` 26 均无 `lineHeight`） | 1.05 | 风险 R5：文档无值，按展示级 1.0–1.15 取值 |
-| 动效 token | `--dur-fast` 120ms、`--dur-base` 240ms、`--dur-slow` 420ms、`--ease-out` `cubic-bezier(.2,.8,.2,1)`、`--ease-inout` `cubic-bezier(.4,0,.2,1)` | §8：ui.pen 无过渡/动效值；时长取自 §4.5 的 2px 基准网格（120/240/420 皆偶数） |
+| 动效 token | `--dur-1` 200ms、`--dur-2` 400ms、`--dur-3` 600ms、`--ease-out` cubic-bezier(0.22, 0.61, 0.36, 1)、`--reveal-shift` 8px、`--reveal-delay-1` 80ms、`--reveal-delay-2` 160ms、`--reveal-delay-3` 240ms、`--stagger-step` 40ms、`--hover-shift` 4px、`--slide-shift` 24px、`--parallax-factor` 0.3 | §8：ui.pen 无过渡/动效值；`--ease-out` 是唯一缓动（无过冲），时长 200/400/600 仍落在 §4.5 的 2px 基准网格上（皆偶数）。**M0 冻结规格 `.agents/briefs/motion-spec-frozen.md` 是唯一命名与取值来源**：本行与 `src/styles/tokens.css`、`tools/verify-tokens.mjs`、`tools/verify-motion.mjs` 逐字同值；旧名 `--dur-fast`/`--dur-base`/`--dur-slow`/`--ease-inout` 已作废 |
 | 响应式比例 | 0.833 / 0.625 / 0.5（= 断点 ÷ 1440） | §8：ui.pen 无断点/流式规则；推导见 §3 |
 | 锚点滚动留白 | `scroll-margin-top: 80px` = `--nav-h` | 粘顶导航遮挡锚点标题 |
 | HIR 长答案容器 | `max-height: 60vh` + 内部滚动 | content-brief 段[71] 明示「答案会很长，需预留展开/滚动空间」 |
@@ -249,18 +249,20 @@
 
 ## 4. 交互规格
 
-动效 token（§2.11，ui.pen 无值）：`--dur-fast` 120ms、`--dur-base` 240ms、`--dur-slow` 420ms、`--ease-out`、`--ease-inout`。**降级总则**：`@media (prefers-reduced-motion: reduce)` 下所有过渡时长取 0、位移取消，仅保留状态切换。
+动效 token（§2.11，ui.pen 无值）：`--dur-1`、`--dur-2`、`--dur-3`、`--ease-out`（唯一缓动）、`--reveal-shift`、`--reveal-delay-1/2/3`、`--stagger-step`、`--hover-shift`、`--slide-shift`、`--parallax-factor`；取值见冻结规格 `.agents/briefs/motion-spec-frozen.md`（唯一来源）。**禁用**弹性过冲缓动（`cubic-bezier(.34,1.56,.64,1)` 一类）与 `top/left/height` 逐帧动画；位移只用 `transform`/`opacity`，高度只用 `grid-template-rows`。**降级总则**：`@media (prefers-reduced-motion: reduce)` 下所有过渡时长取 0、位移取消，仅保留状态切换；揭晓的锚定补偿仍生效（单帧实测纠正）。
 
 | # | 交互 | 触发方式 | 状态变化 | 时长 / 缓动 | reduced-motion 降级 | 无障碍属性 |
 |---|---|---|---|---|---|---|
-| 1 | 进入视口揭示 | `IntersectionObserver`，阈值 0.15，仅一次 | `opacity` 0→1、`translateY(8px)`→0；元素**始终在 DOM 内且可读** | `--dur-base` / `--ease-out` | 直接终态（无位移、无过渡） | 不加 `aria-hidden`；不拦截焦点 |
-| 2 | 导航当前段高亮 + 平滑滚动 | 点击 `nav` 项；`IntersectionObserver` 做 scroll spy（根 `main`，`rootMargin: -80px`） | 该项 `N` 序号与 `L` 标签转 `--c-blue` 并置 `aria-current="true"`；其余复位 `--c-ink` | 滚动 `--dur-slow` / `--ease-inout` | `scroll-behavior: auto`（瞬时跳转），高亮保留 | `<nav aria-label>`；当前项 `aria-current="true"`；锚点 `scroll-margin-top: 80px` |
-| 3 | JHU 三谜题揭晓 | 点击谜题件（`<button>`）—— docx 段[48]/[52]/[53]「点击一个东西或者图标，会显示答案：」 | 该谜题 `aria-expanded` false→true；答案区 `hidden` 移除；谜题件视觉态**待设计稿**（DESIGN-GAPS.md#7） | `--dur-base` / `--ease-out` | 立即切换 | `button[aria-expanded][aria-controls]`；答案区 `id` + `role="region"` + `aria-labelledby`（指按钮）；焦点留在按钮 |
-| 4 | Immunotherapy 三栏揭晓 | docx 段[59]：横向滑动/滚轮；键盘 `Tab` 进容器后 `←`/`→` 切栏；亦可点击栏标题 | 三栏横向 scroll-snap；激活栏答案区 `aria-hidden` false，非激活栏保持 `true`；激活判定 = 栏中心与容器中心距离最小 | `--dur-base` / `--ease-inout` | 关闭 snap 动画（瞬时对齐），答案随激活立即显示 | 容器 `role="region"` + `aria-label` = 区块标题文案；栏内问题 `button[aria-expanded][aria-controls]`；容器 `tabindex="0"` + 可见焦点 |
-| 5 | HIR 三问揭晓 | 点击问题卡（`<button>`）—— docx 段[71]「一组互动＋解答形式的页面作为 hook」 | 该卡答案区展开（`max-height: 60vh` + 内部滚动，§2.11）；其余卡独立不受影响；`Answer:` 标签仅在展开后可见 | `--dur-base` / `--ease-out` | 立即展开（无高度过渡） | `button[aria-expanded][aria-controls]`；答案区 `role="region"` + `aria-labelledby`；长文可滚动区加 `tabindex="0"` 以便键盘滚动 |
-| 6 | 语言切换（**页内切换，不整页重载**） | 点击语言切换件（位置/样式**待设计稿** → DESIGN-GAPS.md#7） | `<html lang>` 在 `zh-Hans` / `en` 间切换；按字典 `lang` 字段显示/隐藏对应文本，`fallback` 条目在中文页显示英文原文；选择持久化（`?lang=` + `localStorage`） | `--dur-fast` / `--ease-out` | 无过渡，瞬时切换 | `<html lang>` 同步；切换件 `button[aria-pressed]` 或在 `<nav>` 内作为链接列出；文本语言与页面语言不一致时按 §6.4 加 `lang` 属性 |
+| 1 | 进入视口揭示 | `IntersectionObserver`，阈值 0.15、`rootMargin` 底部 -10%，仅一次 | `opacity` 0→1、`translateY(8px)`→0；元素**始终在 DOM 内且可读** | `--dur-2` / `--ease-out` | 直接终态（无位移、无过渡） | 不加 `aria-hidden`；不拦截焦点 |
+| 2 | 导航当前段高亮 + 平滑滚动 | 点击 `nav` 项；`IntersectionObserver` 做 scroll spy（根 `main`，`rootMargin: -80px`） | 该项 `N` 序号与 `L` 标签转 `--c-blue` 并置 `aria-current="true"`；其余复位 `--c-ink` | 滚动 `scroll-behavior: smooth`（UA 缓动）；高亮 `--dur-1` / `--ease-out` | `scroll-behavior: auto`（瞬时跳转），高亮保留 | `<nav aria-label>`；当前项 `aria-current="true"`；锚点 `scroll-margin-top: 80px` |
+| 3 | JHU 三谜题揭晓 | 点击谜题件（`<button>`）—— docx 段[48]/[52]/[53]「点击一个东西或者图标，会显示答案：」 | 该谜题 `aria-expanded` false→true、答案区 `data-state` 同步；高度 `grid-template-rows` 0fr→1fr（CSS 驱动，**不写内联高度/内联过渡**）；谜题件视觉态**待设计稿**（DESIGN-GAPS.md#7） | `--dur-2` / `--ease-out` | 立即切换 | `button[aria-expanded][aria-controls]`；答案区 `id` + `role="region"` + `aria-labelledby`（指按钮）；焦点留在按钮 |
+| 4 | Immunotherapy 三栏揭晓 | docx 段[59]：横向滑动/滚轮；键盘 `Tab` 进容器后 `←`/`→` 切栏；亦可点击栏标题 | 三栏横向 scroll-snap；激活栏答案区 `aria-hidden` false，非激活栏保持 `true`；激活判定 = 栏中心与容器中心距离最小 | `--dur-2` / `--ease-out` | 关闭 snap 动画（瞬时对齐），答案随激活立即显示 | 容器 `role="region"` + `aria-label` = 区块标题文案；栏内问题 `button[aria-expanded][aria-controls]`；容器 `tabindex="0"` + 可见焦点 |
+| 5 | HIR 三问揭晓 | 点击问题卡（`<button>`）—— docx 段[71]「一组互动＋解答形式的页面作为 hook」 | 该卡答案区展开（`grid-template-rows` 0fr→1fr；内部容器仍 `max-height: 60vh` + 滚动，§2.11）；其余卡独立不受影响；`Answer:` 标签仅在展开后可见 | `--dur-2` / `--ease-out` | 立即展开（无高度过渡） | `button[aria-expanded][aria-controls]`；答案区 `role="region"` + `aria-labelledby`；长文可滚动区加 `tabindex="0"` 以便键盘滚动 |
+| 6 | 语言切换（**页内切换，不整页重载**） | 点击语言切换件（位置/样式**待设计稿** → DESIGN-GAPS.md#7） | `<html lang>` 在 `zh-Hans` / `en` 间切换；按字典 `lang` 字段显示/隐藏对应文本，`fallback` 条目在中文页显示英文原文；选择持久化（`?lang=` + `localStorage`）；重排用 FLIP（测前后 rect，`transform` 走同一套 token，同一时刻至多一组） | `--dur-1` / `--ease-out` | 无过渡，瞬时切换（FLIP 直接切终态） | `<html lang>` 同步；切换件 `button[aria-pressed]` 或在 `<nav>` 内作为链接列出；文本语言与页面语言不一致时按 §6.4 加 `lang` 属性 |
 
 未覆盖区块（5.2 / 5.4 / 6 / 7 / 8）的**视觉状态**（未揭晓态、揭晓态、空态、hover/focus/active、过渡曲线）一律待设计稿：DESIGN-GAPS.md#1/#2/#3/#4/#5/#7。
+
+#1 与 #3/#4/#5 的动效细节、四类器件（视差 / 遮罩揭示 / 序号滑入 / 指针微动）的逐块落点、揭晓的完整契约（组内互斥、锚定补偿、打断收敛、逐项降级）与性能预算，以冻结规格 `.agents/briefs/motion-spec-frozen.md` 为准；本表只保留交互语义与无障碍属性。
 
 ## 5. 占位框清单
 
