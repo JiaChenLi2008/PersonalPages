@@ -1,13 +1,22 @@
 import { Rule } from "../../components/primitives/Rule";
+import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy } from "../../i18n/copy";
+import { useLang } from "../../i18n/lang";
 
 /**
  * 01.1 iGEM (ui.pen `gE6yx`): Lab contribution and Paris Conference with the
  * project CTA in the left column, two 4:3 figure slots in the 360px right column.
  * `lang` always comes from the dictionary entry's own `lang` field (BLUEPRINT §6.4).
+ * The board draws the CTA as one node holding both languages back to back; only the
+ * page's own side reaches the DOM, so a page never carries the other one.
+ *
+ * Both figure slots carry the §4 device ② mask sweep (`.motion-clip`), which `Reveal`
+ * starts once the slot scrolls in.
  */
 export function ScholarlyIgem() {
   const { text, langOf } = useCopy();
+  const { lang } = useLang();
+  const zh = lang === "zh-Hans";
 
   return (
     <div className="scholarly__sub">
@@ -35,10 +44,8 @@ export function ScholarlyIgem() {
           <p className="scholarly__d" lang={langOf("scholarly-igem.para2")}>
             {text("scholarly-igem.para2")}
           </p>
-          {/* The board shows one CTA node holding both languages back to back. */}
           <p className="scholarly__cta">
-            <span lang={langOf("scholarly-igem.cta.zh")}>{text("scholarly-igem.cta.zh")}</span>
-            <span lang={langOf("scholarly-igem.cta.en")}>{text("scholarly-igem.cta.en")}</span>
+            {zh ? text("scholarly-igem.cta.zh") : text("scholarly-igem.cta.en")}
           </p>
           <p className="scholarly__ctaUrl">
             <a
@@ -54,13 +61,19 @@ export function ScholarlyIgem() {
         </div>
 
         <div className="scholarly__figcol">
-          {/* Figure slots without artwork: ratio box + visible `image pending`
-              label, hidden from assistive tech (BLUEPRINT §5, §6.3). */}
           <figure className="scholarly__fig">
-            <div className="scholarly__media scholarly__media--4x3" aria-hidden="true">
-              <span className="scholarly__pending" lang={langOf("scholarly.imagePending")}>
-                {text("scholarly.imagePending")}
-              </span>
+            <div className="scholarly__media scholarly__media--4x3">
+              <Reveal className="scholarly__clip motion-clip">
+                <img
+                  className="scholarly__photo"
+                  src="./media/igem-fig1-720.webp"
+                  alt={text("scholarly-igem.fig1.alt")}
+                  width={720}
+                  height={540}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
             </div>
             <figcaption className="scholarly__cap" lang={langOf("scholarly.figcap2")}>
               {text("scholarly.figcap2")}
@@ -68,10 +81,18 @@ export function ScholarlyIgem() {
           </figure>
 
           <figure className="scholarly__fig">
-            <div className="scholarly__media scholarly__media--4x3" aria-hidden="true">
-              <span className="scholarly__pending" lang={langOf("scholarly.imagePending")}>
-                {text("scholarly.imagePending")}
-              </span>
+            <div className="scholarly__media scholarly__media--4x3">
+              <Reveal className="scholarly__clip motion-clip">
+                <img
+                  className="scholarly__photo"
+                  src="./media/igem-fig2-720.webp"
+                  alt={text("scholarly-igem.fig2.alt")}
+                  width={720}
+                  height={540}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
             </div>
             <figcaption className="scholarly__cap" lang={langOf("scholarly.figcap3")}>
               {text("scholarly.figcap3")}

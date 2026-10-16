@@ -146,8 +146,8 @@ const SECTIONS = [
   {
     section: "scholarly",
     dir: "Scholarly",
-    state: "deferred",
-    lane: "S3",
+    state: "wired",
+    lane: "",
     requires: [".motion-clip", ".motion-answer", ".motion-reveal-group", ".motion-reveal-clip", "[data-reveal-panel]"],
   },
   { section: "elder", dir: "Elder", state: "wired", lane: "" },

@@ -1,18 +1,40 @@
 import { Rule } from "../../components/primitives/Rule";
+import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy } from "../../i18n/copy";
-import { useReveal } from "./useReveal";
+import { useRevealPanel } from "../../lib/useRevealPanel";
 
 /**
  * 01.2 JHU summer school (ui.pen `EYW9F`): three cards, each one real dissection
  * photo as the puzzle piece, its riddle, and the answer panel behind a button.
  * Photos pair with the riddles in the content-brief order (BLUEPRINT §5):
  * image1 -> sheep brain (q1/a1), image2 -> cow heart and lungs (q2), image3 -> urine bottle (q3).
+ *
+ * The three cards are one reveal group: opening a card closes the other two
+ * (motion spec §3.5). The panel is the hook's wrapper — the card's own bordered box
+ * sits inside it, so the height, the border and the answers all grow as one.
+ *
+ * The shared motion hooks of §4 land here too: `.motion-clip` on the puzzle slot
+ * (device ②), `.motion-slide` on the card's ordinal (device ③) and `.motion-hover`
+ * on the puzzle button (device ④). `Reveal` is what adds the `.is-in` both
+ * clip and slide wait for.
  */
 export function ScholarlyJhu() {
   const { text, langOf } = useCopy();
-  const card1 = useReveal("scholarly-jhu-a1");
-  const card2 = useReveal("scholarly-jhu-a2");
-  const card3 = useReveal("scholarly-jhu-a3");
+  const card1 = useRevealPanel({
+    panelId: "scholarly-jhu-a1",
+    triggerId: "scholarly-jhu-q1",
+    group: "scholarly-jhu",
+  });
+  const card2 = useRevealPanel({
+    panelId: "scholarly-jhu-a2",
+    triggerId: "scholarly-jhu-q2",
+    group: "scholarly-jhu",
+  });
+  const card3 = useRevealPanel({
+    panelId: "scholarly-jhu-a3",
+    triggerId: "scholarly-jhu-q3",
+    group: "scholarly-jhu",
+  });
 
   return (
     <div className="scholarly__sub">
@@ -27,133 +49,163 @@ export function ScholarlyJhu() {
       <Rule variant="hairline" />
 
       <div className="scholarly__body scholarly__body--jhu">
-        <ul className="scholarly__cards">
+        <ul className="scholarly__cards motion-reveal-group">
           <li className="scholarly__card">
             <button
               type="button"
-              className="scholarly__puzzle scholarly__media scholarly__media--4x3"
-              id="scholarly-jhu-q1"
+              className="scholarly__puzzle scholarly__media scholarly__media--4x3 motion-hover"
               aria-label={text("scholarly-jhu.q1")}
               lang={langOf("scholarly-jhu.q1")}
               {...card1.triggerProps}
             >
-              <img
-                className="scholarly__photo"
-                src="./media/image1-1600.webp"
-                alt={text("scholarly-jhu.a1")}
-                width={1600}
-                height={1200}
-                loading="lazy"
-                decoding="async"
-              />
+              <Reveal as="span" className="scholarly__clip motion-clip">
+                <img
+                  className="scholarly__photo"
+                  src="./media/image1-1600.webp"
+                  alt={text("scholarly-jhu.a1")}
+                  width={1600}
+                  height={1200}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
             </button>
             {/* The board numbers each card 1/2/3; the dictionaries carry those three
                 strings only as the Immunotherapy column numbers (docs/CHROME.md §1
                 registers no separate keys), so the same entries serve both blocks. */}
             <p className="scholarly__q">
-              <span className="scholarly__onum" lang={langOf("scholarly-immuno.q1.no")}>
-                {text("scholarly-immuno.q1.no")}
-              </span>
+              <Reveal as="span" className="motion-slide">
+                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q1.no")}>
+                  {text("scholarly-immuno.q1.no")}
+                </span>
+              </Reveal>
               <span className="scholarly__qtext" lang={langOf("scholarly-jhu.q1")}>
                 {text("scholarly-jhu.q1")}
               </span>
             </p>
-            <div
-              className="scholarly__panel scholarly__panel--qa"
-              role="region"
-              aria-labelledby="scholarly-jhu-q1"
-              {...card1.panelProps}
-            >
-              <p className="scholarly__panelLabel" lang={langOf("scholarly-hir.answerLabel")}>
-                {text("scholarly-hir.answerLabel")}
-              </p>
-              <p className="scholarly__answer scholarly__answer--qa" lang={langOf("scholarly-jhu.a1")}>
-                {text("scholarly-jhu.a1")}
-              </p>
+            <div {...card1.panelProps}>
+              <div className="motion-reveal-clip">
+                <div className="scholarly__panel scholarly__panel--qa">
+                  <p
+                    className="scholarly__panelLabel motion-answer"
+                    data-stagger="1"
+                    lang={langOf("scholarly-hir.answerLabel")}
+                  >
+                    {text("scholarly-hir.answerLabel")}
+                  </p>
+                  <p
+                    className="scholarly__answer scholarly__answer--qa motion-answer"
+                    data-stagger="2"
+                    lang={langOf("scholarly-jhu.a1")}
+                  >
+                    {text("scholarly-jhu.a1")}
+                  </p>
+                </div>
+              </div>
             </div>
           </li>
 
           <li className="scholarly__card">
             <button
               type="button"
-              className="scholarly__puzzle scholarly__media scholarly__media--4x3"
-              id="scholarly-jhu-q2"
+              className="scholarly__puzzle scholarly__media scholarly__media--4x3 motion-hover"
               aria-label={text("scholarly-jhu.q2")}
               lang={langOf("scholarly-jhu.q2")}
               {...card2.triggerProps}
             >
-              <img
-                className="scholarly__photo"
-                src="./media/image2-400.webp"
-                alt={text("scholarly-jhu.a2")}
-                width={400}
-                height={301}
-                loading="lazy"
-                decoding="async"
-              />
+              <Reveal as="span" className="scholarly__clip motion-clip">
+                <img
+                  className="scholarly__photo"
+                  src="./media/image2-400.webp"
+                  alt={text("scholarly-jhu.a2")}
+                  width={400}
+                  height={301}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
             </button>
             <p className="scholarly__q">
-              <span className="scholarly__onum" lang={langOf("scholarly-immuno.q2.no")}>
-                {text("scholarly-immuno.q2.no")}
-              </span>
+              <Reveal as="span" className="motion-slide">
+                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q2.no")}>
+                  {text("scholarly-immuno.q2.no")}
+                </span>
+              </Reveal>
               <span className="scholarly__qtext" lang={langOf("scholarly-jhu.q2")}>
                 {text("scholarly-jhu.q2")}
               </span>
             </p>
-            <div
-              className="scholarly__panel scholarly__panel--qa"
-              role="region"
-              aria-labelledby="scholarly-jhu-q2"
-              {...card2.panelProps}
-            >
-              <p className="scholarly__panelLabel" lang={langOf("scholarly-hir.answerLabel")}>
-                {text("scholarly-hir.answerLabel")}
-              </p>
-              <p className="scholarly__answer scholarly__answer--qa" lang={langOf("scholarly-jhu.a2")}>
-                {text("scholarly-jhu.a2")}
-              </p>
+            <div {...card2.panelProps}>
+              <div className="motion-reveal-clip">
+                <div className="scholarly__panel scholarly__panel--qa">
+                  <p
+                    className="scholarly__panelLabel motion-answer"
+                    data-stagger="1"
+                    lang={langOf("scholarly-hir.answerLabel")}
+                  >
+                    {text("scholarly-hir.answerLabel")}
+                  </p>
+                  <p
+                    className="scholarly__answer scholarly__answer--qa motion-answer"
+                    data-stagger="2"
+                    lang={langOf("scholarly-jhu.a2")}
+                  >
+                    {text("scholarly-jhu.a2")}
+                  </p>
+                </div>
+              </div>
             </div>
           </li>
 
           <li className="scholarly__card">
             <button
               type="button"
-              className="scholarly__puzzle scholarly__media scholarly__media--4x3"
-              id="scholarly-jhu-q3"
+              className="scholarly__puzzle scholarly__media scholarly__media--4x3 motion-hover"
               aria-label={text("scholarly-jhu.q3")}
               lang={langOf("scholarly-jhu.q3")}
               {...card3.triggerProps}
             >
-              <img
-                className="scholarly__photo"
-                src="./media/image3-600.webp"
-                alt={text("scholarly-jhu.a3")}
-                width={600}
-                height={450}
-                loading="lazy"
-                decoding="async"
-              />
+              <Reveal as="span" className="scholarly__clip motion-clip">
+                <img
+                  className="scholarly__photo"
+                  src="./media/image3-600.webp"
+                  alt={text("scholarly-jhu.a3")}
+                  width={600}
+                  height={450}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
             </button>
             <p className="scholarly__q">
-              <span className="scholarly__onum" lang={langOf("scholarly-immuno.q3.no")}>
-                {text("scholarly-immuno.q3.no")}
-              </span>
+              <Reveal as="span" className="motion-slide">
+                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q3.no")}>
+                  {text("scholarly-immuno.q3.no")}
+                </span>
+              </Reveal>
               <span className="scholarly__qtext" lang={langOf("scholarly-jhu.q3")}>
                 {text("scholarly-jhu.q3")}
               </span>
             </p>
-            <div
-              className="scholarly__panel scholarly__panel--qa"
-              role="region"
-              aria-labelledby="scholarly-jhu-q3"
-              {...card3.panelProps}
-            >
-              <p className="scholarly__panelLabel" lang={langOf("scholarly-hir.answerLabel")}>
-                {text("scholarly-hir.answerLabel")}
-              </p>
-              <p className="scholarly__answer scholarly__answer--qa" lang={langOf("scholarly-jhu.a3")}>
-                {text("scholarly-jhu.a3")}
-              </p>
+            <div {...card3.panelProps}>
+              <div className="motion-reveal-clip">
+                <div className="scholarly__panel scholarly__panel--qa">
+                  <p
+                    className="scholarly__panelLabel motion-answer"
+                    data-stagger="1"
+                    lang={langOf("scholarly-hir.answerLabel")}
+                  >
+                    {text("scholarly-hir.answerLabel")}
+                  </p>
+                  <p
+                    className="scholarly__answer scholarly__answer--qa motion-answer"
+                    data-stagger="2"
+                    lang={langOf("scholarly-jhu.a3")}
+                  >
+                    {text("scholarly-jhu.a3")}
+                  </p>
+                </div>
+              </div>
             </div>
           </li>
         </ul>
