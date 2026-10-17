@@ -140,10 +140,20 @@
   color: var(--c-ink-body);
 }
 
+/* The square is a `<picture>` box: the box carries the size and the crop, the photo inside it
+   fills the box, and the webp `<source>` sits in front of the jpg `src` so an engine without
+   webp support decodes the jpg rather than a webp it cannot read. */
 .index__media {
+  display: block;
   flex: 0 0 auto;
   width: var(--thumb);
   height: var(--thumb);
+}
+
+.index__media img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
 }
 

@@ -511,21 +511,24 @@ const normalised = referencedTexts.map(normalise);
    the site writes one language per page (BLUEPRINT §6.4). Nothing below touches
    `normalise`: every other board string still folds case and whitespace only.
 
-   1. `PUNCTUATION_FOLDED` — the board sets these three in full-width punctuation
+   1. `PUNCTUATION_FOLDED_BY_NODE` — the board sets three nodes in full-width punctuation
       (，；？ with the spacing of the Chinese setting), while the site's EN text keeps the
       ASCII marks EN mode requires (no CJK and no full-width mark in an English string).
-      Their two spellings differ in punctuation alone, so these three keys — and only
-      these — are also compared with full-width marks folded to ASCII and the whitespace
-      around a mark dropped. The key must still be referenced by src/ to enter the pool.
+      Their two spellings differ in punctuation alone, so each of these three board nodes is
+      compared with full-width marks folded to ASCII and the whitespace around a mark dropped —
+      against the one dictionary key the node is registered to, and only that key (a board
+      node carrying another key's string is a failure, not a hit). The key must still be
+      referenced by src/ to earn the exemption.
    2. `MIXED_TITLE` — `scholarly-hir.title` is a single mixed-script board node
       (`HIR writing contest-哈佛国际评论学术写作竞赛`) while the dictionary keeps an EN value
       and a ZH value; the node is covered when its two halves, split at the separator, sit
-      in the value of the matching side. Only this key is compared that way. */
-const PUNCTUATION_FOLDED = new Set([
-  "scholarly-igem.title",
-  "scholarly-jhu.q1",
-  "scholarly-jhu.q2",
-]);
+      in the value of the matching side. Only this key is compared that way, and only when
+      src/ actually wires it. */
+const PUNCTUATION_FOLDED_BY_NODE = {
+  vPbTb: "scholarly-igem.title",
+  juo5I: "scholarly-jhu.q1",
+  kk4C1: "scholarly-jhu.q2",
+};
 const MIXED_TITLE = { key: "scholarly-hir.title", separator: /[-—–]+/ };
 
 /** Full-width mark -> the ASCII mark the EN page carries. */
@@ -548,11 +551,20 @@ function foldPunctuation(text) {
     .replace(/\s*([,;:.?!])\s*/g, "$1");
 }
 
-const foldedTexts = [...referencedKeys]
-  .filter((key) => PUNCTUATION_FOLDED.has(key))
-  .flatMap((key) => ["en", "zh"].map((locale) => dictionaries[locale][key]?.text))
-  .filter((text) => typeof text === "string" && text !== "")
-  .map(foldPunctuation);
+/* 每个 board 节点的对照池：只装它登记的那一个键的两份折叠文本（节点 id 取自冻版 ui.pen）。 */
+const foldedByNode = new Map(
+  Object.entries(PUNCTUATION_FOLDED_BY_NODE).map(([nodeId, key]) => [
+    nodeId,
+    ["en", "zh"]
+      .map((locale) => dictionaries[locale][key]?.text)
+      .filter((text) => typeof text === "string" && text !== "")
+      .map(foldPunctuation),
+  ]),
+);
+/** 登记键 -> 同一池，只为失败信息能指名「折叠后与另一登记键相同」的那个键。 */
+const foldedByKey = new Map(
+  Object.entries(PUNCTUATION_FOLDED_BY_NODE).map(([nodeId, key]) => [key, foldedByNode.get(nodeId)]),
+);
 
 const mixedValues = ["en", "zh"].map((locale) =>
   foldPunctuation(dictionaries[locale][MIXED_TITLE.key]?.text ?? ""),
@@ -584,19 +596,51 @@ for (const boardText of boardTexts) {
     insideNode += 1;
     continue;
   }
-  // Exemption 1: the punctuation-only difference, against the three keys that carry it.
+  // Exemption 1: per-node, against the one key that node is registered to (and only if
+  // src/ wires it) — a folded spelling match on some other key's text is not a hit.
+  const foldedKey = PUNCTUATION_FOLDED_BY_NODE[boardText.id];
   const folded = foldPunctuation(boardText.text);
-  if (foldedTexts.includes(folded) || foldedTexts.some((text) => text.includes(folded))) {
+  if (foldedKey !== undefined && (foldedByNode.get(boardText.id) ?? []).includes(folded)) {
+    if (!referencedKeys.has(foldedKey)) {
+      fail(
+        `[copy] board text ${boardText.id} <${boardText.name}> is only covered by ${foldedKey}, ` +
+          `which src/ never references (no text("${foldedKey}") call): ` +
+          JSON.stringify(boardText.text.slice(0, 60)),
+      );
+      continue;
+    }
     punctuationFolded += 1;
     continue;
   }
   // Exemption 2: the one mixed-script node, against its key's EN half and ZH half.
   const halves = folded.split(MIXED_TITLE.separator).map((half) => half.trim()).filter(Boolean);
   if (halves.length === 2 && mixedValues[0].includes(halves[0]) && mixedValues[1].includes(halves[1])) {
+    if (!referencedKeys.has(MIXED_TITLE.key)) {
+      fail(
+        `[copy] board text ${boardText.id} <${boardText.name}> is only covered by ${MIXED_TITLE.key}, ` +
+          `which src/ never references (no text("${MIXED_TITLE.key}") call): ` +
+          JSON.stringify(boardText.text.slice(0, 60)),
+      );
+      continue;
+    }
     mixedScript += 1;
     continue;
   }
-  fail(`[copy] board text ${boardText.id} <${boardText.name}> is not covered by a referenced key: ${JSON.stringify(boardText.text.slice(0, 60))}`);
+  fail(
+    `[copy] board text ${boardText.id} <${boardText.name}> is not covered by a referenced key: ` +
+      JSON.stringify(boardText.text.slice(0, 60)) +
+      crossKeyNote(foldedKey, folded),
+  );
+}
+
+/** 失败信息用：折叠后的文本若与另一个登记键的文本相同，指名那个键（豁免只认本节点的键）。 */
+function crossKeyNote(ownKey, folded) {
+  const other = [...foldedByKey]
+    .filter(([key, texts]) => key !== ownKey && texts.includes(folded))
+    .map(([key]) => key);
+  return other.length === 0
+    ? ""
+    : ` (folded, it equals the registered key ${other.join(", ")} — the exemption is per board node, not cross-key)`;
 }
 
 /* ---------- 5. assets ---------- */

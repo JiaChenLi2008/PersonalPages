@@ -11,7 +11,8 @@
 //      —— 单语纯度下每个显示槽位两侧都要有本语言文本（BLUEPRINT §6.4 / lang-purity-ruling.md），
 //      所以「照抄原文」与「只写一侧」一样是缺陷；译文语义由翻译方针的人工抽检负责，机器只查结构。
 //   ⑥' 材料原文本身中英混排/全半角标点混用的槽位（下 MIXED_MATERIAL 逐条登记）：两侧按译文方针
-//      §3/§5 各写本语言文本后都不可能逐字等于原文，改用「至少一侧含 ≥8 字连续原文片段」作下限。
+//      §3/§5 各写本语言文本后都不可能逐字等于原文，改用「覆盖率」作下限——每侧 text 按标点折叠后
+//      从左到右贪心取 ≥8 字的最长命中片段，两侧覆盖率之和须 ≥0.75（且最长片段 ≥8 字）。
 //   ⑦ chrome 条目必须 chrome:true 且不得带 src；非 chrome 条目必须带 src
 //   ⑧ 任何 text 不得以 ※ 开头（※ 是设计稿注解，不入字典、不渲染，见 docs/CHROME.md）
 //
@@ -224,7 +225,7 @@ const ALLOWED = new Set(['text', 'src', 'lang', 'chrome']);
 
 /* 材料原文中英混排（或全半角标点混用）的槽位：原文自己就违反译文方针 §3「有通行译名一律译出」/
    §5「不得中英混排同句、标点随语言」，两侧各写本语言文本后都不可能逐字等于原文。逐条登记，
-   并用「至少一侧含 ≥8 字连续原文片段」作为溯源下限；未登记的新槽位一律按逐字规则失败。 */
+   并用「覆盖率」作为溯源下限；未登记的新槽位一律按逐字规则失败。 */
 const MIXED_MATERIAL = new Set([
   'photoband.figcap',      // 原文：FIG. 01 — 实验台 / 21:9 plate
   'photoband.altnote',     // 原文：alt: 实验室研究场景 · WebP · lazy · 固定宽高比
@@ -235,21 +236,75 @@ const MIXED_MATERIAL = new Set([
   'footer.legal',          // 原文：© 2026 林知远 · 占位\nBIOLOGY / MEDICINE / MUSIC / SPORT
 ]);
 
-/** 混排槽位的溯源下限：text 中至少有一段 TRACE_RUN 字逐字出现在原文区间中。 */
+/** 混排槽位的溯源下限。原文区间按标点折叠后（全角标点折成 ASCII、标点周围空白去掉、换行统一写法），
+    每侧 text 各自从左到右贪心扫描：每步取「在该侧当前位置起、能在折叠后的原文区间里命中」的最长片段
+    （长度须 ≥ TRACE_RUN），累加命中字符数；该侧覆盖率 = 命中字符数 / 该侧字符数。两侧文本长度不同
+    （译文通常更短），故槽位覆盖率 = 两侧覆盖率之和，要求 Σ ≥ COVERAGE_MIN 且最长单片段 ≥ TRACE_RUN 字。
+    旧判据「任一侧含 TRACE_RUN 字连续原文片段」保留一小段即可改写其余全部，故换成覆盖率。 */
 const TRACE_RUN = 8;
-const tracesTo = (loc, text) => {
-  const flat = (loc.blocks !== undefined ? loc.blocks : loc.texts).join('\n');
-  for (let i = 0; i + TRACE_RUN <= text.length; i++) {
-    if (flat.includes(text.slice(i, i + TRACE_RUN))) return true;
-  }
-  return false;
+const COVERAGE_MIN = 0.75;
+
+/** 全角标点 -> EN 模式要求的 ASCII 标点；两侧标点随各自语言，折叠后方可比较。 */
+const WIDE_TO_ASCII = {
+  '，': ',',
+  '；': ';',
+  '：': ':',
+  '？': '?',
+  '！': '!',
+  '、': ',',
+  '（': '(',
+  '）': ')',
+  '—': '-',
 };
+
+/** 原文区间与 text 的公共折叠写法：全角标点折成 ASCII、标点周围空白去掉、字面 \\n 与真实换行统一。 */
+const foldPunctuation = (text) =>
+  text
+    .replace(/\n/g, '\\n')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/[，；：？！、（）—]/g, (mark) => WIDE_TO_ASCII[mark])
+    .replace(/\s*([,;:.?!])\s*/g, '$1');
+
+/** 一侧 text 的覆盖率读数；longest = 该侧最长命中片段。 */
+function traceCoverage(side, region) {
+  let matched = 0;
+  let longest = 0;
+  for (let i = 0; i < side.length; ) {
+    let run = 0;
+    for (let length = side.length - i; length >= TRACE_RUN; length--) {
+      if (region.includes(side.slice(i, i + length))) {
+        run = length;
+        break;
+      }
+    }
+    if (run === 0) {
+      i += 1;
+      continue;
+    }
+    matched += run;
+    longest = Math.max(longest, run);
+    i += run;
+  }
+  return { coverage: side === '' ? 0 : matched / side.length, longest };
+}
+
+/** 混排槽位的判据读数：两侧覆盖率之和与最长单片段。 */
+function mixedCoverage(loc, texts) {
+  const region = foldPunctuation((loc.blocks !== undefined ? loc.blocks : loc.texts).join('\n'));
+  const sides = texts.map((text) => traceCoverage(foldPunctuation(text), region));
+  return {
+    coverage: sides.reduce((sum, side) => sum + side.coverage, 0),
+    longest: sides.reduce((max, side) => Math.max(max, side.longest), 0),
+  };
+}
 
 /** checked = 本侧 text 就是 src 原文；translated = 原文侧逐字相符而本侧是其译文。 */
 let checked = 0;
 let translated = 0;
 let mixed = 0;
-const mixedUsed = new Set();
+/** k -> 覆盖率读数；汇报行里逐条贴出，便于复核七个登记槽位离阈值多远。 */
+const mixedUsed = new Map();
 for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
   for (const [k, v] of Object.entries(dict)) {
     const at = `${file}:${k}`;
@@ -278,14 +333,18 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
       continue;
     }
     if (!regionCarries(loc, other.text)) {
-      if (MIXED_MATERIAL.has(k) && (tracesTo(loc, v.text) || tracesTo(loc, other.text))) {
+      const trace = mixedCoverage(loc, [v.text, other.text]);
+      if (MIXED_MATERIAL.has(k) && trace.coverage >= COVERAGE_MIN && trace.longest >= TRACE_RUN) {
         mixed++;
-        mixedUsed.add(k);
+        mixedUsed.set(k, trace.coverage);
         continue;
       }
       const otherFile = file === 'copy-en.json' ? 'copy-zh.json' : 'copy-en.json';
       fail(`[verbatim] ${at} 的 text 不在 ${loc.how} 原文区间中，且同键另一侧 ${otherFile} 的 text 也不是该区间原文：该槽位两侧都无原文依据` +
-           (MIXED_MATERIAL.has(k) ? '（已登记为材料混排槽位，但两侧都找不到 ≥' + TRACE_RUN + ' 字的原文片段）' : '') + '\n' +
+           (MIXED_MATERIAL.has(k)
+             ? '（已登记为材料混排槽位：覆盖率 ' + trace.coverage.toFixed(3) + ' / 要求 ≥ ' + COVERAGE_MIN +
+               '；最长单片段 ' + trace.longest + ' 字 / 要求 ≥ ' + TRACE_RUN + ' 字）'
+             : '') + '\n' +
            `      本侧 text: ${JSON.stringify(v.text)}\n` +
            `      本侧差异: ${verbatimDiff(loc, v.text)}\n` +
            `      另一侧 text: ${JSON.stringify(other.text)}\n` +
@@ -303,7 +362,7 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
 // ---------- 汇报 ----------
 for (const e of errors) console.error('✗ ' + e);
 console.log(`root=${ROOT}`);
-console.log(`keys en=${ek.length} zh=${zk.length} | 原文逐字 ${checked} 条 | 译文侧（同一 src 槽位、两侧互异）${translated} 条 | 材料混排改写 ${mixed} 条（${[...mixedUsed].join(', ')}）`);
+console.log(`keys en=${ek.length} zh=${zk.length} | 原文逐字 ${checked} 条 | 译文侧（同一 src 槽位、两侧互异）${translated} 条 | 材料混排改写 ${mixed} 条（${[...mixedUsed].map(([k, c]) => `${k}=${c.toFixed(3)}`).join(', ')}）`);
 console.log(`chrome ${Object.values(en).filter((v) => v.chrome === true).length} 条（无 src，登记于 docs/CHROME.md）`);
 if (errors.length) {
   console.error(`FAIL：${errors.length} 条问题`);

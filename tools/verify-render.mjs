@@ -56,6 +56,14 @@ const WIDTHS = [320, 375, 600, 900, 901, 1200, 1440];
 const LANG_QUERIES = ["", "?lang=en"];
 const BLOCK_IDS = ["nav", "hero", "photoband", "index", "scholarly", "elder", "music", "sport", "method", "values", "footer"];
 
+/* Expected probe scale, per cell. The ten `.motion-clip` slots are photo-band's photo (1),
+   scholarly's six figure slots (3 JHU puzzles + 2 iGEM + 1 HIR) and elder/music/sport's
+   three section figures (3); the fourteen `<img>` are the ten photos inside those slots plus
+   Index's four thumbnails. Both are asserted before the per-element loops: over an empty
+   probe result those loops pass vacuously, so a probe that measured nothing must fail here. */
+const EXPECTED_CLIPS = 10;
+const MIN_IMAGES_PER_CELL = 14;
+
 const failures = [];
 const fail = (message) => failures.push(message);
 const die = (message) => {
@@ -363,6 +371,29 @@ for (const cell of cells) {
         `${label}: .${box.selector} must stay out of the accessibility tree (BLUEPRINT §6.3): ` +
           `aria-hidden=${JSON.stringify(box.ariaHidden)} role=${JSON.stringify(box.role)} aria-label=${JSON.stringify(box.ariaLabel)}`,
       );
+    }
+  }
+  const probeClips = cell.motion.clips;
+  const probeImages = cell.motion.images;
+  if (probeClips.length !== EXPECTED_CLIPS) {
+    fail(
+      `${label}: probe found ${probeClips.length} .motion-clip slots, expected ${EXPECTED_CLIPS} ` +
+        "(photo-band 1 + scholarly 6 + elder/music/sport 3)",
+    );
+  }
+  if (probeImages.length < MIN_IMAGES_PER_CELL) {
+    fail(
+      `${label}: probe found ${probeImages.length} <img>, expected at least ${MIN_IMAGES_PER_CELL} ` +
+        "(the ten clip photos + Index's four thumbnails)",
+    );
+  }
+  for (const [slot, least] of [
+    ["photo-band__media", 1],
+    ["scholarly__clip", 6],
+  ]) {
+    const named = probeClips.filter((clip) => clip.sel.includes(slot)).length;
+    if (named < least) {
+      fail(`${label}: probe found ${named} .${slot} slot(s), expected at least ${least}`);
     }
   }
   for (const clip of cell.motion.clips) {

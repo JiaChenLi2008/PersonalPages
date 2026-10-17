@@ -28,6 +28,30 @@ function positions(): Position[] {
 
 let group: { frame: number; elements: HTMLElement[] } | null = null;
 
+/** A surface that measures itself synchronously when the toggle is clicked. A FLIP has to
+    read the layout the click happened on: the layout of the previous switch turns a window
+    resize or a font reflow between two switches into movement the language never caused. */
+type FlipCapture = () => unknown;
+
+const captureFns = new Set<FlipCapture>();
+let captured = new Map<FlipCapture, unknown>();
+
+/** Register a capture; the returned function unregisters it. */
+export function registerFlipCapture(fn: FlipCapture): () => void {
+  captureFns.add(fn);
+  return () => {
+    captureFns.delete(fn);
+    captured.delete(fn);
+  };
+}
+
+/** What `fn` captured just before the last commit, consumed once (undefined when none). */
+export function takeFlipCapture<V>(fn: FlipCapture): V | undefined {
+  const value = captured.get(fn) as V | undefined;
+  captured.delete(fn);
+  return value;
+}
+
 /** Drop the group in flight; a second switch also drops it, so at most one group runs. */
 function clear(): void {
   if (group === null) {
@@ -45,11 +69,16 @@ function clear(): void {
 export function swapLanguage(commit: () => void): void {
   clear();
   if (typeof window === "undefined" || window.matchMedia(REDUCED_MOTION).matches) {
+    /* No FLIP runs, so nothing measures and no capture may survive into the next switch. */
+    captured.clear();
     commit();
     return;
   }
 
   const before = positions();
+  /* Every registered surface measures here — in the click's own layout, before `commit()`
+     hands the page its new text. */
+  captured = new Map([...captureFns].map((capture) => [capture, capture()]));
   /* `setLang` notifies a `useSyncExternalStore` subscriber, so the re-render it schedules has
      to be flushed here for the second measurement to be the real post-switch layout. */
   flushSync(commit);
