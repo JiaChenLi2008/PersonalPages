@@ -299,12 +299,30 @@ function mixedCoverage(loc, texts) {
   };
 }
 
+/**
+ * 用户给定的身份事实（姓名 / 邮箱 / 页脚版权）——设计稿不是它的权威来源。
+ * 这些键必须逐字全等于下表，且不再参与材料原文溯源（它们本就不是材料原文）。
+ * 逐字全等强于原「覆盖率 ≥ 0.75」判据：改动一字、或删除登记，都必须报错。
+ */
+const USER_IDENTITY = {
+  'nav.brand.name': { 'copy-en.json': 'CHEN JIA', 'copy-zh.json': '嘉宸' },
+  'nav.brand.cn': { 'copy-en.json': 'CHEN JIA', 'copy-zh.json': '嘉宸' },
+  'nav.mail': { 'copy-en.json': 'chen.jia@gmail.com', 'copy-zh.json': 'chen.jia@gmail.com' },
+  'footer.mail': { 'copy-en.json': 'chen.jia@gmail.com', 'copy-zh.json': 'chen.jia@gmail.com' },
+  'footer.legal': {
+    'copy-en.json': '© 2026 CHEN JIA\nBIOLOGY / MEDICINE / MUSIC / SPORT',
+    'copy-zh.json': '© 2026 嘉宸\n生物学 / 医学 / 音乐 / 体育',
+  },
+};
+
 /** checked = 本侧 text 就是 src 原文；translated = 原文侧逐字相符而本侧是其译文。 */
 let checked = 0;
 let translated = 0;
 let mixed = 0;
+let identity = 0;
 /** k -> 覆盖率读数；汇报行里逐条贴出，便于复核七个登记槽位离阈值多远。 */
 const mixedUsed = new Map();
+const identityUsed = new Set();
 for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
   for (const [k, v] of Object.entries(dict)) {
     const at = `${file}:${k}`;
@@ -319,6 +337,19 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
     if (typeof v.text !== 'string') continue;
     if (v.text.trim() === '') fail(`[text] ${at}.text 为空`);
     if (/TODO|FIXME|XXX/.test(v.text)) fail(`[text] ${at}.text 含占位字样：${JSON.stringify(v.text)}`);
+    if (/example\.com|Placeholder|占位/.test(v.text)) fail(`[text] ${at}.text 含占位串（用户已给定真值）：${JSON.stringify(v.text)}`);
+    // ⑤′ 用户给定身份事实：逐字全等（强于材料覆盖率），命中即不参与材料溯源。
+    if (Object.hasOwn(USER_IDENTITY, k)) {
+      identityUsed.add(k);
+      const expected = USER_IDENTITY[k][file];
+      if (expected === undefined) { fail(`[identity] ${at} 在 USER_IDENTITY 中缺少 ${file} 的期望值`); continue; }
+      if (v.text !== expected) {
+        fail(`[identity] ${at} 必须逐字等于用户给定值：\n      期望: ${JSON.stringify(expected)}\n      实际: ${JSON.stringify(v.text)}`);
+        continue;
+      }
+      identity++;
+      continue;
+    }
     if (v.text.trimStart().startsWith('※')) fail(`[annotation] ${at}.text 以 ※ 开头（设计稿注解不得入字典）：${JSON.stringify(v.text)}`);
     // ⑤⑥ 逐字溯源（chrome 条目无 src，不参与溯源）
     if (v.chrome === true || typeof v.src !== 'string' || v.src === '') continue;
@@ -362,7 +393,7 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
 // ---------- 汇报 ----------
 for (const e of errors) console.error('✗ ' + e);
 console.log(`root=${ROOT}`);
-console.log(`keys en=${ek.length} zh=${zk.length} | 原文逐字 ${checked} 条 | 译文侧（同一 src 槽位、两侧互异）${translated} 条 | 材料混排改写 ${mixed} 条（${[...mixedUsed].map(([k, c]) => `${k}=${c.toFixed(3)}`).join(', ')}）`);
+console.log(`keys en=${ek.length} zh=${zk.length} | 原文逐字 ${checked} 条 | 译文侧（同一 src 槽位、两侧互异）${translated} 条 | 用户给定身份 ${identity} 条（${[...identityUsed].join(', ')}） | 材料混排改写 ${mixed} 条（${[...mixedUsed].map(([k, c]) => `${k}=${c.toFixed(3)}`).join(', ')}）`);
 console.log(`chrome ${Object.values(en).filter((v) => v.chrome === true).length} 条（无 src，登记于 docs/CHROME.md）`);
 if (errors.length) {
   console.error(`FAIL：${errors.length} 条问题`);
