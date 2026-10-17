@@ -19,10 +19,10 @@ export function PhotoBand() {
 
   return (
     <section id="photoband" data-section="photo-band" className="photo-band">
-      <Reveal as="figure" className="photo-band__figure">
+      <Reveal once as="figure" className="photo-band__figure">
         {/* Two devices, two elements: the slot sweeps open (.motion-clip) while the photo
             inside it travels with the scroll (.motion-parallax) — no property is shared. */}
-        <Reveal as="div" className="photo-band__media motion-clip">
+        <Reveal once as="div" className="photo-band__media motion-clip">
           <img
             className="photo-band__img motion-parallax"
             src="./media/photoband-2880.webp"

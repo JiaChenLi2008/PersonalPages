@@ -55,6 +55,7 @@
 
 /* ---- Image mask reveal: the clip sweeps left to right ---- */
 
+
 .motion-clip {
   clip-path: inset(0 100% 0 0);
   transition: clip-path var(--dur-3) var(--ease-out);

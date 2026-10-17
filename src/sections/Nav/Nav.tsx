@@ -90,7 +90,7 @@ export function Nav() {
     <header ref={header} id="nav" data-section="nav" className="nav">
       {/* Bar entrance (motion spec §2 nav, tier 0): the row lifts and fades in on first
           intersection. The hairline below stays put — it is the page rule, not the bar. */}
-      <Reveal as="nav" className="nav__row" delay={0}>
+      <Reveal once as="nav" className="nav__row" delay={0}>
         <div className="nav__brand">
           <span className="nav__mark" aria-hidden="true" />
           {/* Single-side brand (BLUEPRINT §6.4): the page renders one brand, its own
