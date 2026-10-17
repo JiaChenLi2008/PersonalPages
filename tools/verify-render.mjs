@@ -258,15 +258,35 @@ const MOTION_PROBE = `(async () => {
   const clips = [...document.querySelectorAll(".motion-clip")];
   const images = [...document.querySelectorAll("img")];
   const step = Math.round(window.innerHeight * 0.75);
+  /* The entrance replays on every re-entry, so a slot that has scrolled past is legitimately
+     closed again by the time the sweep ends. Record the whole trip: a slot counts as working
+     when it opened at any point while it was on screen. */
+  const everOpened = new Map(clips.map((el) => [el, false]));
+  const seen = new Map(clips.map((el) => [el, false]));
+  const noteOpened = () => {
+    for (const el of clips) {
+      if (el.classList.contains("is-in")) seen.set(el, true);
+      if (!everOpened.get(el) && el.classList.contains("is-in") && !/100%/.test(getComputedStyle(el).clipPath)) {
+        everOpened.set(el, true);
+      }
+    }
+  };
   for (let y = 0; y < document.documentElement.scrollHeight; y += step) {
     window.scrollTo(0, y);
-    await sleep(120);
+    await sleep(420);
+    noteOpened();
   }
   window.scrollTo(0, document.documentElement.scrollHeight);
-  /* Settle inside 1s: the mask sweep is --dur-slow (600ms) and the observer fires a frame or
-     two after the scroll stops, so poll rather than sleep the whole budget every cell. */
-  const opened = () => clips.every((el) => el.classList.contains("is-in") && !/100%/.test(getComputedStyle(el).clipPath));
-  for (let i = 0; i < 10 && !opened(); i++) await sleep(100);
+  for (let i = 0; i < 10; i++) { noteOpened(); await sleep(100); }
+  /* Every slot still unseen gets its own turn centred in the viewport. A coarse scroll can
+     step over a short slot at narrow widths (a 320px column makes the page very tall), and a
+     replay closes slots that are already behind us — so "seen at some point" has to be
+     established per slot, not inferred from where the sweep happened to stop. */
+  for (const el of clips) {
+    if (everOpened.get(el)) continue;
+    el.scrollIntoView({ block: "center" });
+    for (let i = 0; i < 12; i++) { noteOpened(); if (everOpened.get(el)) break; await sleep(100); }
+  }
   /* A pass this fast can outrun the browser's lazy-load scheduler, so every image still at
      naturalWidth 0 gets its own chance: centred in the viewport, then read. What is left
      after that cannot load at all — a closed mask slot gives its photo no visible area to
@@ -279,7 +299,7 @@ const MOTION_PROBE = `(async () => {
   const loaded = () => images.every((img) => img.naturalWidth > 0);
   for (let i = 0; i < 20 && !loaded(); i++) await sleep(100);
   return {
-    clips: clips.map((el) => ({ sel: describe(el), isIn: el.classList.contains("is-in"), clipPath: getComputedStyle(el).clipPath })),
+    clips: clips.map((el) => ({ sel: describe(el), isIn: everOpened.get(el) === true, sawIsIn: seen.get(el) === true, clipPath: getComputedStyle(el).clipPath })),
     images: images.map((img) => ({
       file: (img.currentSrc || img.getAttribute("src") || "").split("/").pop(),
       naturalWidth: img.naturalWidth,

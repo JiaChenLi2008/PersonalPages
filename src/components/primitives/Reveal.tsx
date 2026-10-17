@@ -11,27 +11,37 @@ export type RevealProps = {
   threshold?: number;
   /** Observer root margin; the useInView default (-10% at the bottom) unless a block needs another. */
   rootMargin?: string;
+  /** Play only on the first entrance (chrome that must not flicker: nav, hero, photo band). */
+  once?: boolean;
   /** Extra motion hooks travel here too: `motion-slide`, `motion-clip`, `motion-hover`. */
   className?: string;
   children?: ReactNode;
 };
 
 /**
- * Fades and lifts its children in once the block scrolls into view. The classes come
- * from motion.css, so a caller can add one of the other hooks by name.
+ * Fades and lifts its children in every time the block scrolls into view. Chrome passes
+ * `once` so it settles after its first entrance.
+ *
+ * A `.motion-clip` slot is the one exception: its mask holds the box at zero area, so the
+ * observer can only ever fire once — replaying it would leave the slot clipped shut. The
+ * mask therefore keeps its single sweep while everything else replays.
  */
 export function Reveal({
   as = "div",
   delay = 0,
   threshold,
   rootMargin,
+  once,
   className,
   children,
 }: RevealProps): JSX.Element {
-  // A `.motion-clip` slot is clipped to zero area, so it can never trip its own observer:
-  // the trigger is read from the block around it. Callers ask for the mask by name only.
-  const observeUnclippedAncestor = (className ?? "").split(/\s+/).includes("motion-clip");
-  const [ref, inView] = useInView<HTMLElement>({ threshold, rootMargin, observeUnclippedAncestor });
+  const isClip = (className ?? "").split(/\s+/).includes("motion-clip");
+  const [ref, inView] = useInView<HTMLElement>({
+    threshold,
+    rootMargin,
+    once: isClip ? true : once,
+    observeUnclippedAncestor: isClip,
+  });
   const classes = ["reveal", inView ? "is-in" : null, className].filter(Boolean).join(" ");
   // JSX cannot tie a ref to the chosen tag of a union, so the tag is widened here.
   const Element = as as ElementType;

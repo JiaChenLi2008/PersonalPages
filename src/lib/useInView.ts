@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type RefObject } from "react";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 
-/** Fires once 15% of the block is inside the viewport. */
+/** Fires when 15% of the block is inside the viewport. */
 const DEFAULT_THRESHOLD = 0.15;
 
 /** Holds the trigger until the block is ~10% into the viewport, so the entrance
@@ -12,7 +12,8 @@ const DEFAULT_ROOT_MARGIN = "0px 0px -10% 0px";
 export type UseInViewOptions = {
   /** IntersectionObserver threshold; 15% by default. */
   threshold?: number;
-  /** Keep the revealed state after the first intersection instead of toggling it. */
+  /** Keep the revealed state after the first intersection instead of toggling it.
+      Default false: the entrance replays every time the block re-enters the viewport. */
   once?: boolean;
   /** Observer root margin; pulls the trigger 10% into the viewport by default. */
   rootMargin?: string;
@@ -30,7 +31,7 @@ function observerTarget(element: HTMLElement, observeUnclippedAncestor: boolean)
   if (!observeUnclippedAncestor) {
     return element;
   }
-  let node = element.parentElement;
+  let node: HTMLElement | null = element.parentElement;
   while (node && node.classList.contains("motion-clip")) {
     node = node.parentElement;
   }
@@ -47,33 +48,35 @@ function shouldSkipObserver(): boolean {
 
 /**
  * Observes an element and reports whether it has entered the viewport.
- * Returns inView === true immediately (no observer) when the environment has no
- * IntersectionObserver or the user prefers reduced motion, so content is never
- * hidden behind an animation that will not run.
+ *
+ * The element carries the class itself (`is-in` on the node) rather than the state living
+ * only in React: an observer that re-subscribes on every render can miss the entry it was
+ * created for, and a replay needs the leave and the re-entry to be seen by one observer.
+ * State is kept only so callers can re-render on demand.
  */
 export function useInView<T extends HTMLElement>(
   options: UseInViewOptions = {},
 ): [RefObject<T | null>, boolean] {
   const {
     threshold = DEFAULT_THRESHOLD,
-    once = true,
+    once = false,
     rootMargin = DEFAULT_ROOT_MARGIN,
     observeUnclippedAncestor = false,
   } = options;
   const ref = useRef<T>(null);
-  const [inView, setInView] = useState(shouldSkipObserver);
+  const [inView, setInView] = useState(false);
 
   useEffect(() => {
+    const element = ref.current;
+    if (!element) {
+      return;
+    }
     if (shouldSkipObserver()) {
       setInView(true);
       return;
     }
 
-    const element = ref.current;
-    if (!element) {
-      return;
-    }
-
+    const target = observerTarget(element, observeUnclippedAncestor);
     const observer = new IntersectionObserver(
       (entries) => {
         for (const entry of entries) {
@@ -90,7 +93,7 @@ export function useInView<T extends HTMLElement>(
       { threshold, rootMargin },
     );
 
-    observer.observe(observerTarget(element, observeUnclippedAncestor));
+    observer.observe(target);
     return () => observer.disconnect();
   }, [observeUnclippedAncestor, once, rootMargin, threshold]);
 

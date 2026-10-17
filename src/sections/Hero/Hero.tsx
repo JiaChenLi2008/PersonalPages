@@ -24,7 +24,7 @@ export function Hero() {
     <section id="hero" data-section="hero" className="hero" aria-labelledby="hero-title">
       <div className="hero__grid">
         {/* Entrance tiers (motion spec §2 hero): 标题 0 → 副标 1 → 键值 3. */}
-        <Reveal className="hero__left" delay={0}>
+        <Reveal once className="hero__left" delay={0}>
           <p className="hero__eyebrow" lang={copyLang("hero.eyebrow")}>
             {text("hero.eyebrow")}
           </p>
@@ -41,11 +41,11 @@ export function Hero() {
           </h1>
         </Reveal>
         <div className="hero__right">
-          <Reveal as="p" className="hero__summary" delay={1}>
+          <Reveal once as="p" className="hero__summary" delay={1}>
             {text("hero.summary")}
           </Reveal>
           {/* The rules travel with the key-value rows: they are one block on screen. */}
-          <Reveal className="hero__kvgroup" delay={3}>
+          <Reveal once className="hero__kvgroup" delay={3}>
             {ROWS.map((row) => (
               <Fragment key={row.key}>
                 <div className="hero__rule" aria-hidden="true" />
