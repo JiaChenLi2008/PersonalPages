@@ -226,6 +226,56 @@ if (tiers.get("1") !== 9 || tiers.get("2") !== 9) {
   fail(`answer stagger tiers ${JSON.stringify([...tiers])} != nine on tier 1 and nine on tier 2`);
 }
 
+/* docx page 4 moved each HIR closing sentence from a pull-quote into its own answer
+   panel, as a second paragraph one blank line below the body and in another colour.
+   The paragraph structure is the claim, so it is what is asserted: per HIR panel the
+   `.scholarly__answer` paragraphs are the body then exactly one `.scholarly__answer--merge`
+   carrying that panel's own dictionary sentence verbatim. Dropping the extra <p> (or
+   folding the sentence back into the body) makes this fail. */
+const MERGED = [
+  { panel: "scholarly-hir-a1", key: "scholarly-hir.bridge1" },
+  { panel: "scholarly-hir-a2", key: "scholarly-hir.bridge2" },
+  { panel: "scholarly-hir-a3", key: "scholarly-hir.closing" },
+];
+for (const { panel, key } of MERGED) {
+  const from = html.indexOf(`id="${panel}"`);
+  if (from < 0) {
+    fail(`#${panel}: the HIR answer panel is not rendered`);
+    continue;
+  }
+  /* The panel's own tag carries `data-reveal-panel`, so the body starts after its
+     closing bracket and ends at the next panel's tag. */
+  const start = html.indexOf(">", from) + 1;
+  const next = html.indexOf('data-reveal-panel=""', start);
+  const body = html.slice(start, next < 0 ? html.length : next);
+  const paragraphs = [...body.matchAll(/<p class="(scholarly__answer[^"]*)"[^>]*>([\s\S]*?)<\/p>/g)].map(
+    (match) => ({ classes: match[1].split(" "), text: match[2] }),
+  );
+  const merged = paragraphs.filter((entry) => entry.classes.includes("scholarly__answer--merge"));
+  if (paragraphs.length !== 2 || merged.length !== 1) {
+    fail(
+      `#${panel}: ${paragraphs.length} answer paragraph(s), ${merged.length} of them merged — ` +
+        "expected the answer body plus one merged paragraph (docx page 4: the closing " +
+        "sentence belongs inside the panel)",
+    );
+    continue;
+  }
+  if (paragraphs[1] !== merged[0]) {
+    fail(`#${panel}: the merged paragraph must come after the answer body`);
+  }
+  /* React escapes markup characters in text children, so compare on the decoded text. */
+  const decode = (markup) =>
+    markup
+      .replace(/&#x27;/g, "'")
+      .replace(/&quot;/g, '"')
+      .replace(/&lt;/g, "<")
+      .replace(/&gt;/g, ">")
+      .replace(/&amp;/g, "&");
+  if (decode(merged[0].text) !== en[key].text) {
+    fail(`#${panel}: the merged paragraph is not ${key} verbatim (${JSON.stringify(merged[0].text.slice(0, 48))})`);
+  }
+}
+
 const groups = tagsOf("ul").concat(tagsOf("div")).filter((attrs) => (attrs.class ?? "").split(" ").includes("motion-reveal-group"));
 if (groups.length !== 3) {
   fail(`.motion-reveal-group count ${groups.length} != 3 (JHU / Immunotherapy / HIR)`);

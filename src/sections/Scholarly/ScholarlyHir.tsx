@@ -5,15 +5,19 @@ import { useRevealPanel } from "../../lib/useRevealPanel";
 
 /**
  * 01.4 HIR writing contest (ui.pen `FMu2N`): figure slot, three long questions
- * with their answer panels and closing pull-quotes, then the essay card.
+ * with their answer panels, three lead paragraphs, then the essay card.
+ *
+ * The board draws each question's closing sentence as a pull-quote between two
+ * questions; docx page 4 moves all three into their own answer panel, one blank line
+ * below the body and in a second colour, so they are only read once the panel opens.
+ * The leads sit where the last pull-quote was, between that panel and the card.
  *
  * The board stacks a blue mono number (`Onum`) above each question (`Qtext`) inside a
  * 10px-gap frame, so each question renders as two nodes: `scholarly-hir.q<n>.no` and
  * `scholarly-hir.q<n>` (the same split the Immunotherapy block uses).
  *
  * The three answers are one reveal group of the shared skeleton (motion spec §3.5);
- * the pull-quotes between them belong to no group, so the group wrapper is the whole
- * body.
+ * the body wrapper is that group, so it holds every question, panel and lead.
  *
  * The shared motion hooks of §4 land here too: `.motion-clip` on the figure slot
  * (device ②), `.motion-slide` on the question ordinal (device ③) and
@@ -96,14 +100,14 @@ export function ScholarlyHir() {
               >
                 {text("scholarly-hir.a1")}
               </p>
+              <p
+                className="scholarly__answer scholarly__answer--hir scholarly__answer--merge"
+                lang={langOf("scholarly-hir.bridge1")}
+              >
+                {text("scholarly-hir.bridge1")}
+              </p>
             </div>
           </div>
-        </div>
-        <div className="scholarly__pull">
-          <span className="scholarly__accent" aria-hidden="true" />
-          <p className="scholarly__pullText" lang={langOf("scholarly-hir.bridge1")}>
-            {text("scholarly-hir.bridge1")}
-          </p>
         </div>
 
         <button type="button" className="scholarly__question scholarly__question--hir motion-hover" {...q2.triggerProps}>
@@ -133,14 +137,14 @@ export function ScholarlyHir() {
               >
                 {text("scholarly-hir.a2")}
               </p>
+              <p
+                className="scholarly__answer scholarly__answer--hir scholarly__answer--merge"
+                lang={langOf("scholarly-hir.bridge2")}
+              >
+                {text("scholarly-hir.bridge2")}
+              </p>
             </div>
           </div>
-        </div>
-        <div className="scholarly__pull">
-          <span className="scholarly__accent" aria-hidden="true" />
-          <p className="scholarly__pullText" lang={langOf("scholarly-hir.bridge2")}>
-            {text("scholarly-hir.bridge2")}
-          </p>
         </div>
 
         <button type="button" className="scholarly__question scholarly__question--hir motion-hover" {...q3.triggerProps}>
@@ -170,15 +174,25 @@ export function ScholarlyHir() {
               >
                 {text("scholarly-hir.a3")}
               </p>
+              <p
+                className="scholarly__answer scholarly__answer--hir scholarly__answer--merge"
+                lang={langOf("scholarly-hir.closing")}
+              >
+                {text("scholarly-hir.closing")}
+              </p>
             </div>
           </div>
         </div>
-        <div className="scholarly__pull">
-          <span className="scholarly__accent" aria-hidden="true" />
-          <p className="scholarly__pullText" lang={langOf("scholarly-hir.closing")}>
-            {text("scholarly-hir.closing")}
-          </p>
-        </div>
+
+        <p className="scholarly__lead" lang={langOf("scholarly-hir.lead1")}>
+          {text("scholarly-hir.lead1")}
+        </p>
+        <p className="scholarly__lead" lang={langOf("scholarly-hir.lead2")}>
+          {text("scholarly-hir.lead2")}
+        </p>
+        <p className="scholarly__lead" lang={langOf("scholarly-hir.lead3")}>
+          {text("scholarly-hir.lead3")}
+        </p>
 
         <div className="scholarly__docCard">
           <div className="scholarly__docL">

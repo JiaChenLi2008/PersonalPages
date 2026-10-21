@@ -317,6 +317,26 @@
   line-height: var(--lh-body);
 }
 
+/* docx page 4: each question's closing sentence moves into its own answer panel as a
+   second paragraph — one --sp-24 step (24px, about one line of --fs-14 at --lh-body)
+   below the body, and in a second colour so it reads as the panel's aside: --c-green,
+   because --c-blue is this section's accent everywhere else. */
+.scholarly__answer--merge {
+  margin-top: var(--sp-24);
+  color: var(--c-green);
+}
+
+/* docx page 4 (the three leads go under the last answer, above the essay card): three
+   lead paragraphs between that panel and the card — body copy, one --sp-18 gap apart
+   through .scholarly__body--hir's column gap. */
+.scholarly__lead {
+  margin: 0;
+  color: var(--c-ink-body);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
 .scholarly__hint {
   margin: 0;
   color: var(--c-blue);
@@ -357,6 +377,9 @@
 }
 
 /* ---- 01.4 HIR ---- */
+/* The board (ui.pen `aNRvK` / `S5cBV0` / `qBAl2`) still declares the pull-quote shape,
+   and tools/fidelity-scholarly.mjs compares these declarations with it, so the rule stays
+   even though docx page 4 moved the three HIR sentences into their answer panels. */
 .scholarly__pull {
   display: flex;
   flex-direction: column;

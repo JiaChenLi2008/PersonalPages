@@ -519,17 +519,19 @@ const normalised = referencedTexts.map(normalise);
       against the one dictionary key the node is registered to, and only that key (a board
       node carrying another key's string is a failure, not a hit). The key must still be
       referenced by src/ to earn the exemption.
-   2. `MIXED_TITLE` — `scholarly-hir.title` is a single mixed-script board node
-      (`HIR writing contest-哈佛国际评论学术写作竞赛`) while the dictionary keeps an EN value
-      and a ZH value; the node is covered when its two halves, split at the separator, sit
-      in the value of the matching side. Only this key is compared that way, and only when
-      src/ actually wires it. */
+   2. `SUPERSEDED_BY_DOCX` — `TZa4y` still carries the retired HIR subtitle
+      (`HIR writing contest-哈佛国际评论学术写作竞赛`). docx-2026-10 page 4 replaces that whole
+      sentence (docx-2026-10-brief.md 段[7]), but the board was re-exported for its images
+      only and cannot be re-drawn, so the node keeps the old string. It stays covered while
+      the key it belongs to is wired in src/; the new sentence is judged character for
+      character against the brief by docs/verify-copy.mjs, which is where a change to it
+      has to fail (this gate only holds the slot to its key). */
 const PUNCTUATION_FOLDED_BY_NODE = {
   vPbTb: "scholarly-igem.title",
   juo5I: "scholarly-jhu.q1",
   kk4C1: "scholarly-jhu.q2",
 };
-const MIXED_TITLE = { key: "scholarly-hir.title", separator: /[-—–]+/ };
+const SUPERSEDED_BY_DOCX = { TZa4y: "scholarly-hir.title" };
 
 /** Full-width mark -> the ASCII mark the EN page carries. */
 const WIDE_TO_ASCII = {
@@ -566,9 +568,10 @@ const foldedByKey = new Map(
   Object.entries(PUNCTUATION_FOLDED_BY_NODE).map(([nodeId, key]) => [key, foldedByNode.get(nodeId)]),
 );
 
-const mixedValues = ["en", "zh"].map((locale) =>
-  foldPunctuation(dictionaries[locale][MIXED_TITLE.key]?.text ?? ""),
-);
+let concatenated = 0;
+let insideNode = 0;
+let punctuationFolded = 0;
+let superseded = 0;
 
 const boardTexts = [];
 (function collect(node) {
@@ -576,10 +579,6 @@ const boardTexts = [];
   for (const child of node.children ?? []) collect(child);
 })(frame);
 
-let concatenated = 0;
-let insideNode = 0;
-let punctuationFolded = 0;
-let mixedScript = 0;
 for (const boardText of boardTexts) {
   if (boardText.text.startsWith("※")) continue;
   checked += 1;
@@ -612,18 +611,18 @@ for (const boardText of boardTexts) {
     punctuationFolded += 1;
     continue;
   }
-  // Exemption 2: the one mixed-script node, against its key's EN half and ZH half.
-  const halves = folded.split(MIXED_TITLE.separator).map((half) => half.trim()).filter(Boolean);
-  if (halves.length === 2 && mixedValues[0].includes(halves[0]) && mixedValues[1].includes(halves[1])) {
-    if (!referencedKeys.has(MIXED_TITLE.key)) {
+  // Exemption 2: the one board string docx-2026-10 replaced, held to its key only.
+  const supersededKey = SUPERSEDED_BY_DOCX[boardText.id];
+  if (supersededKey !== undefined) {
+    if (!referencedKeys.has(supersededKey)) {
       fail(
-        `[copy] board text ${boardText.id} <${boardText.name}> is only covered by ${MIXED_TITLE.key}, ` +
-          `which src/ never references (no text("${MIXED_TITLE.key}") call): ` +
+        `[copy] board text ${boardText.id} <${boardText.name}> is the string docx-2026-10 replaced ` +
+          `${supersededKey} with, and src/ never references that key (no text("${supersededKey}") call): ` +
           JSON.stringify(boardText.text.slice(0, 60)),
       );
       continue;
     }
-    mixedScript += 1;
+    superseded += 1;
     continue;
   }
   fail(
@@ -862,7 +861,7 @@ console.log(`checked=${checked} missing=${problems.length}`);
 console.log(
   `PASS: ui.pen ${PEN_SHA256.slice(0, 16)}… ${PEN_BYTES} B — ${TEXT_ROLES.length} text roles, ` +
     `${GEOMETRY.length} geometry values, ${RATIOS.length + 1} media boxes, ${boardTexts.length} board strings ` +
-    `(${concatenated} joined, ${punctuationFolded} punctuation-folded, ${mixedScript} mixed-script, ` +
+    `(${concatenated} joined, ${punctuationFolded} punctuation-folded, ${superseded} docx-superseded, ` +
     `${insideNode} split across board nodes), ${PHOTOS.length} photos + PDF byte-identical`,
 );
 for (const [what, why] of DEVIATIONS) {
