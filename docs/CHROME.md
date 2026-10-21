@@ -32,6 +32,7 @@
 | 16 | `scholarly.revealTap` | TAP TO REVEAL | `en` | 01 学术成果 · Section · Hint | 交互提示 |
 | 17 | `scholarly-immuno.no` | 01.3 | `en` | 01 学术成果 · Section · SubHead | 子板块编号 |
 | 18 | `scholarly.revealSwipe` | SWIPE → REVEAL | `en` | 01 学术成果 · Section · Hint | 交互提示 |
+| 18a | `scholarly.revealClick` | Click to reveal. | `en` | 01 学术成果 · Section · Hint | 交互提示（docx-2026-10 段[6]，JHU 三问各一） |
 | 19 | `scholarly-hir.no` | 01.4 | `en` | 01 学术成果 · Section · SubHead | 子板块编号 |
 | 20 | `scholarly.meta` | HIR · Harvard International Review | `en` | 01 学术成果 · Section · Meta | 出处标签 |
 | 21 | `scholarly.linkPdf` | READ FULL PDF ↗ | `en` | 01 学术成果 · Section · Link | 链接文案 |
@@ -41,10 +42,10 @@
 | 25 | `nav.lang.zh` | 中 | `zh-Hans` | Nav · Row · Lang | 语言切换件选项 |
 | 26 | `nav.lang.en` | EN | `en` | Nav · Row · Lang | 语言切换件选项 |
 
-本表 26 条 = 冻版设计稿上逐节点可查的 chrome 键（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 32 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 全部取自冻版设计稿对应节点，未新增、未改写、未翻译。
+本表 27 条 = 冻版设计稿上逐节点可查的 26 条 chrome 键 + docx-2026-10 段[6] 新增的 `scholarly.revealClick`（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 33 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 除 `scholarly.revealClick`（docx-2026-10 段[6]，docx 原文 + 按「中英都上」定的中文）外，全部取自冻版设计稿对应节点，未改写、未翻译。
 
-对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 138 键（en=zh），其中 src-traced 106 条、chrome 32 条。
-**docx-2026-10 轮之后的现状**：字典 **188 键**（en=zh；src-traced **156** 条 + chrome 32 条，chrome 计数**未变**）；冻版设计稿上 5 串已被本轮新文案整句取代（`scholarly-hir.title` 与 Index 四行小字 `index.row1.body` … `index.row4.body`），故与 `ui.pen` 的差集**不再为空**——`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐（`tools/fidelity-scholarly.mjs` 因此 rc=1，见 `docs/GATES.md` §2 docx-2026-10 轮 ④）。
+对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 138 键（en=zh），其中 src-traced 106 条、chrome 32 条（docx-2026-10 轮后 chrome 33 条，见下）。
+**docx-2026-10 轮之后的现状**：字典 **189 键**（en=zh；src-traced **156** 条 + chrome **33** 条：docx-2026-10 段[6] 的 `scholarly.revealClick` 为接线 lane 按 chrome 键流程新增并登记于 §1）；冻版设计稿上 5 串已被本轮新文案整句取代（`scholarly-hir.title` 与 Index 四行小字 `index.row1.body` … `index.row4.body`），故与 `ui.pen` 的差集**不再为空**——`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐（`tools/fidelity-scholarly.mjs` 因此 rc=1，见 `docs/GATES.md` §2 docx-2026-10 轮 ④）。
 
 ## 2. ※ 注解清单（7 条，不入典、不渲染）
 

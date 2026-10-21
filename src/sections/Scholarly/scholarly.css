@@ -326,6 +326,14 @@
   letter-spacing: var(--ls-caps);
 }
 
+/* docx page 3: each riddle carries its own prompt under the English question, and the
+   docx asks that this line's type differ from the section's other hints — the sans of the
+   question it follows, in the same accent blue. Kept as a modifier so the HIR and
+   Immunotherapy hints keep the mono they were designed with. */
+.scholarly__hint--jhu {
+  font-family: var(--ff-sans-cn);
+}
+
 /* ---- 01.3 three columns ---- */
 .scholarly__cols {
   display: flex;

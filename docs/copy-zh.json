@@ -419,6 +419,11 @@
     "chrome": true,
     "lang": "zh-Hans"
   },
+  "scholarly.revealClick": {
+    "text": "点击揭晓",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
   "scholarly-hir.title": {
     "text": "健康老龄化个人项目——HIR 获奖报告",
     "src": "docx-2026-10-brief.md#段[7]",
