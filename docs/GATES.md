@@ -105,6 +105,8 @@ build → verify-copy-wiring → verify-head → verify-responsive → verify-ss
 
 `tools/verify-fonts.mjs`（在树 12614 B；P14 登记）：**能证**——上表抽样的 6 个节点实际选中族与声明族一致，拉丁两族的 `isCustomFont=true`（自托管 woff2 确已加载），中文节点为含 CJK 的系统字体；**不能证**——未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机/其它浏览器；跑在本地（需宿主 CDP），不进 CI，端点不可达 rc=2。
 
+> **T5 实况修正（2026-10-21，docx-2026-10 收官复审）**：上句「6 个节点」与实测不符。`openTab()` 只导航 en 模式（`Page.navigate` 到 `ORIGIN`，无 `?lang=`），而 `.hero__title-cn` 按单语纯度只在 `zh-Hans` 下入 DOM（`src/sections/Hero/Hero.tsx:36`），故 en 模式恒 `no such element` —— 实测 `checked=6 latin_custom_ok=4 cjk_system_ok=1 **failures=1**`，rc=1。此为**脚本覆盖盲区**（en-only 探测 + zh-only 选择器），非本轮改动引入（`Hero` 在 `5d2ca58..HEAD` 内零改动，已核）。修法二选一：① 让 CJK 节点在 zh 模式下单独开一次 tab 探测；② 按模式把 `CJK_SELECTORS` 拆成 en 侧与 zh 侧两份。在修好之前，本门禁不得报为绿。
+
 ## 3 假绿历史
 
 | 轮次 | 位置 | 修前反例（rc） | 修后（rc） |
