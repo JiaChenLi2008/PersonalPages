@@ -419,6 +419,11 @@
     "chrome": true,
     "lang": "en"
   },
+  "scholarly.revealClick": {
+    "text": "Click to reveal.",
+    "chrome": true,
+    "lang": "en"
+  },
   "scholarly-hir.title": {
     "text": "Healthy Aging Individual Project——HIR prize winning report",
     "src": "docx-2026-10-brief.md#段[7]",

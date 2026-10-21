@@ -446,6 +446,18 @@ for (const key of texts) {
     fail(`chrome text missing from the markup: ${key}`);
   }
 }
+/* docx page 3: each of the three JHU riddles carries its own prompt under the English
+   question, and the block's old single `tap to reveal` line is gone. Counted rather than
+   merely looked for: the copy-wiring check cannot see a 2-of-3 removal, because the same
+   key stays referenced by the surviving card. */
+const JHU_HINT = en["scholarly.revealClick"].text;
+const jhuHints = (html.match(new RegExp(`class="scholarly__hint scholarly__hint--jhu"`, "g")) ?? []).length;
+if (jhuHints !== 3) {
+  fail(`JHU prompts ${jhuHints} != 3: every riddle carries its own "${JHU_HINT}" line`);
+}
+if (!html.includes(`>${JHU_HINT}</p>`)) {
+  fail(`the JHU prompts do not render scholarly.revealClick verbatim (${JSON.stringify(JHU_HINT)})`);
+}
 let cursor = -1;
 for (const key of ["scholarly-igem.no", "scholarly-jhu.no", "scholarly-immuno.no", "scholarly-hir.no"]) {
   const at = html.indexOf(`>${en[key].text}</p>`);

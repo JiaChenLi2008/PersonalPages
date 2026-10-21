@@ -49,6 +49,12 @@ T1/docx-2026-10 轮（本轮）把《网站图片补充》的素材落成门禁�
 ② `docs/verify-copy.mjs` 的 `locate()` 增加 `docx-2026-10-brief.md#段[N]` 分支（与 `content-brief.md` 同一 `paraBlocks` 语义，只多一个文件名，强度未变）；字典 138 → **188 键**（新增 50 键、替换 5 键），实测 `原文逐字 213 条 / 译文侧 79 条 / 身份 10 条 / 材料混排 10 条`——混排由 14 降为 10 只因 `scholarly-hir.title` 现为纯英文原文＋中文译文（不再走覆盖率路径），该键在 `MIXED_MATERIAL` 的登记保留（无副作用，不构成放宽）。
 ③ 已知盲区：新增的 13 组墙图**不在** `tools/verify-assets.py` 的 ⑧ 派生图判据内（⑧ 只遍历硬编码的 `DERIVED` 十组 ui.pen 图位，墙图尚无 nodeId），故墙图的「成对 / 尺寸 / 单文件 ≤250 KB」本由 ①②③④⑤ 与人工核对覆盖——`tools/verify-assets.py` 本轮未改（不在本 lane 可改路径内），把墙图纳入 ⑧ 需要给每组墙图定 nodeId 与目标像素，属接线 lane。
 ④ `tools/fidelity-scholarly.mjs` rc=1：冻版 `ui.pen` 的 HIR 标题节点仍写旧句 `HIR writing contest-哈佛国际评论学术写作竞赛`，而字典已按用户裁决换成 `Healthy Aging Individual Project——HIR prize winning report`；`ui.pen` 本 lane 禁改，接线 lane 更新设计稿后应自行转绿。这是**设计稿与文案的预期不同步**，不是判据放宽，也不进本轮的六项验收。
+T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
+
+① `tools/verify-ssr-dom.mjs` **新增**一条 JHU 提示计数判据：`class="scholarly__hint scholarly__hint--jhu"` 必须出现 **3** 次，且 `scholarly.revealClick` 的串须以 `>…</p>` 逐字出现。原因是 `tools/verify-copy-wiring.mjs` **看不见 3 处里的 1–2 处被删**：同一键仍被剩下的一两处引用，`referenced` 计数不动（实测删 1 处后 `referenced=140 via_literal_call=86` 与删前完全相同、rc 仍 0）。旧判据下这是假绿，故把「每问各一句」的**数量**交给 SSR 层断言。
+② `docs/CHROME.md` 登记数字变更：新增 chrome 键 `scholarly.revealClick`（EN `Click to reveal.` / ZH `点击揭晓`，`chrome:true` 无 `src`），§1 表 26 → **27** 行、`docs/verify-copy.mjs` 实测 chrome 32 → **33** 条、字典 188 → **189** 键（src-traced 156 + chrome 33）。判据本身未放宽，只是登记数随之改。
+③ `verify-copy-wiring.mjs` 的 `MIN_REFERENCED=127` / `MIN_LITERAL_CALLS=77` 两个下限**未改**：本 lane 让 `referenced` 138 → 140、`via_literal_call` 85 → 86（`index.head.title` 与 `scholarly.revealClick` 各 +1），只升不降，无放宽。
+④ 本 lane 结束时 `verify-copy-wiring.mjs` 仍 rc=1，红因**全部是本 lane 之外的两段未接线键**（`scholarly-hir.lead1/2/3`＝T3，`music.resume.*` 45 键与 `sport.lead`＝T4），共 49 键且每条都带 `[NOT REGISTERED]`；本 lane 负责的 `index.head.title` 与 `scholarly.revealClick` 均不在该名单内。同口径下 T1 结束时该门为 50 键红（见 §2 T1 段），本 lane 把 50 → 49 并把两条自己名下的键转为已引用。
 
 ## 1 总表
 
@@ -60,7 +66,7 @@ T1/docx-2026-10 轮（本轮）把《网站图片补充》的素材落成门禁�
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
-| `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧） | 只覆盖 scholarly 节；视觉 | CI |
+| `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧）、JHU 三问各一条 `Click to reveal.` 提示**计数 3**（T2 新增，补 wiring 看不见 2-of-3 删除的盲区） | 只覆盖 scholarly 节；视觉 | CI |
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 **188 键**）、字段类型、材料侧 `text` 逐字溯源（本轮 **213 条**）、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」（**79 条**）、材料混排 7 槽位按**覆盖率**下限（两侧折叠后各自命中比例之和 ≥0.75 且最长单片段 ≥8 字，**10 条**）、chrome/src 归属、※ 禁止；`src` 可定位的 brief 现在含 `docx-2026-10-brief.md`（同一 `段[N]` 语义） | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检）；覆盖率的**分母口径**（见 §5） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
 | `tools/verify-lang-toggle.mjs` | 语言切换逐条键（默认 `en`）、不重载、同值点击持久化 | 视觉 | 本地 |

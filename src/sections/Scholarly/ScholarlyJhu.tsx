@@ -49,62 +49,14 @@ export function ScholarlyJhu() {
       <Rule variant="hairline" />
 
       <div className="scholarly__body scholarly__body--jhu">
+        {/* docx page 3 (figures 1 and 2 swapped): the cow heart and lungs card now stands
+            before the sheep brain card. The whole card moves — photo, riddle, `alt` and
+            panel together — so each photo keeps the answer text that describes it, and each
+            `<li>` renders the number of its own position (1, 2, 3 top-down). */}
+        {/* The board numbers each card 1/2/3; the dictionaries carry those three strings
+            only as the Immunotherapy column numbers (docs/CHROME.md §1 registers no
+            separate keys), so the same entries serve both blocks. */}
         <ul className="scholarly__cards motion-reveal-group">
-          <li className="scholarly__card">
-            <button
-              type="button"
-              className="scholarly__puzzle scholarly__media scholarly__media--4x3 motion-hover"
-              aria-label={text("scholarly-jhu.q1")}
-              lang={langOf("scholarly-jhu.q1")}
-              {...card1.triggerProps}
-            >
-              <Reveal as="span" className="scholarly__clip motion-clip">
-                <img
-                  className="scholarly__photo"
-                  src="./media/image1-1600.webp"
-                  alt={text("scholarly-jhu.a1")}
-                  width={1600}
-                  height={1200}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </Reveal>
-            </button>
-            {/* The board numbers each card 1/2/3; the dictionaries carry those three
-                strings only as the Immunotherapy column numbers (docs/CHROME.md §1
-                registers no separate keys), so the same entries serve both blocks. */}
-            <p className="scholarly__q">
-              <Reveal as="span" className="motion-slide">
-                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q1.no")}>
-                  {text("scholarly-immuno.q1.no")}
-                </span>
-              </Reveal>
-              <span className="scholarly__qtext" lang={langOf("scholarly-jhu.q1")}>
-                {text("scholarly-jhu.q1")}
-              </span>
-            </p>
-            <div {...card1.panelProps}>
-              <div className="motion-reveal-clip">
-                <div className="scholarly__panel scholarly__panel--qa">
-                  <p
-                    className="scholarly__panelLabel motion-answer"
-                    data-stagger="1"
-                    lang={langOf("scholarly-hir.answerLabel")}
-                  >
-                    {text("scholarly-hir.answerLabel")}
-                  </p>
-                  <p
-                    className="scholarly__answer scholarly__answer--qa motion-answer"
-                    data-stagger="2"
-                    lang={langOf("scholarly-jhu.a1")}
-                  >
-                    {text("scholarly-jhu.a1")}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </li>
-
           <li className="scholarly__card">
             <button
               type="button"
@@ -127,13 +79,16 @@ export function ScholarlyJhu() {
             </button>
             <p className="scholarly__q">
               <Reveal as="span" className="motion-slide">
-                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q2.no")}>
-                  {text("scholarly-immuno.q2.no")}
+                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q1.no")}>
+                  {text("scholarly-immuno.q1.no")}
                 </span>
               </Reveal>
               <span className="scholarly__qtext" lang={langOf("scholarly-jhu.q2")}>
                 {text("scholarly-jhu.q2")}
               </span>
+            </p>
+            <p className="scholarly__hint scholarly__hint--jhu" lang={langOf("scholarly.revealClick")}>
+              {text("scholarly.revealClick")}
             </p>
             <div {...card2.panelProps}>
               <div className="motion-reveal-clip">
@@ -151,6 +106,61 @@ export function ScholarlyJhu() {
                     lang={langOf("scholarly-jhu.a2")}
                   >
                     {text("scholarly-jhu.a2")}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </li>
+
+          <li className="scholarly__card">
+            <button
+              type="button"
+              className="scholarly__puzzle scholarly__media scholarly__media--4x3 motion-hover"
+              aria-label={text("scholarly-jhu.q1")}
+              lang={langOf("scholarly-jhu.q1")}
+              {...card1.triggerProps}
+            >
+              <Reveal as="span" className="scholarly__clip motion-clip">
+                <img
+                  className="scholarly__photo"
+                  src="./media/image1-1600.webp"
+                  alt={text("scholarly-jhu.a1")}
+                  width={1600}
+                  height={1200}
+                  loading="lazy"
+                  decoding="async"
+                />
+              </Reveal>
+            </button>
+            <p className="scholarly__q">
+              <Reveal as="span" className="motion-slide">
+                <span className="scholarly__onum" lang={langOf("scholarly-immuno.q2.no")}>
+                  {text("scholarly-immuno.q2.no")}
+                </span>
+              </Reveal>
+              <span className="scholarly__qtext" lang={langOf("scholarly-jhu.q1")}>
+                {text("scholarly-jhu.q1")}
+              </span>
+            </p>
+            <p className="scholarly__hint scholarly__hint--jhu" lang={langOf("scholarly.revealClick")}>
+              {text("scholarly.revealClick")}
+            </p>
+            <div {...card1.panelProps}>
+              <div className="motion-reveal-clip">
+                <div className="scholarly__panel scholarly__panel--qa">
+                  <p
+                    className="scholarly__panelLabel motion-answer"
+                    data-stagger="1"
+                    lang={langOf("scholarly-hir.answerLabel")}
+                  >
+                    {text("scholarly-hir.answerLabel")}
+                  </p>
+                  <p
+                    className="scholarly__answer scholarly__answer--qa motion-answer"
+                    data-stagger="2"
+                    lang={langOf("scholarly-jhu.a1")}
+                  >
+                    {text("scholarly-jhu.a1")}
                   </p>
                 </div>
               </div>
@@ -187,6 +197,9 @@ export function ScholarlyJhu() {
                 {text("scholarly-jhu.q3")}
               </span>
             </p>
+            <p className="scholarly__hint scholarly__hint--jhu" lang={langOf("scholarly.revealClick")}>
+              {text("scholarly.revealClick")}
+            </p>
             <div {...card3.panelProps}>
               <div className="motion-reveal-clip">
                 <div className="scholarly__panel scholarly__panel--qa">
@@ -209,10 +222,6 @@ export function ScholarlyJhu() {
             </div>
           </li>
         </ul>
-
-        <p className="scholarly__hint" lang={langOf("scholarly.revealTap")}>
-          {text("scholarly.revealTap")}
-        </p>
       </div>
     </div>
   );
