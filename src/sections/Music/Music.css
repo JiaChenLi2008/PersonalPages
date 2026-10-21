@@ -133,6 +133,59 @@
   object-fit: cover;
 }
 
+/* ---- Performance résumé (docx 页面6: 14 场, three columns) ----
+   No table exists elsewhere in src/, so the whole treatment lives here. The columns are
+   data columns, not flex children: the date stays on one line, the theme takes the room it
+   needs, the venue wraps. The box is a scroll container at every width, which is the narrow
+   screen's answer — the table never widens the page, it scrolls inside this box. */
+
+.music__resume {
+  margin-block-start: var(--sp-32);
+  overflow-x: auto;
+}
+
+.music__table {
+  /* The minimum width is what makes `.music__resume` scroll instead of crushing: without
+     it the browser satisfies `width: 100%` by wrapping the theme into a 99px column at
+     320px. 640px holds the longest theme ("Shanghai International Youth Orchestra
+     Christmas Eve") on two lines at --fs-13. */
+  width: 100%;
+  min-width: 640px;
+  border-collapse: collapse;
+  text-align: start;
+}
+
+.music__th {
+  padding: var(--sp-10) var(--sp-16) var(--sp-10) 0;
+  border-block-end: var(--rule-h-strong) solid var(--c-rule-strong);
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.music__td {
+  padding: var(--sp-12) var(--sp-16) var(--sp-12) 0;
+  border-block-end: var(--rule-h) solid var(--c-rule);
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-13);
+  font-weight: var(--fw-normal);
+  line-height: var(--lh-body);
+  vertical-align: top;
+}
+
+/* The date column is the table's sort key: it stays one line so the descending order is
+   what the eye reads down, and its mono face keeps the four-digit years aligned. */
+.music__td--date {
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  white-space: nowrap;
+}
+
 @media (max-width: 1200px) {
   .music {
     --head-pad-b: var(--sp-16);

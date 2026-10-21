@@ -11,7 +11,10 @@
  *
  *   1. document-level horizontal overflow ≤ 1px (scrollWidth vs clientWidth)
  *   2. the eleven design blocks (nav … footer) all exist and have a non-zero height
- *   3. no element inside the page overflows its own box (scrollWidth > clientWidth)
+ *   3. no element inside the page overflows its own box (scrollWidth > clientWidth), except
+ *      a scroll container (overflow-x auto/scroll — the résumé table's region, 页面6) or a
+ *      named marquee clip box, whose reel is wider than its box on purpose (页面6/页面7);
+ *      the exempt boxes' children stay measured
  *   4. every nav anchor lands its target heading below the sticky bar: after the click
  *      settles, elementFromPoint at the heading's own top-left corner hits the heading
  *      (itself or a descendant), never the bar — the bar wraps on narrow screens, so a
@@ -316,7 +319,19 @@ const PROBE = `(() => {
     blocks[id] = el ? Math.round(el.getBoundingClientRect().height) : null;
   }
   const offenders = [];
+  /* Two kinds of deliberate overflow, told apart rather than lumped together:
+       - a scroll container (computed overflow-x auto/scroll) holds content wider than
+         itself by design — that is what the property is for, and a reader can reach the
+         rest. Exempt by computed style, so a new one needs no edit here;
+       - a marquee's clip box (.photo-strip) is overflow:hidden over a reel wider than the
+         box, because the reel's travel IS the animation (docx-2026-10 页面6/页面7). Its
+         computed style cannot tell it from accidental clipping, so it is named.
+     Either way only the box itself is skipped: the box's own children are still measured,
+     so a photo or a cell that really sticks out is still reported. */
+  const CLIPPED_MARQUEES = ${JSON.stringify([".photo-strip"])};
   for (const el of document.querySelectorAll("body *")) {
+    const scrolls = ["auto", "scroll"].includes(getComputedStyle(el).overflowX);
+    if (scrolls || CLIPPED_MARQUEES.some((selector) => el.matches(selector))) continue;
     const ovf = el.scrollWidth - el.clientWidth;
     if (ovf > 1 && el.clientWidth > 0) {
       offenders.push({ tag: el.tagName, cls: String(el.className || "").slice(0, 40), ovf, w: Math.round(el.clientWidth), x: Math.round(el.getBoundingClientRect().x), text: (el.textContent || "").trim().replace(/\\s+/g, " ").slice(0, 40) });

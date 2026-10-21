@@ -134,6 +134,26 @@ const BANNED_ANIMATED = new Set([
 const BUDGET_MS = 800;
 
 /**
+ * Ambient animations: the one class of motion that is not an entrance, so the 800ms
+ * ceiling does not apply. Each entry names the stylesheet, the animation name and its
+ * declared duration; the check below holds every `animation-something` duration in that
+ * file to the registered value, so the exemption cannot be widened silently and a second
+ * long animation in the same file still fails. A registered animation must also have its
+ * terminal state in the reduce block, which §2 already enforces for `.motion-*` hooks and
+ * this loop checks for these by name.
+ *
+ * The docx asks for photographs that "依次滚动播放" (Music 页面6) and a scrolling wall
+ * (Sport 页面7); a loop that restarts every 800ms would not read as a wall.
+ */
+const AMBIENT_ANIMATIONS = [
+  {
+    file: "src/components/PhotoStrip/PhotoStrip.css",
+    name: "photo-strip-cycle",
+    duration: "48s",
+  },
+];
+
+/**
  * Entrance hooks per section. `wired` means the section tree (or the shell, for hero)
  * already consumes one; `deferred` names the lane that wires it and the shared hooks
  * that lane will use, so the deferral is explicit instead of silently missing.
@@ -419,13 +439,31 @@ function run(root) {
     }
   }
 
-  /* 6. performance budget. */
+  /* 6. performance budget. An ambient animation is exempt from the ceiling only where
+     AMBIENT_ANIMATIONS registers it, at the duration registered, and only while its own
+     reduce branch is present; anything else over the ceiling still fails. */
+  for (const ambient of AMBIENT_ANIMATIONS) {
+    const css = readFileSync(join(root, ambient.file), "utf8");
+    if (!css.includes(ambient.name)) {
+      problems.push(`[AMBIENT]    ${ambient.file} no longer declares ${ambient.name}; drop its AMBIENT_ANIMATIONS row`);
+    }
+    if (!new RegExp(`animation:\\s*${ambient.name}\\s+${ambient.duration}\\b`).test(css)) {
+      problems.push(`[AMBIENT]    ${ambient.file} does not run ${ambient.name} at the registered ${ambient.duration}`);
+    }
+    if (!/@media \(prefers-reduced-motion: reduce\)[\s\S]*animation:\s*none/.test(css)) {
+      problems.push(`[AMBIENT]    ${ambient.file} has no reduce branch that stops ${ambient.name}`);
+    }
+  }
+  const ambientDurations = new Map(
+    AMBIENT_ANIMATIONS.map((ambient) => [join(root, ambient.file), ms(ambient.duration)]),
+  );
   for (const file of cssFiles) {
     const css = readFileSync(file, "utf8");
+    const exemption = ambientDurations.get(file);
     for (const [, value] of css.matchAll(/(?:transition|animation)(?:-duration)?\s*:\s*([^;}]+)/g)) {
       for (const [, number, unit] of value.matchAll(/(\d+(?:\.\d+)?)(ms|s)\b/g)) {
         const duration = ms(`${number}${unit}`);
-        if (duration > BUDGET_MS) {
+        if (duration > BUDGET_MS && duration !== exemption) {
           problems.push(`[BUDGET]     ${relative(root, file)} runs ${number}${unit}; the single-animation ceiling is ${BUDGET_MS}ms`);
         }
       }

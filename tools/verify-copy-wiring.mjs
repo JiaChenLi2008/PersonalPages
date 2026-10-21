@@ -82,6 +82,10 @@ const UNREFERENCED = [
   "scholarly-jhu.hint",
   "scholarly-hir.card.file",
   "elder.body",
+  /* docx-2026-10 页面7 replaces this section's paragraph with `sport.lead` (user ruling);
+     the key stays in both dictionaries so the old sentence can be restored in one line,
+     but nothing renders it. docs/CHROME.md §4 carries the same entry. */
+  "sport.body",
 ];
 
 /** A text("literal-key") call; the lookbehind keeps e.g. context("...") out. */
