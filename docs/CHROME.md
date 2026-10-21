@@ -44,6 +44,7 @@
 本表 26 条 = 冻版设计稿上逐节点可查的 chrome 键（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 32 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 全部取自冻版设计稿对应节点，未新增、未改写、未翻译。
 
 对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 138 键（en=zh），其中 src-traced 106 条、chrome 32 条。
+**docx-2026-10 轮之后的现状**：字典 **188 键**（en=zh；src-traced **156** 条 + chrome 32 条，chrome 计数**未变**）；冻版设计稿上 5 串已被本轮新文案整句取代（`scholarly-hir.title` 与 Index 四行小字 `index.row1.body` … `index.row4.body`），故与 `ui.pen` 的差集**不再为空**——`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐（`tools/fidelity-scholarly.mjs` 因此 rc=1，见 `docs/GATES.md` §2 docx-2026-10 轮 ④）。
 
 ## 2. ※ 注解清单（7 条，不入典、不渲染）
 
@@ -86,7 +87,7 @@ D2 收口把本节清空，五个原死键逐条处置如下。
 
 白名单本身不改（本 lane 不动 `tools/verify-copy-wiring.mjs`）：其上 7 个名字现全部落在「已由字面串到达」（`scholarly.title.zh` 走 `Scholarly.tsx` 的 `text()` 调用，另三个见上表第 1 行）或「已随字典删除」（`scholarly-jhu.hint`、`scholarly-hir.card.file`、`elder.body`，前序 lane 已删）两侧，故 `unreferenced=0`。
 
-另有两处 board↔字典的窄豁免登记在 `tools/fidelity-scholarly.mjs`（该门的总体归一化口径不变，`normalise` 对其余键仍只折叠大小写与空白）：`scholarly-igem.title` / `scholarly-jhu.q1` / `scholarly-jhu.q2` 三键的 board 串用全角标点、站点 EN 串按「EN 模式禁 CJK」用半角，故这三键折叠标点后比对；`scholarly-hir.title` 在 board 上是单节点混排（`HIR writing contest-哈佛国际评论学术写作竞赛`），站点按语言分侧，故该键按「board 串的两半分别落在对应侧的值里」比对。
+另有两处 board↔字典的窄豁免登记在 `tools/fidelity-scholarly.mjs`（该门的总体归一化口径不变，`normalise` 对其余键仍只折叠大小写与空白）：`scholarly-igem.title` / `scholarly-jhu.q1` / `scholarly-jhu.q2` 三键的 board 串用全角标点、站点 EN 串按「EN 模式禁 CJK」用半角，故这三键折叠标点后比对；`scholarly-hir.title` 在 board 上是单节点混排（`HIR writing contest-哈佛国际评论学术写作竞赛`），站点按语言分侧，故该键按「board 串的两半分别落在对应侧的值里」比对（docx-2026-10 轮后该键换成纯英文原文＋中文译文，board 串两半不再命中任一侧，此豁免随之失效，见 `docs/GATES.md` §2）。
 
 页面上真实渲染的 `内容待补（素材未提供）`（`index.row2.body`，Index 行 02 的描述）不是死键渲染，不在本节登记范围。
 

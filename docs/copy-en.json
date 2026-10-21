@@ -175,8 +175,8 @@
     "lang": "en"
   },
   "index.row1.body": {
-    "text": "This section contains 4 subsections.",
-    "src": "uirpen#Index.01 学术成果.Body.D",
+    "text": "From decoding Parkinson's to redefining \"healthy aging\"—science with a human pulse.",
+    "src": "docx-2026-10-brief.md#段[1]",
     "lang": "en"
   },
   "index.row1.no": {
@@ -195,8 +195,8 @@
     "lang": "en"
   },
   "index.row2.body": {
-    "text": "Community volunteering for older people: mostly companionship, listening, and everyday help.",
-    "src": "uirpen#02 助老活动 · Section.Body.Col.Pull.PullText",
+    "text": "Guiding the way to healthcare, one appointment and one warm conversation at a time.",
+    "src": "docx-2026-10-brief.md#段[2]",
     "lang": "en"
   },
   "index.row2.no": {
@@ -215,8 +215,8 @@
     "lang": "en"
   },
   "index.row3.body": {
-    "text": "Ten years of percussion (marimba). Rhythm is both constraint and freedom; it taught me to look for variation and grace inside repetition.",
-    "src": "uirpen#Index.03 音乐时光.Body.D",
+    "text": "Any percussion instrument, any rhythm—finding my groove across the whole spectrum.",
+    "src": "docx-2026-10-brief.md#段[3]",
     "lang": "en"
   },
   "index.row3.no": {
@@ -235,8 +235,8 @@
     "lang": "en"
   },
   "index.row4.body": {
-    "text": "Football and badminton. Positioning, judgement, and chemistry; wins come from teamwork, growth from trusting each other.",
-    "src": "uirpen#Index.04 律动时刻.Body.D",
+    "text": "Football, badminton, and the best kind of chemistry—leveling up together on the field.",
+    "src": "docx-2026-10-brief.md#段[4]",
     "lang": "en"
   },
   "index.row4.no": {
@@ -420,8 +420,8 @@
     "lang": "en"
   },
   "scholarly-hir.title": {
-    "text": "HIR writing contest — Harvard International Review academic writing contest",
-    "src": "layout-brief.md#段[24]",
+    "text": "Healthy Aging Individual Project——HIR prize winning report",
+    "src": "docx-2026-10-brief.md#段[7]",
     "lang": "en"
   },
   "scholarly-hir.no": {
@@ -687,6 +687,256 @@
   "sport.fig.alt": {
     "text": "Training moment: a player mid-lunge in front of a badminton net.",
     "chrome": true,
+    "lang": "en"
+  },
+  "index.head.title": {
+    "text": "VIEW MY WORKS",
+    "src": "docx-2026-10-brief.md#段[5]",
+    "lang": "en"
+  },
+  "scholarly-hir.lead1": {
+    "text": "We’ve been chasing longevity, but we’ve missed the bigger question: how do we actually live well as we age?",
+    "src": "docx-2026-10-brief.md#段[8]",
+    "lang": "en"
+  },
+  "scholarly-hir.lead2": {
+    "text": "The following award-winning essay explores why our current medical system struggles to measure \"healthy aging,\" and why promising new tools like synthetic biology might be held back by old rules.",
+    "src": "docx-2026-10-brief.md#段[9]",
+    "lang": "en"
+  },
+  "scholarly-hir.lead3": {
+    "text": "Dive into the full piece below to see where the real bottleneck lies.",
+    "src": "docx-2026-10-brief.md#段[10]",
+    "lang": "en"
+  },
+  "music.resume.head.date": {
+    "text": "Date",
+    "src": "docx-2026-10-brief.md#段[11]",
+    "lang": "en"
+  },
+  "music.resume.head.theme": {
+    "text": "Programme",
+    "src": "docx-2026-10-brief.md#段[11]",
+    "lang": "en"
+  },
+  "music.resume.head.venue": {
+    "text": "Venue",
+    "src": "docx-2026-10-brief.md#段[11]",
+    "lang": "en"
+  },
+  "music.resume.r01.date": {
+    "text": "Sep 2026",
+    "src": "docx-2026-10-brief.md#段[12]",
+    "lang": "en"
+  },
+  "music.resume.r01.theme": {
+    "text": "Pinghe 30th Anniversary Celebration",
+    "src": "docx-2026-10-brief.md#段[12]",
+    "lang": "en"
+  },
+  "music.resume.r01.venue": {
+    "text": "Shanghai Pinghe Jinding Grand Theatre",
+    "src": "docx-2026-10-brief.md#段[12]",
+    "lang": "en"
+  },
+  "music.resume.r02.date": {
+    "text": "Jun 2026",
+    "src": "docx-2026-10-brief.md#段[13]",
+    "lang": "en"
+  },
+  "music.resume.r02.theme": {
+    "text": "Shanghai International Youth Orchestra Music Festival",
+    "src": "docx-2026-10-brief.md#段[13]",
+    "lang": "en"
+  },
+  "music.resume.r02.venue": {
+    "text": "Shangyin Opera House",
+    "src": "docx-2026-10-brief.md#段[13]",
+    "lang": "en"
+  },
+  "music.resume.r03.date": {
+    "text": "Jun 2026",
+    "src": "docx-2026-10-brief.md#段[14]",
+    "lang": "en"
+  },
+  "music.resume.r03.theme": {
+    "text": "1001 Music ~ Fairytale Symphony",
+    "src": "docx-2026-10-brief.md#段[14]",
+    "lang": "en"
+  },
+  "music.resume.r03.venue": {
+    "text": "Shanghai Pinghe Jinding Grand Theatre",
+    "src": "docx-2026-10-brief.md#段[14]",
+    "lang": "en"
+  },
+  "music.resume.r04.date": {
+    "text": "Dec 2025",
+    "src": "docx-2026-10-brief.md#段[15]",
+    "lang": "en"
+  },
+  "music.resume.r04.theme": {
+    "text": "Shanghai International Youth Orchestra Christmas Eve",
+    "src": "docx-2026-10-brief.md#段[15]",
+    "lang": "en"
+  },
+  "music.resume.r04.venue": {
+    "text": "Jaguar Shanghai Symphony Hall",
+    "src": "docx-2026-10-brief.md#段[15]",
+    "lang": "en"
+  },
+  "music.resume.r05.date": {
+    "text": "Dec 2025",
+    "src": "docx-2026-10-brief.md#段[16]",
+    "lang": "en"
+  },
+  "music.resume.r05.theme": {
+    "text": "Humanities Week Open Day Music Flash Mob",
+    "src": "docx-2026-10-brief.md#段[16]",
+    "lang": "en"
+  },
+  "music.resume.r05.venue": {
+    "text": "Pinghe High School Campus, Shanghai",
+    "src": "docx-2026-10-brief.md#段[16]",
+    "lang": "en"
+  },
+  "music.resume.r06.date": {
+    "text": "Jun 2025",
+    "src": "docx-2026-10-brief.md#段[17]",
+    "lang": "en"
+  },
+  "music.resume.r06.theme": {
+    "text": "Shanghai International Youth Symphony Concert",
+    "src": "docx-2026-10-brief.md#段[17]",
+    "lang": "en"
+  },
+  "music.resume.r06.venue": {
+    "text": "Jaguar Shanghai Symphony Hall",
+    "src": "docx-2026-10-brief.md#段[17]",
+    "lang": "en"
+  },
+  "music.resume.r07.date": {
+    "text": "Jun 2025",
+    "src": "docx-2026-10-brief.md#段[18]",
+    "lang": "en"
+  },
+  "music.resume.r07.theme": {
+    "text": "2025 Oriental Citizens' Concert",
+    "src": "docx-2026-10-brief.md#段[18]",
+    "lang": "en"
+  },
+  "music.resume.r07.venue": {
+    "text": "Shanghai Oriental Art Center",
+    "src": "docx-2026-10-brief.md#段[18]",
+    "lang": "en"
+  },
+  "music.resume.r08.date": {
+    "text": "Apr 2025",
+    "src": "docx-2026-10-brief.md#段[19]",
+    "lang": "en"
+  },
+  "music.resume.r08.theme": {
+    "text": "Saint-Saëns Night Classical Concert",
+    "src": "docx-2026-10-brief.md#段[19]",
+    "lang": "en"
+  },
+  "music.resume.r08.venue": {
+    "text": "Shanghai Pinghe Jinding Grand Theatre",
+    "src": "docx-2026-10-brief.md#段[19]",
+    "lang": "en"
+  },
+  "music.resume.r09.date": {
+    "text": "Jan 2025",
+    "src": "docx-2026-10-brief.md#段[20]",
+    "lang": "en"
+  },
+  "music.resume.r09.theme": {
+    "text": "Shanghai International Youth Orchestra New Year Concert",
+    "src": "docx-2026-10-brief.md#段[20]",
+    "lang": "en"
+  },
+  "music.resume.r09.venue": {
+    "text": "Shanghai Grand Theatre",
+    "src": "docx-2026-10-brief.md#段[20]",
+    "lang": "en"
+  },
+  "music.resume.r10.date": {
+    "text": "Oct 2024",
+    "src": "docx-2026-10-brief.md#段[21]",
+    "lang": "en"
+  },
+  "music.resume.r10.theme": {
+    "text": "Chenshan Natural Life Festival Charity Performance",
+    "src": "docx-2026-10-brief.md#段[21]",
+    "lang": "en"
+  },
+  "music.resume.r10.venue": {
+    "text": "Shanghai Chenshan Botanical Garden",
+    "src": "docx-2026-10-brief.md#段[21]",
+    "lang": "en"
+  },
+  "music.resume.r11.date": {
+    "text": "Jul 2024",
+    "src": "docx-2026-10-brief.md#段[22]",
+    "lang": "en"
+  },
+  "music.resume.r11.theme": {
+    "text": "Midsummer Percussion Concert",
+    "src": "docx-2026-10-brief.md#段[22]",
+    "lang": "en"
+  },
+  "music.resume.r11.venue": {
+    "text": "Shanghai Oriental Art Center",
+    "src": "docx-2026-10-brief.md#段[22]",
+    "lang": "en"
+  },
+  "music.resume.r12.date": {
+    "text": "Jun 2024",
+    "src": "docx-2026-10-brief.md#段[23]",
+    "lang": "en"
+  },
+  "music.resume.r12.theme": {
+    "text": "Shanghai National Youth Summer Concert",
+    "src": "docx-2026-10-brief.md#段[23]",
+    "lang": "en"
+  },
+  "music.resume.r12.venue": {
+    "text": "Jaguar Shanghai Symphony Hall",
+    "src": "docx-2026-10-brief.md#段[23]",
+    "lang": "en"
+  },
+  "music.resume.r13.date": {
+    "text": "Jan 2024",
+    "src": "docx-2026-10-brief.md#段[24]",
+    "lang": "en"
+  },
+  "music.resume.r13.theme": {
+    "text": "Operation Smile Charity Performance (Handpan)",
+    "src": "docx-2026-10-brief.md#段[24]",
+    "lang": "en"
+  },
+  "music.resume.r13.venue": {
+    "text": "Shanghai Marriott Hotel Jinqiao",
+    "src": "docx-2026-10-brief.md#段[24]",
+    "lang": "en"
+  },
+  "music.resume.r14.date": {
+    "text": "Sep 2023",
+    "src": "docx-2026-10-brief.md#段[25]",
+    "lang": "en"
+  },
+  "music.resume.r14.theme": {
+    "text": "The 19th Shanghai Student Arts Festival Showcase",
+    "src": "docx-2026-10-brief.md#段[25]",
+    "lang": "en"
+  },
+  "music.resume.r14.venue": {
+    "text": "Shanghai Youth Activity Center",
+    "src": "docx-2026-10-brief.md#段[25]",
+    "lang": "en"
+  },
+  "sport.lead": {
+    "text": "For me, sports were never just about winning. It’s about pushing my physical limits and, more importantly, the joy of growing alongside my teammates. I love how movement creates a shared rhythm—building genuine connections and bonds that go far beyond the game itself.",
+    "src": "docx-2026-10-brief.md#段[26]",
     "lang": "en"
   }
 }

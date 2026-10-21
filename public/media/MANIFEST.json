@@ -36,6 +36,120 @@
       "h": 2133,
       "w": 3200
     },
+    "docx-image17.png": {
+      "bytes": 1260305,
+      "format": "PNG",
+      "h": 645,
+      "w": 806
+    },
+    "docx-image19.jpeg": {
+      "bytes": 47221,
+      "format": "JPEG",
+      "h": 489,
+      "w": 734
+    },
+    "docx-image20.jpeg": {
+      "bytes": 26210,
+      "format": "JPEG",
+      "h": 638,
+      "w": 425
+    },
+    "docx-image21.jpeg": {
+      "bytes": 24837,
+      "format": "JPEG",
+      "h": 639,
+      "w": 426
+    },
+    "docx-image22.jpeg": {
+      "bytes": 2803802,
+      "format": "JPEG",
+      "h": 4500,
+      "w": 3000
+    },
+    "docx-image23.jpeg": {
+      "bytes": 2138460,
+      "format": "JPEG",
+      "h": 3000,
+      "w": 4500
+    },
+    "docx-image24.jpeg": {
+      "bytes": 120702,
+      "format": "JPEG",
+      "h": 845,
+      "w": 1269
+    },
+    "docx-image25.jpeg": {
+      "bytes": 134002,
+      "format": "JPEG",
+      "h": 844,
+      "w": 1266
+    },
+    "docx-image26.jpeg": {
+      "bytes": 101144,
+      "format": "JPEG",
+      "h": 1080,
+      "w": 1620
+    },
+    "docx-image27.jpeg": {
+      "bytes": 457861,
+      "format": "JPEG",
+      "h": 1080,
+      "w": 1620
+    },
+    "docx-image29.jpeg": {
+      "bytes": 3777750,
+      "format": "JPEG",
+      "h": 3917,
+      "w": 2611
+    },
+    "docx-image3.png": {
+      "bytes": 8717687,
+      "format": "PNG",
+      "h": 3024,
+      "w": 4032
+    },
+    "docx-image30.jpeg": {
+      "bytes": 100579,
+      "format": "JPEG",
+      "h": 545,
+      "w": 817
+    },
+    "docx-image31.jpeg": {
+      "bytes": 56539,
+      "format": "JPEG",
+      "h": 467,
+      "w": 623
+    },
+    "docx-image32.jpeg": {
+      "bytes": 25845,
+      "format": "JPEG",
+      "h": 247,
+      "w": 371
+    },
+    "docx-image4.png": {
+      "bytes": 2036759,
+      "format": "PNG",
+      "h": 984,
+      "w": 1128
+    },
+    "docx-image5.png": {
+      "bytes": 1806442,
+      "format": "PNG",
+      "h": 1000,
+      "w": 1090
+    },
+    "docx-image7.png": {
+      "bytes": 1428250,
+      "format": "PNG",
+      "h": 952,
+      "w": 1269
+    },
+    "docx-image8.jpeg": {
+      "bytes": 115254,
+      "format": "JPEG",
+      "h": 710,
+      "w": 1265
+    },
     "image1.jpeg": {
       "bytes": 5480434,
       "format": "JPEG",
@@ -81,24 +195,26 @@
   },
   "elder-fig-720.jpg": {
     "aspect": 1.3333,
-    "bytes": 148187,
+    "bytes": 138796,
     "crop": "4x3",
     "format": "jpg",
     "h": 540,
     "nodeId": "Uh3XX",
+    "note": "Elder 右图；docx image17.png 4:3 中裁",
     "quality": 85,
-    "src": "Uh3XX.jpg",
+    "src": "docx-image17.png",
     "w": 720
   },
   "elder-fig-720.webp": {
     "aspect": 1.3333,
-    "bytes": 141770,
+    "bytes": 124604,
     "crop": "4x3",
     "format": "webp",
     "h": 540,
     "nodeId": "Uh3XX",
+    "note": "Elder 右图；docx image17.png 4:3 中裁",
     "quality": 82,
-    "src": "Uh3XX.jpg",
+    "src": "docx-image17.png",
     "w": 720
   },
   "hir-fig-2688.jpg": {
@@ -127,46 +243,50 @@
   },
   "igem-fig1-720.jpg": {
     "aspect": 1.3333,
-    "bytes": 74598,
+    "bytes": 61577,
     "crop": "4x3",
     "format": "jpg",
     "h": 540,
     "nodeId": "u2okj",
+    "note": "iGEM fig1；docx image7.png 4:3 中裁",
     "quality": 85,
-    "src": "u2okj.jpg",
+    "src": "docx-image7.png",
     "w": 720
   },
   "igem-fig1-720.webp": {
     "aspect": 1.3333,
-    "bytes": 43912,
+    "bytes": 34700,
     "crop": "4x3",
     "format": "webp",
     "h": 540,
     "nodeId": "u2okj",
+    "note": "iGEM fig1；docx image7.png 4:3 中裁",
     "quality": 82,
-    "src": "u2okj.jpg",
+    "src": "docx-image7.png",
     "w": 720
   },
   "igem-fig2-720.jpg": {
     "aspect": 1.3333,
-    "bytes": 44683,
+    "bytes": 74020,
     "crop": "4x3",
     "format": "jpg",
     "h": 540,
     "nodeId": "I2wlYa",
+    "note": "iGEM fig2；docx image8.jpeg（16:9 源）4:3 中裁",
     "quality": 85,
-    "src": "I2wlYa.jpg",
+    "src": "docx-image8.jpeg",
     "w": 720
   },
   "igem-fig2-720.webp": {
     "aspect": 1.3333,
-    "bytes": 22194,
+    "bytes": 40744,
     "crop": "4x3",
     "format": "webp",
     "h": 540,
     "nodeId": "I2wlYa",
+    "note": "iGEM fig2；docx image8.jpeg（16:9 源）4:3 中裁",
     "quality": 82,
-    "src": "I2wlYa.jpg",
+    "src": "docx-image8.jpeg",
     "w": 720
   },
   "image1-1600.jpg": {
@@ -211,22 +331,24 @@
   },
   "image1-1x1-1200.jpg": {
     "aspect": 1.0,
-    "bytes": 257477,
+    "bytes": 158476,
     "crop": "1x1",
     "format": "jpg",
     "h": 1200,
+    "note": "Index 行1（schoolar）2x 候选 + <img> 兜底；docx image3.png 1:1 中裁",
     "quality": 85,
-    "src": "image1.jpeg",
+    "src": "docx-image3.png",
     "w": 1200
   },
   "image1-1x1-1200.webp": {
     "aspect": 1.0,
-    "bytes": 125862,
+    "bytes": 76222,
     "crop": "1x1",
     "format": "webp",
     "h": 1200,
+    "note": "Index 行1（schoolar）2x 候选 + <img> 兜底；docx image3.png 1:1 中裁",
     "quality": 82,
-    "src": "image1.jpeg",
+    "src": "docx-image3.png",
     "w": 1200
   },
   "image1-21x9-2000.jpg": {
@@ -270,23 +392,25 @@
     "w": 400
   },
   "image1-800.jpg": {
-    "aspect": 1.3333,
-    "bytes": 99109,
-    "crop": null,
+    "aspect": 1.0,
+    "bytes": 82700,
+    "crop": "1x1",
     "format": "jpg",
-    "h": 600,
+    "h": 800,
+    "note": "Index 行1（schoolar）<picture> 1x 候选；docx image3.png 1:1 中裁",
     "quality": 85,
-    "src": "image1.jpeg",
+    "src": "docx-image3.png",
     "w": 800
   },
   "image1-800.webp": {
-    "aspect": 1.3333,
-    "bytes": 51040,
-    "crop": null,
+    "aspect": 1.0,
+    "bytes": 43588,
+    "crop": "1x1",
     "format": "webp",
-    "h": 600,
+    "h": 800,
+    "note": "Index 行1（schoolar）<picture> 1x 候选；docx image3.png 1:1 中裁",
     "quality": 82,
-    "src": "image1.jpeg",
+    "src": "docx-image3.png",
     "w": 800
   },
   "image2-400.jpg": {
@@ -373,69 +497,273 @@
   },
   "index-music-296.jpg": {
     "aspect": 1.0,
-    "bytes": 22772,
+    "bytes": 28719,
     "crop": "1x1",
     "format": "jpg",
     "h": 296,
     "nodeId": "XywbR",
+    "note": "Index 行3（sound）方图；docx image4.png 1:1 中裁（与 music-fig-720 同源，作者有意复用）",
     "quality": 85,
-    "src": "XywbR.jpg",
+    "src": "docx-image4.png",
     "w": 296
   },
   "index-music-296.webp": {
     "aspect": 1.0,
-    "bytes": 16842,
+    "bytes": 21542,
     "crop": "1x1",
     "format": "webp",
     "h": 296,
     "nodeId": "XywbR",
+    "note": "Index 行3（sound）方图；docx image4.png 1:1 中裁（与 music-fig-720 同源，作者有意复用）",
     "quality": 82,
-    "src": "XywbR.jpg",
+    "src": "docx-image4.png",
     "w": 296
   },
   "index-sport-296.jpg": {
     "aspect": 1.0,
-    "bytes": 18656,
+    "bytes": 21777,
     "crop": "1x1",
     "format": "jpg",
     "h": 296,
     "nodeId": "B8NpB",
+    "note": "Index 行4（move）方图；docx image5.png 1:1 中裁",
     "quality": 85,
-    "src": "B8NpB.jpg",
+    "src": "docx-image5.png",
     "w": 296
   },
   "index-sport-296.webp": {
     "aspect": 1.0,
-    "bytes": 12058,
+    "bytes": 17384,
     "crop": "1x1",
     "format": "webp",
     "h": 296,
     "nodeId": "B8NpB",
+    "note": "Index 行4（move）方图；docx image5.png 1:1 中裁",
     "quality": 82,
-    "src": "B8NpB.jpg",
+    "src": "docx-image5.png",
     "w": 296
   },
   "music-fig-720.jpg": {
     "aspect": 1.3333,
-    "bytes": 43549,
+    "bytes": 89010,
     "crop": "4x3",
     "format": "jpg",
     "h": 540,
     "nodeId": "vVdM9",
+    "note": "Music 右图；docx image4.png 4:3 中裁（与 index-music-296 同源）",
     "quality": 85,
-    "src": "vVdM9.jpg",
+    "src": "docx-image4.png",
     "w": 720
   },
   "music-fig-720.webp": {
     "aspect": 1.3333,
-    "bytes": 18942,
+    "bytes": 54860,
     "crop": "4x3",
     "format": "webp",
     "h": 540,
     "nodeId": "vVdM9",
+    "note": "Music 右图；docx image4.png 4:3 中裁（与 index-music-296 同源）",
     "quality": 82,
-    "src": "vVdM9.jpg",
+    "src": "docx-image4.png",
     "w": 720
+  },
+  "music-wall-1.jpg": {
+    "aspect": 1.5,
+    "bytes": 20711,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Music 照片墙第 1 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image19.jpeg",
+    "w": 360
+  },
+  "music-wall-1.webp": {
+    "aspect": 1.5,
+    "bytes": 14450,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Music 照片墙第 1 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image19.jpeg",
+    "w": 360
+  },
+  "music-wall-2.jpg": {
+    "aspect": 0.6667,
+    "bytes": 25231,
+    "crop": null,
+    "format": "jpg",
+    "h": 540,
+    "note": "Music 照片墙第 2 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image20.jpeg",
+    "w": 360
+  },
+  "music-wall-2.webp": {
+    "aspect": 0.6667,
+    "bytes": 14186,
+    "crop": null,
+    "format": "webp",
+    "h": 540,
+    "note": "Music 照片墙第 2 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image20.jpeg",
+    "w": 360
+  },
+  "music-wall-3.jpg": {
+    "aspect": 0.6667,
+    "bytes": 23830,
+    "crop": null,
+    "format": "jpg",
+    "h": 540,
+    "note": "Music 照片墙第 3 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image21.jpeg",
+    "w": 360
+  },
+  "music-wall-3.webp": {
+    "aspect": 0.6667,
+    "bytes": 12126,
+    "crop": null,
+    "format": "webp",
+    "h": 540,
+    "note": "Music 照片墙第 3 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image21.jpeg",
+    "w": 360
+  },
+  "music-wall-4.jpg": {
+    "aspect": 0.6667,
+    "bytes": 38868,
+    "crop": null,
+    "format": "jpg",
+    "h": 540,
+    "note": "Music 照片墙第 4 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image22.jpeg",
+    "w": 360
+  },
+  "music-wall-4.webp": {
+    "aspect": 0.6667,
+    "bytes": 25610,
+    "crop": null,
+    "format": "webp",
+    "h": 540,
+    "note": "Music 照片墙第 4 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image22.jpeg",
+    "w": 360
+  },
+  "music-wall-5.jpg": {
+    "aspect": 1.5,
+    "bytes": 19401,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Music 照片墙第 5 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image23.jpeg",
+    "w": 360
+  },
+  "music-wall-5.webp": {
+    "aspect": 1.5,
+    "bytes": 13152,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Music 照片墙第 5 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image23.jpeg",
+    "w": 360
+  },
+  "music-wall-6.jpg": {
+    "aspect": 1.5,
+    "bytes": 24665,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Music 照片墙第 6 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image24.jpeg",
+    "w": 360
+  },
+  "music-wall-6.webp": {
+    "aspect": 1.5,
+    "bytes": 19130,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Music 照片墙第 6 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image24.jpeg",
+    "w": 360
+  },
+  "music-wall-7.jpg": {
+    "aspect": 1.5,
+    "bytes": 22720,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Music 照片墙第 7 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image25.jpeg",
+    "w": 360
+  },
+  "music-wall-7.webp": {
+    "aspect": 1.5,
+    "bytes": 17274,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Music 照片墙第 7 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image25.jpeg",
+    "w": 360
+  },
+  "music-wall-8.jpg": {
+    "aspect": 1.5,
+    "bytes": 13110,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Music 照片墙第 8 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image26.jpeg",
+    "w": 360
+  },
+  "music-wall-8.webp": {
+    "aspect": 1.5,
+    "bytes": 7834,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Music 照片墙第 8 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image26.jpeg",
+    "w": 360
+  },
+  "music-wall-9.jpg": {
+    "aspect": 1.5,
+    "bytes": 23897,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Music 照片墙第 9 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image27.jpeg",
+    "w": 360
+  },
+  "music-wall-9.webp": {
+    "aspect": 1.5,
+    "bytes": 18082,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Music 照片墙第 9 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image27.jpeg",
+    "w": 360
   },
   "photoband-2880.jpg": {
     "aspect": 2.5714,
@@ -480,5 +808,93 @@
     "quality": 82,
     "src": "rWg3m.jpg",
     "w": 720
+  },
+  "sport-wall-1.jpg": {
+    "aspect": 0.6667,
+    "bytes": 35927,
+    "crop": null,
+    "format": "jpg",
+    "h": 540,
+    "note": "Sport 滚动墙第 1 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image29.jpeg",
+    "w": 360
+  },
+  "sport-wall-1.webp": {
+    "aspect": 0.6667,
+    "bytes": 22078,
+    "crop": null,
+    "format": "webp",
+    "h": 540,
+    "note": "Sport 滚动墙第 1 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image29.jpeg",
+    "w": 360
+  },
+  "sport-wall-2.jpg": {
+    "aspect": 1.5,
+    "bytes": 28350,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Sport 滚动墙第 2 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image30.jpeg",
+    "w": 360
+  },
+  "sport-wall-2.webp": {
+    "aspect": 1.5,
+    "bytes": 23586,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Sport 滚动墙第 2 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image30.jpeg",
+    "w": 360
+  },
+  "sport-wall-3.jpg": {
+    "aspect": 1.3333,
+    "bytes": 28301,
+    "crop": null,
+    "format": "jpg",
+    "h": 270,
+    "note": "Sport 滚动墙第 3 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image31.jpeg",
+    "w": 360
+  },
+  "sport-wall-3.webp": {
+    "aspect": 1.3333,
+    "bytes": 21036,
+    "crop": null,
+    "format": "webp",
+    "h": 270,
+    "note": "Sport 滚动墙第 3 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image31.jpeg",
+    "w": 360
+  },
+  "sport-wall-4.jpg": {
+    "aspect": 1.5,
+    "bytes": 28760,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Sport 滚动墙第 4 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "docx-image32.jpeg",
+    "w": 360
+  },
+  "sport-wall-4.webp": {
+    "aspect": 1.5,
+    "bytes": 23804,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Sport 滚动墙第 4 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "docx-image32.jpeg",
+    "w": 360
   }
 }

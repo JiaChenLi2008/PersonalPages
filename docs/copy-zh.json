@@ -175,8 +175,8 @@
     "lang": "zh-Hans"
   },
   "index.row1.body": {
-    "text": "本板块包含4个子板块",
-    "src": "uirpen#Index.01 学术成果.Body.D",
+    "text": "从解码帕金森到重新定义“健康老龄化”——带着人类心跳的科学研究。",
+    "src": "docx-2026-10-brief.md#段[1]",
     "lang": "zh-Hans"
   },
   "index.row1.no": {
@@ -195,8 +195,8 @@
     "lang": "zh-Hans"
   },
   "index.row2.body": {
-    "text": "社区助老志愿服务：以陪伴、倾听与日常协助为主。",
-    "src": "uirpen#02 助老活动 · Section.Body.Col.Pull.PullText",
+    "text": "指引就医之路，一次挂号，一次温暖的交谈。",
+    "src": "docx-2026-10-brief.md#段[2]",
     "lang": "zh-Hans"
   },
   "index.row2.no": {
@@ -215,8 +215,8 @@
     "lang": "zh-Hans"
   },
   "index.row3.body": {
-    "text": "十年打击乐（马林巴）。节拍既是约束也是自由，教会我在重复里寻找变化与优雅。",
-    "src": "uirpen#Index.03 音乐时光.Body.D",
+    "text": "任何打击乐器，任何节奏——在全音域中寻找我的律动。",
+    "src": "docx-2026-10-brief.md#段[3]",
     "lang": "zh-Hans"
   },
   "index.row3.no": {
@@ -235,8 +235,8 @@
     "lang": "zh-Hans"
   },
   "index.row4.body": {
-    "text": "足球与羽毛球。位置感、判断力与默契；赢球靠配合，成长靠彼此信任。",
-    "src": "uirpen#Index.04 律动时刻.Body.D",
+    "text": "足球、羽毛球，还有最棒的那份默契——在球场上一起变强。",
+    "src": "docx-2026-10-brief.md#段[4]",
     "lang": "zh-Hans"
   },
   "index.row4.no": {
@@ -420,8 +420,8 @@
     "lang": "zh-Hans"
   },
   "scholarly-hir.title": {
-    "text": "HIR 写作竞赛——哈佛国际评论学术写作竞赛",
-    "src": "layout-brief.md#段[24]",
+    "text": "健康老龄化个人项目——HIR 获奖报告",
+    "src": "docx-2026-10-brief.md#段[7]",
     "lang": "zh-Hans"
   },
   "scholarly-hir.no": {
@@ -687,6 +687,256 @@
   "sport.fig.alt": {
     "text": "训练一刻：球员在羽毛球网前跨步。",
     "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "index.head.title": {
+    "text": "查看我的作品",
+    "src": "docx-2026-10-brief.md#段[5]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-hir.lead1": {
+    "text": "我们一直在追求长寿，却漏掉了更大的问题：我们究竟怎样才能在老去的路上活得好？",
+    "src": "docx-2026-10-brief.md#段[8]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-hir.lead2": {
+    "text": "下面这篇获奖文章探讨：为什么我们现有的医疗体系难以衡量“健康老龄化”，以及为什么像合成生物学这样有前景的新工具，可能被旧规则拖住。",
+    "src": "docx-2026-10-brief.md#段[9]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-hir.lead3": {
+    "text": "往下读完整篇，看看真正的瓶颈在哪里。",
+    "src": "docx-2026-10-brief.md#段[10]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.head.date": {
+    "text": "演出日期",
+    "src": "docx-2026-10-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.head.theme": {
+    "text": "演出主题",
+    "src": "docx-2026-10-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.head.venue": {
+    "text": "演出场地",
+    "src": "docx-2026-10-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r01.date": {
+    "text": "2026年9月",
+    "src": "docx-2026-10-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r01.theme": {
+    "text": "平和三十周年校庆典礼",
+    "src": "docx-2026-10-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r01.venue": {
+    "text": "上海平和金鼎大剧场",
+    "src": "docx-2026-10-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r02.date": {
+    "text": "2026年6月",
+    "src": "docx-2026-10-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r02.theme": {
+    "text": "上海国际青少年乐团音乐节",
+    "src": "docx-2026-10-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r02.venue": {
+    "text": "上海市上音歌剧院",
+    "src": "docx-2026-10-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r03.date": {
+    "text": "2026年6月",
+    "src": "docx-2026-10-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r03.theme": {
+    "text": "一千零一乐~童话交响乐",
+    "src": "docx-2026-10-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r03.venue": {
+    "text": "上海平和金鼎大剧场",
+    "src": "docx-2026-10-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r04.date": {
+    "text": "2025年12月",
+    "src": "docx-2026-10-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r04.theme": {
+    "text": "上海国际青少年乐团平安之夜",
+    "src": "docx-2026-10-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r04.venue": {
+    "text": "捷豹上海交响音乐厅",
+    "src": "docx-2026-10-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r05.date": {
+    "text": "2025年12月",
+    "src": "docx-2026-10-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r05.theme": {
+    "text": "人文周开放日音乐快闪",
+    "src": "docx-2026-10-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r05.venue": {
+    "text": "上海平和高中部校园",
+    "src": "docx-2026-10-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r06.date": {
+    "text": "2025年6月",
+    "src": "docx-2026-10-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r06.theme": {
+    "text": "上海国际青少年交响乐",
+    "src": "docx-2026-10-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r06.venue": {
+    "text": "捷豹上海交响音乐厅",
+    "src": "docx-2026-10-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r07.date": {
+    "text": "2025年6月",
+    "src": "docx-2026-10-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r07.theme": {
+    "text": "2025东方市民音乐会",
+    "src": "docx-2026-10-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r07.venue": {
+    "text": "上海东方艺术中心",
+    "src": "docx-2026-10-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r08.date": {
+    "text": "2025年4月",
+    "src": "docx-2026-10-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r08.theme": {
+    "text": "“圣桑之夜”专场古典音乐会",
+    "src": "docx-2026-10-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r08.venue": {
+    "text": "上海平和金鼎大剧场",
+    "src": "docx-2026-10-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r09.date": {
+    "text": "2025年1月",
+    "src": "docx-2026-10-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r09.theme": {
+    "text": "上海国际青少年乐团新年音乐会",
+    "src": "docx-2026-10-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r09.venue": {
+    "text": "上海大剧院",
+    "src": "docx-2026-10-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r10.date": {
+    "text": "2024年10月",
+    "src": "docx-2026-10-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r10.theme": {
+    "text": "辰山自然生活节公益演出",
+    "src": "docx-2026-10-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r10.venue": {
+    "text": "上海辰山植物园",
+    "src": "docx-2026-10-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r11.date": {
+    "text": "2024年7月",
+    "src": "docx-2026-10-brief.md#段[22]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r11.theme": {
+    "text": "打击乐仲夏音乐会",
+    "src": "docx-2026-10-brief.md#段[22]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r11.venue": {
+    "text": "上海东方艺术中心",
+    "src": "docx-2026-10-brief.md#段[22]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r12.date": {
+    "text": "2024年6月",
+    "src": "docx-2026-10-brief.md#段[23]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r12.theme": {
+    "text": "上海国青夏日音乐会",
+    "src": "docx-2026-10-brief.md#段[23]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r12.venue": {
+    "text": "捷豹上海交响音乐厅",
+    "src": "docx-2026-10-brief.md#段[23]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r13.date": {
+    "text": "2024年1月",
+    "src": "docx-2026-10-brief.md#段[24]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r13.theme": {
+    "text": "微笑行动公益演出（手碟）",
+    "src": "docx-2026-10-brief.md#段[24]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r13.venue": {
+    "text": "上海金桥万豪酒店会议厅",
+    "src": "docx-2026-10-brief.md#段[24]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r14.date": {
+    "text": "2023年9月",
+    "src": "docx-2026-10-brief.md#段[25]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r14.theme": {
+    "text": "上海市第十九届学生艺术节展演",
+    "src": "docx-2026-10-brief.md#段[25]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.r14.venue": {
+    "text": "上海青少年活动中心",
+    "src": "docx-2026-10-brief.md#段[25]",
+    "lang": "zh-Hans"
+  },
+  "sport.lead": {
+    "text": "对我来说，运动从来不只是为了赢。它关乎把自己身体的极限往前推一点，更重要的是和队友一起成长的快乐。我喜欢运动造出的那种共同节奏——它带来的真实连接与羁绊，远远超出比赛本身。",
+    "src": "docx-2026-10-brief.md#段[26]",
     "lang": "zh-Hans"
   }
 }

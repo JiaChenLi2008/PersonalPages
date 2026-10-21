@@ -19,7 +19,7 @@
 // 退出码：0 通过；1 有任一问题（逐条打印）；2 缺仓外只读输入（单行 UNAVAILABLE，非断言失败）。
 //
 // src 指针文法（见 docs/BLUEPRINT.md §2.10）：
-//   content-brief.md#段[N] / layout-brief.md#段[N]   → 段区间原文
+//   content-brief.md#段[N] / layout-brief.md#段[N] / docx-2026-10-brief.md#段[N]   → 段区间原文
 //   design-system.md#<Anchor>                        → 该小节标题至下一标题之间
 //   hir-essay.md#pN                                  → 第 N 页区间（p0 = 文首导言区）
 //   uirpen#<A.B.C>                                   → ui.pen 中按节点名逐段定位的子树文本
@@ -144,7 +144,7 @@ function uiPenSubtreeTexts(pointer) {
 
 function locate(src) {
   const [file, frag = ''] = src.split('#');
-  if (file === 'content-brief.md' || file === 'layout-brief.md') {
+  if (file === 'content-brief.md' || file === 'layout-brief.md' || file === 'docx-2026-10-brief.md') {
     const m = /^段\[(\d+)\]$/.exec(frag);
     if (!m) return { error: `src 片段不可解析：${src}` };
     const blocks = paraBlocks(linesOf(path.join(BRIEFS, file)), m[1]);
