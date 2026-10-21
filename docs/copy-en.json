@@ -943,5 +943,155 @@
     "text": "For me, sports were never just about winning. It’s about pushing my physical limits and, more importantly, the joy of growing alongside my teammates. I love how movement creates a shared rhythm—building genuine connections and bonds that go far beyond the game itself.",
     "src": "docx-2026-10-brief.md#段[26]",
     "lang": "en"
+  },
+  "music.perc.01": {
+    "text": "Handpan",
+    "src": "docx-1021-brief.md#段[1]",
+    "lang": "en"
+  },
+  "music.perc.02": {
+    "text": "Marimba",
+    "src": "docx-1021-brief.md#段[2]",
+    "lang": "en"
+  },
+  "music.perc.03": {
+    "text": "Drum Kit",
+    "src": "docx-1021-brief.md#段[3]",
+    "lang": "en"
+  },
+  "music.perc.04": {
+    "text": "Timpani",
+    "src": "docx-1021-brief.md#段[4]",
+    "lang": "en"
+  },
+  "music.perc.05": {
+    "text": "Crash Cymbals",
+    "src": "docx-1021-brief.md#段[5]",
+    "lang": "en"
+  },
+  "music.perc.06": {
+    "text": "Vibraphone",
+    "src": "docx-1021-brief.md#段[6]",
+    "lang": "en"
+  },
+  "music.perc.07": {
+    "text": "Tubular Bells",
+    "src": "docx-1021-brief.md#段[7]",
+    "lang": "en"
+  },
+  "music.perc.08": {
+    "text": "Xylophone",
+    "src": "docx-1021-brief.md#段[8]",
+    "lang": "en"
+  },
+  "music.perc.09": {
+    "text": "Glockenspiel",
+    "src": "docx-1021-brief.md#段[9]",
+    "lang": "en"
+  },
+  "music.perc.10": {
+    "text": "Tambourine",
+    "src": "docx-1021-brief.md#段[10]",
+    "lang": "en"
+  },
+  "music.perc.11": {
+    "text": "Clapper",
+    "src": "docx-1021-brief.md#段[11]",
+    "lang": "en"
+  },
+  "music.perc.12": {
+    "text": "Congas",
+    "src": "docx-1021-brief.md#段[12]",
+    "lang": "en"
+  },
+  "scholarly-igem.result.title": {
+    "text": "What the project set out to prove",
+    "src": "docx-1021-brief.md#段[13]",
+    "lang": "en"
+  },
+  "scholarly-igem.result.body": {
+    "text": "iGEM set out to prove something narrow and useful: that microbes can produce levodopa, a first-line Parkinson’s drug, without the wasteful chemistry the current route depends on. I worked on the wet lab side—running the experiments, generating the real data the team built on, and keeping our bench workflow reproducible. What we carried to the Grand Jamboree was not a promise but a record: clean numbers, honest limits, and a biosynthesis route we could explain to anyone who stopped at the booth.",
+    "src": "docx-1021-brief.md#段[14]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar1.title": {
+    "text": "Environmentally-friendly production",
+    "src": "docx-1021-brief.md#段[15]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar1.item1": {
+    "text": "Reduce toxic chemicals",
+    "src": "docx-1021-brief.md#段[16]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar1.item2": {
+    "text": "Lower energy consumption",
+    "src": "docx-1021-brief.md#段[17]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar1.item3": {
+    "text": "Minimize waste generation",
+    "src": "docx-1021-brief.md#段[18]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar2.title": {
+    "text": "Efficient synthesis",
+    "src": "docx-1021-brief.md#段[19]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar2.item1": {
+    "text": "Increases yield",
+    "src": "docx-1021-brief.md#段[20]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar2.item2": {
+    "text": "Shortens production cycle",
+    "src": "docx-1021-brief.md#段[21]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar2.item3": {
+    "text": "Enhances process reliability",
+    "src": "docx-1021-brief.md#段[22]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar3.title": {
+    "text": "Sustainable",
+    "src": "docx-1021-brief.md#段[23]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar3.item1": {
+    "text": "Biological methods are more suitable for long-term industrial applications",
+    "src": "docx-1021-brief.md#段[24]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar3.item2": {
+    "text": "Uses renewable resources",
+    "src": "docx-1021-brief.md#段[25]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar3.item3": {
+    "text": "Reduces carbon footprint",
+    "src": "docx-1021-brief.md#段[26]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar4.title": {
+    "text": "Scalable",
+    "src": "docx-1021-brief.md#段[27]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar4.item1": {
+    "text": "It has the potential to be platformized",
+    "src": "docx-1021-brief.md#段[28]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar4.item2": {
+    "text": "Compatible with industrial bioreactors",
+    "src": "docx-1021-brief.md#段[29]",
+    "lang": "en"
+  },
+  "scholarly-igem.pillar4.item3": {
+    "text": "Easily adaptable to diverse therapeutic strains",
+    "src": "docx-1021-brief.md#段[30]",
+    "lang": "en"
   }
 }

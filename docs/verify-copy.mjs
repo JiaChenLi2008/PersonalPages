@@ -19,7 +19,8 @@
 // 退出码：0 通过；1 有任一问题（逐条打印）；2 缺仓外只读输入（单行 UNAVAILABLE，非断言失败）。
 //
 // src 指针文法（见 docs/BLUEPRINT.md §2.10）：
-//   content-brief.md#段[N] / layout-brief.md#段[N] / docx-2026-10-brief.md#段[N]   → 段区间原文
+//   content-brief.md#段[N] / layout-brief.md#段[N] / docx-2026-10-brief.md#段[N]
+//   docx-1021-brief.md#段[N]                            → 段区间原文
 //   design-system.md#<Anchor>                        → 该小节标题至下一标题之间
 //   hir-essay.md#pN                                  → 第 N 页区间（p0 = 文首导言区）
 //   uirpen#<A.B.C>                                   → ui.pen 中按节点名逐段定位的子树文本
@@ -144,7 +145,8 @@ function uiPenSubtreeTexts(pointer) {
 
 function locate(src) {
   const [file, frag = ''] = src.split('#');
-  if (file === 'content-brief.md' || file === 'layout-brief.md' || file === 'docx-2026-10-brief.md') {
+  if (file === 'content-brief.md' || file === 'layout-brief.md' || file === 'docx-2026-10-brief.md' ||
+      file === 'docx-1021-brief.md') {
     const m = /^段\[(\d+)\]$/.exec(frag);
     if (!m) return { error: `src 片段不可解析：${src}` };
     const blocks = paraBlocks(linesOf(path.join(BRIEFS, file)), m[1]);
@@ -234,6 +236,15 @@ const MIXED_MATERIAL = new Set([
   'scholarly-jhu.q2',      // 原文：Hello, I may look like a bone-in lamp leg huh？…
   'scholarly-hir.title',   // 原文：HIR writing contest-哈佛国际评论学术写作竞赛
   'footer.legal',          // 原文：© 2026 林知远 · 占位\nBIOLOGY / MEDICINE / MUSIC / SPORT
+]);
+
+/* 材料原文中英并列的槽位（docx 一行两语，如「手碟 - Handpan」）：两侧都是原文，没有译文侧可退。
+   若某侧不再逐字，不能靠「另一侧逐字 ⇒ 本侧是译文」放过——那会让改一个字母的错字隐形。
+   未登记的双语槽位（如 music.resume.*）不在本表内，仍走下方通用规则。 */
+const BILINGUAL_MATERIAL = new Set([
+  'music.perc.01', 'music.perc.02', 'music.perc.03', 'music.perc.04',
+  'music.perc.05', 'music.perc.06', 'music.perc.07', 'music.perc.08',
+  'music.perc.09', 'music.perc.10', 'music.perc.11', 'music.perc.12',
 ]);
 
 /** 混排槽位的溯源下限。原文区间按标点折叠后（全角标点折成 ASCII、标点周围空白去掉、换行统一写法），
@@ -356,6 +367,13 @@ for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {
     const loc = locate(v.src);
     if (loc.error) { fail(`[src] ${at} ${loc.error}`); continue; }
     if (regionCarries(loc, v.text)) { checked++; continue; }
+    // 双语并列槽位没有译文侧：本侧必须逐字。
+    if (BILINGUAL_MATERIAL.has(k)) {
+      fail(`[verbatim] ${at} 是双语并列槽位（docx 一行两语，两侧都是原文），本侧 text 必须逐字等于 ${loc.how} 原文\n` +
+           `      本侧 text: ${JSON.stringify(v.text)}\n` +
+           `      本侧差异: ${verbatimDiff(loc, v.text)}`);
+      continue;
+    }
     // 本侧不是该区间的原文 ⇒ 它是译文：核对同一槽位的原文侧。
     const other = file === 'copy-en.json' ? zh[k] : en[k];
     if (other === undefined) { fail(`[pair] ${at} 另一份字典无同名键，无法核对译文侧（见①）`); continue; }

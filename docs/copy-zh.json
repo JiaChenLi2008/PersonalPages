@@ -943,5 +943,155 @@
     "text": "对我来说，运动从来不只是为了赢。它关乎把自己身体的极限往前推一点，更重要的是和队友一起成长的快乐。我喜欢运动造出的那种共同节奏——它带来的真实连接与羁绊，远远超出比赛本身。",
     "src": "docx-2026-10-brief.md#段[26]",
     "lang": "zh-Hans"
+  },
+  "music.perc.01": {
+    "text": "手碟",
+    "src": "docx-1021-brief.md#段[1]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.02": {
+    "text": "马林巴琴",
+    "src": "docx-1021-brief.md#段[2]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.03": {
+    "text": "架子鼓",
+    "src": "docx-1021-brief.md#段[3]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.04": {
+    "text": "定音鼓",
+    "src": "docx-1021-brief.md#段[4]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.05": {
+    "text": "对镲",
+    "src": "docx-1021-brief.md#段[5]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.06": {
+    "text": "颤音琴",
+    "src": "docx-1021-brief.md#段[6]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.07": {
+    "text": "管钟",
+    "src": "docx-1021-brief.md#段[7]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.08": {
+    "text": "木琴",
+    "src": "docx-1021-brief.md#段[8]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.09": {
+    "text": "钟琴",
+    "src": "docx-1021-brief.md#段[9]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.10": {
+    "text": "铃鼓",
+    "src": "docx-1021-brief.md#段[10]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.11": {
+    "text": "快板",
+    "src": "docx-1021-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "music.perc.12": {
+    "text": "康加鼓",
+    "src": "docx-1021-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.result.title": {
+    "text": "项目想要证明什么",
+    "src": "docx-1021-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.result.body": {
+    "text": "iGEM 想证明的事情很具体：微生物可以生产左旋多巴——帕金森病的一线药物——而不必依赖现行路线那套浪费严重的化学工艺。我负责湿实验一侧：跑实验、产出团队可以据以推进的真实数据，并让我们的实验台流程保持可复现。我们带到总决赛现场的不是承诺，而是一份记录：干净的数字、诚实的边界，以及一条能向任何在展位前停下的人讲清楚的生物合成路线。",
+    "src": "docx-1021-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar1.title": {
+    "text": "环境友好型生产",
+    "src": "docx-1021-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar1.item1": {
+    "text": "减少有毒化学品",
+    "src": "docx-1021-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar1.item2": {
+    "text": "降低能耗",
+    "src": "docx-1021-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar1.item3": {
+    "text": "减少废弃物产生",
+    "src": "docx-1021-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar2.title": {
+    "text": "高效合成",
+    "src": "docx-1021-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar2.item1": {
+    "text": "提高产量",
+    "src": "docx-1021-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar2.item2": {
+    "text": "缩短生产周期",
+    "src": "docx-1021-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar2.item3": {
+    "text": "提升工艺可靠性",
+    "src": "docx-1021-brief.md#段[22]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar3.title": {
+    "text": "可持续",
+    "src": "docx-1021-brief.md#段[23]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar3.item1": {
+    "text": "生物方法更适合长期工业应用",
+    "src": "docx-1021-brief.md#段[24]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar3.item2": {
+    "text": "使用可再生资源",
+    "src": "docx-1021-brief.md#段[25]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar3.item3": {
+    "text": "降低碳足迹",
+    "src": "docx-1021-brief.md#段[26]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar4.title": {
+    "text": "可规模化",
+    "src": "docx-1021-brief.md#段[27]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar4.item1": {
+    "text": "具备平台化潜力",
+    "src": "docx-1021-brief.md#段[28]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar4.item2": {
+    "text": "兼容工业生物反应器",
+    "src": "docx-1021-brief.md#段[29]",
+    "lang": "zh-Hans"
+  },
+  "scholarly-igem.pillar4.item3": {
+    "text": "易于适配多种治疗菌株",
+    "src": "docx-1021-brief.md#段[30]",
+    "lang": "zh-Hans"
   }
 }
