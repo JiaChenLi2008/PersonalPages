@@ -318,9 +318,9 @@
 }
 
 /* docx page 4: each question's closing sentence moves into its own answer panel as a
-   second paragraph — one blank line (24px ≈ one --lh-body line at --fs-14) below the
-   body, and in a second colour so it reads as the panel's aside: --c-green, because
-   --c-blue is this section's accent everywhere else. */
+   second paragraph — one --sp-24 step (24px, about one line of --fs-14 at --lh-body)
+   below the body, and in a second colour so it reads as the panel's aside: --c-green,
+   because --c-blue is this section's accent everywhere else. */
 .scholarly__answer--merge {
   margin-top: var(--sp-24);
   color: var(--c-green);
