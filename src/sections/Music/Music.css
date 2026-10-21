@@ -133,6 +133,36 @@
   object-fit: cover;
 }
 
+/* ---- Percussion grid (docx-1021 段[1]…[12]) ----
+   The docx asks for a dense set of small instrument tiles that turn into the instrument's
+   English name on hover. The image-free version the user ruled for keeps the density and
+   swaps the other language's name in instead. Four tiles across at the 1440 board, three at
+   900, two at 600 — a tile never has to hold more than one instrument name. */
+.music__perc {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-12) var(--sp-24);
+  margin-block-start: var(--sp-32);
+  padding: 0;
+  list-style: none;
+}
+
+.music__percItem {
+  padding-block: var(--sp-10);
+  border-block-start: var(--rule-h) solid var(--c-rule);
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
+/* The only cue that the tile is interactive: a keyboard ring. The swap itself is the
+   hover/focus effect, and nothing here animates, so reduced-motion needs no branch. */
+.music__percItem:focus-visible {
+  outline: var(--rule-h-strong) solid var(--c-blue);
+  outline-offset: var(--sp-2);
+}
+
 /* ---- Performance résumé (docx 页面6: 14 场, three columns) ----
    No table exists elsewhere in src/, so the whole treatment lives here. The columns are
    data columns, not flex children: the date stays on one line, the theme takes the room it
@@ -209,6 +239,10 @@
     gap: var(--sp-24);
   }
 
+  .music__perc {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
   .music__fig {
     width: auto;
   }
@@ -231,5 +265,10 @@
   .music__body,
   .music__col {
     gap: var(--sp-16);
+  }
+
+  .music__perc {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--sp-8) var(--sp-16);
   }
 }

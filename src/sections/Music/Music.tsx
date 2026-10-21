@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { PhotoStrip, type StripPhoto } from "../../components/PhotoStrip/PhotoStrip";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
-import { useCopy, type CopyKey } from "../../i18n/copy";
+import { dictionaries, useCopy, type CopyKey } from "../../i18n/copy";
 import "./Music.css";
 
 /**
@@ -20,6 +21,29 @@ const MUSIC_WALL = [
   { src: "media/music-wall-8.webp", width: 360, height: 240 },
   { src: "media/music-wall-9.webp", width: 360, height: 240 },
 ] as const satisfies readonly StripPhoto[];
+
+/**
+ * The twelve percussion instruments of docx-1021 段[1]…段[12] — one key per instrument,
+ * both languages in the same slot. The docx asks for a dense grid of small instrument
+ * images that turn into the instrument's English name on hover; the user's ruling is text
+ * only, so the grid keeps the density and swaps in the *other* language's name instead.
+ * Every key is spelled out: tools/verify-copy-wiring.mjs only sees a dictionary key it can
+ * read as a string literal.
+ */
+const PERCUSSION = [
+  "music.perc.01",
+  "music.perc.02",
+  "music.perc.03",
+  "music.perc.04",
+  "music.perc.05",
+  "music.perc.06",
+  "music.perc.07",
+  "music.perc.08",
+  "music.perc.09",
+  "music.perc.10",
+  "music.perc.11",
+  "music.perc.12",
+] as const satisfies readonly CopyKey[];
 
 /** The table's three column names (docx 段[11]). */
 const RESUME_HEADS = [
@@ -55,7 +79,8 @@ const RESUME_ROWS = [
 /**
  * Music (03, `SOUND & SOUL`) — the ui.pen frame Z79UYi: section head, 2px baseline, then
  * the wall of photographs the docx adds (页面6), then the pull quote with its key-value row
- * beside the 4:3 photograph, then the performance résumé table (页面6, 14 场).
+ * beside the 4:3 photograph, then the twelve-instrument grid (docx-1021 段[1]…[12]), then
+ * the performance résumé table (页面6, 14 场).
  *
  * The wall sits between the head and the body: the reader meets the whole impression of the
  * section first and its detail after. The 4:3 photograph keeps its box and its alt key —
@@ -63,6 +88,15 @@ const RESUME_ROWS = [
  */
 export function Music() {
   const { text, langOf } = useCopy();
+  /* The instrument grid shows the page's own language by default and the other side of the
+     same key while a tile is hovered or focused. One dictionary is read at a time and only
+     the shown side reaches the DOM, so neither page ever carries the other language in its
+     markup (BLUEPRINT §6.4) — a CSS cross-fade of both texts would. `langOf` names which
+     side the page speaks, so no second language hook is needed. */
+  const otherSide = langOf("music.perc.01") === "en" ? dictionaries.zh : dictionaries.en;
+  const [swappedAt, setSwappedAt] = useState<number | null>(null);
+  const release = (index: number) =>
+    setSwappedAt((at) => (at === index ? null : at));
 
   return (
     <section id="music" data-section="music" className="music" aria-labelledby="music-title">
@@ -114,6 +148,30 @@ export function Music() {
           </div>
         </Reveal>
       </div>
+      {/* docx-1021 段[1]…[12]: a dense tile grid that swaps to the instrument's other-language
+          name. Hover and keyboard focus both drive it (`tabIndex` + onFocus), so the swap is
+          not mouse-only; `:focus-visible` in Music.css draws the ring. No transition is
+          declared, so `prefers-reduced-motion` has nothing to disable. */}
+      <ul className="music__perc">
+        {PERCUSSION.map((key, index) => {
+          const swapped = swappedAt === index;
+          const shown = swapped ? otherSide[key] : { text: text(key), lang: langOf(key) };
+          return (
+            <li
+              key={key}
+              className="music__percItem"
+              lang={shown.lang}
+              tabIndex={0}
+              onMouseEnter={() => setSwappedAt(index)}
+              onMouseLeave={() => release(index)}
+              onFocus={() => setSwappedAt(index)}
+              onBlur={() => release(index)}
+            >
+              {shown.text}
+            </li>
+          );
+        })}
+      </ul>
       {/* The résumé table is a scroll region of its own at every width: three columns of
           Chinese sentence-length themes cannot stay legible in a 320px column, so the cells
           wrap and, if a narrow viewport still runs out of room, this box scrolls sideways

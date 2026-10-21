@@ -17,6 +17,10 @@
  *   4. the résumé table is 14 body rows × 3 columns under 3 `<th scope="col">`, its dates run
  *      date-descending, every cell is that row's own dictionary entry, and the table carries
  *      an accessible name taken from a dictionary-sourced heading;
+ *   4b. the twelve-instrument grid of docx-1021 items 1…12 renders its twelve tiles in contract
+ *      order, each with its own dictionary text, that entry's `lang` (the mark the hover swap
+ *      replaces with the other side's) and `tabindex="0"` for keyboard reach, ahead of the
+ *      table;
  *   5. Music's 4:3 figure still renders the T1 photograph (`music-fig-720.webp`) with its own
  *      alt key; Sport renders the docx's `sport.lead` and no longer its superseded
  *      `sport.body` (the ruling is "replace", and both keys are still in the dictionaries);
@@ -276,7 +280,55 @@ if (tableAt < 0) {
   }
 }
 
-/* ---------- 5. the figure and the lead ---------- */
+/* ---------- 5. the twelve-instrument grid (docx-1021 items 1…12) ---------- */
+
+/* The grid is new structure: without this block a tile could be deleted, reordered or
+   render the wrong language and every gate would stay green. Each tile renders the page's
+   own side of its key and carries that entry's `lang`, which is the mark the hover swap
+   replaces with the other side's — so a tile that loses its `lang` fails here. */
+const PERCUSSION = Array.from(
+  { length: 12 },
+  (_, index) => `music.perc.${String(index + 1).padStart(2, "0")}`,
+);
+const percGrid = /<ul class="music__perc">([\s\S]*?)<\/ul>/.exec(music);
+if (percGrid === null) {
+  fail("music percussion: the section renders no <ul class=\"music__perc\"> grid");
+} else {
+  const tiles = tagsOf(percGrid[1], "li");
+  if (tiles.length !== PERCUSSION.length) {
+    fail(`music percussion: ${tiles.length} tile(s), the docx lists ${PERCUSSION.length} instruments`);
+  }
+  const texts = [...percGrid[1].matchAll(/<li\b[^>]*>([^<>]*)<\/li>/g)].map((match) => decode(match[1]).trim());
+  PERCUSSION.forEach((key, index) => {
+    const wanted = en[key];
+    if (wanted === undefined) {
+      fail(`music percussion tile ${index + 1}: docs/copy-en.json has no ${key}`);
+      return;
+    }
+    if (texts[index] !== wanted.text) {
+      fail(
+        `music percussion tile ${index + 1}: ${JSON.stringify(texts[index])} != ${key} ` +
+          `(${JSON.stringify(wanted.text)})`,
+      );
+    }
+    if (tiles[index]?.lang !== wanted.lang) {
+      fail(
+        `music percussion tile ${index + 1}: lang=${JSON.stringify(tiles[index]?.lang)} != ` +
+          `${JSON.stringify(wanted.lang)} (the tile's own dictionary entry) — the hover swap ` +
+          `replaces this mark with the other side's, so the tile must carry one`,
+      );
+    }
+    if (tiles[index]?.tabindex !== "0") {
+      fail(`music percussion tile ${index + 1}: not reachable by keyboard (tabindex missing)`);
+    }
+  });
+  const gridAt = music.indexOf('<ul class="music__perc">');
+  if (gridAt > tableAt) {
+    fail("music percussion: the grid sits after the résumé table; the docx puts it ahead of it");
+  }
+}
+
+/* ---------- 6. the figure and the lead ---------- */
 
 const figure = /<img\b[^>]*src="(media\/music-fig-[^"]+)"[^>]*alt="([^"]*)"/.exec(music);
 if (figure === null) {
@@ -322,5 +374,6 @@ if (failures.length > 0) {
 console.log(
   `PASS: music wall 9 + sport wall 4 photos (track + clone, aria-hidden, lazy/async), ` +
     "walls ahead of their bodies, résumé table 14 rows × 3 columns date-descending, " +
-    "cells are their own dictionary entries, sport.body replaced, en only",
+    "cells are their own dictionary entries, percussion 12 tiles in contract order with lang + tabindex, " +
+    "sport.body replaced, en only",
 );

@@ -210,3 +210,56 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 - `tools/verify-render.mjs` 全量矩阵（7 宽 × 2 语言 = 14 格）在本机实测**超过 90s**（基线 HEAD 树同样超时，与本轮改动无关），故本轮的 red/green 证据取自 `WIDTHS=[320,1440]`、`LANG_QUERIES=[""]` 的 2 格副本（28s 跑完）；全量矩阵未在本轮实跑。
 
 
+
+## T7 轮（docx-1021 补充内容接线）的四处判据变更
+
+本轮把《补充内容-1021.docx》的 30 个新键接到组件上（12 种打击乐 + iGEM 宣传块 + 四块方阵 + CTA 放大）。
+下面四处是本轮**判据/覆盖范围**的变动，逐条给理由与实测：
+
+### 1 `tools/verify-copy-wiring.mjs`：`KEY_SHAPED` 的段首字符类放宽（`[A-Za-z_]` → `[A-Za-z0-9_]`）
+
+- **原判据**：`/^[a-z][A-Za-z0-9_-]*(?:\.[A-Za-z_][A-Za-z0-9_-]*)+$/`。
+- **事实上不可见**：字典自己给 12 种打击乐命名 `music.perc.01`…`music.perc.12`，点号后的段以数字开头，
+  原判据一律不认。后果不是「报红」而是**这 12 个键在「每键都被 src 引用」这条判据里根本不存在**：
+  即使把它们从 `src/` 全删，门禁也只会在别的判据上出声（本轮靠新增的 DOM 断言才发现）。
+  实测原判据下的输出：`referenced=206 / unreferenced=13 of 219`，13 条里 12 条是被渲染的 perc 键。
+- **放宽理由**：键名由字典（T6 合同）裁定，禁在本 lane 改名；缺陷在正则，不在键名。只改这一个字符类，
+  不碰该文件其它判据。
+- **放宽后仍能变红的证据**（放宽最怕「漏认」，故必须证明它仍对具体缺失报红）：
+  1. 从 `src/sections/Music/Music.tsx` 删掉 `music.perc.12` 一行 → `node tools/verify-copy-wiring.mjs` **rc=1**，输出
+     `referenced=217 …` / `unreferenced=2 of 219 dictionary keys: sport.body, music.perc.12 [NOT REGISTERED]`
+     并逐条点名 `unreferenced key is not registered as dead: music.perc.12`；
+  2. 复原（sha 一致）→ **rc=0**，`referenced=218 found_en=218 found_zh=218 via_literal_call=91 via_key_literal=127`，
+     `unreferenced=1 of 219 dictionary keys: sport.body`（唯一登记死键）。
+
+### 2 `tools/verify-music-sport-dom.mjs`：新增第 4b 节（12 块打击乐格）
+
+新结构此前无任何判据：少一块、顺序错、语言配错、去掉键盘可达都在门前全绿。新断言逐块比对
+`music.perc.NN` 的字典原文 + 该条目的 `lang` + `tabindex="0"`，并断言网格在履历表之前。
+应拒负例：删第 12 块 → rc=1（`music percussion tile 12: undefined != music.perc.12 ("Congas")` 等 4 条）；
+去掉 `lang={shown.lang}` → rc=1（12 条 `lang=undefined != "en"`）。
+
+### 3 `tools/verify-ssr-dom.mjs`：新增第 3b 节（iGEM 宣传块 + 四块方阵）
+
+宣传块断言：两个键逐字渲染、各自带本条目 `lang`、位置在 lab 段与 Paris 标题之间。
+四块方阵断言：4 块 × 3 要点按合同顺序逐格比对字典原文与 `lang`，16 个键全部到达 markup，方阵在两栏之下。
+应拒负例：删 `scholarly-igem.pillar3.item2` → rc=1（第 3 块第 2 点变成第 3 点原文、第 3 点空）；
+把某块中文格无条件读英文侧（英文原文出现在中文页）→ `verify-lang-purity` rc=1
+（`zh-Hans: latin_tokens=13 … outside=6`，BREACH `Environmentally-friendly` 等）。
+
+### 4 `tools/fidelity-scholarly.mjs` 的覆盖边界收窄（B4 CTA 放大）
+
+- docx 第四条 + 用户裁决要求 iGEM 引导区字号放大到 `--fs-22`；`ui.pen` 仍持 `.scholarly__cta` 14px、
+  `.scholarly__url` 12px。`fidelity-scholarly.mjs` 不在本轮可改路径内，改它等于动摇设计基线。
+- 落地方式：**基础声明一字不动**（`--fs-14` / `--fs-12` 仍是 board 值，门禁照读），放大由修饰类
+  `.scholarly__cta--lead` / `.scholarly__ctaUrl--lead` / `.scholarly__url--lead` 给三元素 `--fs-22`（未新增 token）。
+- **覆盖后果（明写）**：`fidelity-scholarly.mjs` 自此只覆盖这三个角色的**基础声明**，不覆盖它们的**最终字号**；
+  「最终字号是 22px」改由真渲染实测承担（见下），门禁本身对「删掉修饰类」不报红。
+- 补的实测（宿主 Chrome / CDP，`/tmp` 探针，dist 为本轮 `npm run build` 产物）：
+  | 宽度 | `.scholarly__cta` | `.scholarly__ctaUrl` | `.scholarly__url` | 溢出 |
+  |---|---|---|---|---|
+  | 1440（en / zh） | `font-size=22px`，单行 937px | `22px`，937px | `22px`，单行 515px（列宽 937px） | `scrollWidth-clientWidth=0`，`pageOverflow=0` |
+  | 375（en / zh） | `22px`，单行 264px | `22px`，264px | `22px`，折 2 片段 264+251px（列宽 264px） | `scrollWidth-clientWidth=0`，`pageOverflow=0` |
+
+  375 下 39 字符 URL 在 22px 等宽下约 515px，靠 `.scholarly__ctaUrl` 既有的 `overflow-wrap: anywhere`
+  折成两行（未用 `overflow: hidden` 裁字）。

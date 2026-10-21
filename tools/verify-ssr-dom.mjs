@@ -20,6 +20,11 @@
  *      slots, `.motion-slide` on the nine ordinals, `.motion-hover` on the nine triggers)
  *   3. the iGEM CTA is a real link to the project site, opened in a new tab with
  *      rel="noopener noreferrer"
+ *   3b. the two docx-1021 additions render: the result block (`.scholarly__result`) between the
+ *      lab paragraph and the Paris heading with both of its entries verbatim and each entry's
+ *      own `lang`, and the 2x2 pillar matrix (`.scholarly__pillars`) under both columns with
+ *      four titles and twelve bullets, in contract order, every one of the sixteen keys reaching
+ *      the markup
  *   4. the HIR card links to the copied essay PDF
  *   5. the default product is the en page: the section carries its own language only —
  *      no CJK character, and every lang mark is "en" (BLUEPRINT §6.4: one language per
@@ -325,6 +330,106 @@ if (cta === undefined) {
 const pdf = links.find((attrs) => (attrs.href ?? "").endsWith("media/hir-essay.pdf"));
 if (pdf === undefined) {
   fail('no <a href="…/media/hir-essay.pdf">: the HIR card must link to the copied essay');
+}
+
+/* ---------- 3b. the docx-1021 additions: result copy and the 2x2 pillar matrix ---------- */
+
+/* Both structures are new: without these assertions the docx's second and third additions
+   could lose a paragraph, a pillar or a bullet and every gate would stay green. The texts
+   are held to the dictionary entry each element renders, in the contract's order, and each
+   element to that entry's own `lang` — the mark a screen reader needs on a cell whose
+   language differs from the page's (BLUEPRINT §6.4). */
+/* React escapes markup characters in text children, so comparisons run on decoded text. */
+const decodeText = (markup) =>
+  markup
+    .replace(/&#x27;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">")
+    .replace(/&amp;/g, "&");
+
+const RESULT = ["scholarly-igem.result.title", "scholarly-igem.result.body"];
+const PILLAR_KEYS = [1, 2, 3, 4].flatMap((n) => [
+  `scholarly-igem.pillar${n}.title`,
+  `scholarly-igem.pillar${n}.item1`,
+  `scholarly-igem.pillar${n}.item2`,
+  `scholarly-igem.pillar${n}.item3`,
+]);
+
+const resultBlock = /<div class="scholarly__result">([\s\S]*?)<\/div>/.exec(html);
+if (resultBlock === null) {
+  fail("no .scholarly__result block: the docx's result copy (item 2) is not rendered");
+} else {
+  for (const key of RESULT) {
+    const entry = en[key];
+    if (entry === undefined) {
+      fail(`docs/copy-en.json has no ${key}`);
+      continue;
+    }
+    const element = new RegExp(`<p class="scholarly__[kd]" lang="([^"]*)">${entry.text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}</p>`);
+    const found = element.exec(resultBlock[1]);
+    if (found === null) {
+      fail(`the result block does not render ${key} (${JSON.stringify(entry.text)}) verbatim`);
+    } else if (found[1] !== entry.lang) {
+      fail(`the result block renders ${key} with lang=${JSON.stringify(found[1])}, expected ${JSON.stringify(entry.lang)}`);
+    }
+  }
+  /* docx: the result block sits between the lab paragraph and the Paris heading. */
+  const visible = decodeText(html);
+  const labAt = visible.indexOf(en["scholarly-igem.para1"].text);
+  const parisAt = visible.indexOf(en["scholarly-igem.sub2"].text);
+  const blockAt = visible.indexOf('class="scholarly__result"');
+  if (labAt < 0 || parisAt < 0) {
+    fail("the iGEM lab paragraph or the Paris heading is missing from the markup");
+  } else if (!(labAt < blockAt && blockAt < parisAt)) {
+    fail("the result block is not between the lab paragraph and the Paris heading (docx item 2)");
+  }
+}
+
+const pillarsAt = html.indexOf('class="scholarly__pillars"');
+if (pillarsAt < 0) {
+  fail("no .scholarly__pillars matrix: the docx's four blocks (item 3) are not rendered");
+} else {
+  const blocks = [...html.matchAll(/<div class="scholarly__pillar">([\s\S]*?)<\/div>/g)].map((match) => match[1]);
+  if (blocks.length !== 4) {
+    fail(`the pillar matrix renders ${blocks.length} block(s), the docx lists 4`);
+  }
+  const bodyAt = html.indexOf('class="scholarly__body scholarly__body--igem"');
+  const bodyEnd = html.indexOf('class="scholarly__pillars"');
+  if (bodyAt < 0 || bodyEnd < bodyAt) {
+    fail("the pillar matrix is not under the two iGEM columns");
+  }
+  [1, 2, 3, 4].forEach((n, index) => {
+    const block = blocks[index];
+    if (block === undefined) return;
+    const titleKey = `scholarly-igem.pillar${n}.title`;
+    const title = /<p class="scholarly__k" lang="([^"]*)">([^<]*)<\/p>/.exec(block);
+    if (title === null || decodeText(title[2]).trim() !== en[titleKey].text) {
+      fail(`pillar ${n}: title ${JSON.stringify(title?.[2])} != ${titleKey} (${JSON.stringify(en[titleKey].text)})`);
+    } else if (title[1] !== en[titleKey].lang) {
+      fail(`pillar ${n} title: lang=${JSON.stringify(title[1])}, expected ${JSON.stringify(en[titleKey].lang)}`);
+    }
+    const items = [...block.matchAll(/<li lang="([^"]*)">([^<]*)<\/li>/g)];
+    if (items.length !== 3) {
+      fail(`pillar ${n}: ${items.length} bullet(s), the docx lists 3`);
+    }
+    for (let at = 0; at < 3; at += 1) {
+      const key = `scholarly-igem.pillar${n}.item${at + 1}`;
+      const rendered = decodeText(items[at]?.[2] ?? "").trim();
+      if (rendered !== en[key].text) {
+        fail(`pillar ${n} bullet ${at + 1}: ${JSON.stringify(rendered)} != ${key} (${JSON.stringify(en[key].text)})`);
+      } else if (items[at][1] !== en[key].lang) {
+        fail(`pillar ${n} bullet ${at + 1}: lang=${JSON.stringify(items[at][1])}, expected ${JSON.stringify(en[key].lang)}`);
+      }
+    }
+  });
+  /* Every key reaches the markup somewhere: the matrix is the only place these 16 keys are
+     rendered, so a key that falls out here is dead, not merely moved. */
+  for (const key of PILLAR_KEYS) {
+    if (!decodeText(html).includes(en[key].text)) {
+      fail(`${key} does not reach the markup: the docx's 16 matrix keys must all render`);
+    }
+  }
 }
 
 /* ---------- 5. language and photo attributes ---------- */

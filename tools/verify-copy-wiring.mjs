@@ -94,8 +94,10 @@ const TEXT_CALL = /(?<![\w$.])text\(\s*"([^"]+)"\s*\)/g;
 /** Any double-quoted literal without escapes; both shapes are written this way. */
 const STRING_LITERAL = /"([^"\\\n]*)"/g;
 
-/** copy-en.json keys are lower-case dotted paths, e.g. index.row1.no. */
-const KEY_SHAPED = /^[a-z][A-Za-z0-9_-]*(?:\.[A-Za-z_][A-Za-z0-9_-]*)+$/;
+/** copy-en.json keys are lower-case dotted paths, e.g. index.row1.no — and a segment may
+    open with a digit: docx-1021 names the percussion keys music.perc.01…12, so a segment
+    starting with [0-9] was a key this check could not see (docs/GATES.md F4-B). */
+const KEY_SHAPED = /^[a-z][A-Za-z0-9_-]*(?:\.[A-Za-z0-9_][A-Za-z0-9_-]*)+$/;
 
 function sourceFiles(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {

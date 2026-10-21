@@ -124,6 +124,45 @@
   line-height: var(--lh-body);
 }
 
+/* docx-1021 item 2: the result block between lab and Paris. It keeps the column's
+   own text classes and earns its separation from a hairline above, so the four blocks the
+   docx adds no fifth type size to the section. */
+.scholarly__result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+  padding-block-start: var(--sp-18);
+  border-block-start: var(--rule-h) solid var(--c-rule);
+}
+
+/* docx-1021 item 3: the 2x2 pillar matrix, full width under both iGEM columns. */
+.scholarly__pillars {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-24) var(--sp-32);
+  margin-block-start: var(--sp-32);
+  padding-block-start: var(--sp-24);
+  border-block-start: var(--rule-h) solid var(--c-rule);
+}
+
+.scholarly__pillar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-8);
+}
+
+.scholarly__pillarItems {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  margin: 0;
+  padding-inline-start: var(--sp-18);
+  color: var(--c-ink-body);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
 .scholarly__cta,
 .scholarly__ctaUrl {
   margin: 0;
@@ -133,9 +172,9 @@
   line-height: var(--lh-body);
 }
 
-/* The iGEM URL is one 39-character run at 12px IBM Plex Mono, and Chrome breaks it
-   only after the hyphen: the 216.02px first fragment overflows the 209px column at
-   320px by 7px. Breaking inside the token fixes the narrow tier; at 1440px the URL
+/* The iGEM URL is one 39-character run at 22px IBM Plex Mono (~515px), and Chrome breaks it
+   only after the hyphen: it overflows any column narrower than that — the 209px column at
+   320px by ~305px. Breaking inside the token fixes every narrow tier; at 1440px the URL
    still fits on one line, so nothing changes there. */
 .scholarly__ctaUrl {
   overflow-wrap: anywhere;
@@ -146,6 +185,20 @@
   font-family: var(--ff-mono);
   font-size: var(--fs-12);
   letter-spacing: var(--ls-none);
+}
+
+/* docx-1021 item 4, user ruling: the CTA that asks the reader to open the project site is
+   set at --fs-22 so it reads as a call, not as a footnote, and the URL follows it instead of
+   being the smallest type in the block. ui.pen still holds 14/12 for these three roles, and
+   tools/fidelity-scholarly.mjs holds the base declarations to those board values, so the
+   enlargement arrives as a modifier: `--fs-22` is the largest step tokens.css carries below
+   the display sizes, and no token was added for it. `overflow-wrap: anywhere` above is what
+   lets the 39-character run wrap into the column at 375px (~515px unwrapped) instead of
+   widening it. */
+.scholarly__cta--lead,
+.scholarly__ctaUrl--lead,
+.scholarly__url--lead {
+  font-size: var(--fs-22);
 }
 
 .scholarly__figcol {
@@ -452,6 +505,10 @@
 
   .scholarly__figcol {
     flex: 1 1 auto;
+  }
+
+  .scholarly__pillars {
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 
