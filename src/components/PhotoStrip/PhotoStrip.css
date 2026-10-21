@@ -1,0 +1,79 @@
+/* PhotoStrip (src/components/PhotoStrip/PhotoStrip.tsx) — the wall Music (页面6) and
+   Sport (页面7) share. One strip height for every photo: 240px, the height of the
+   shortest derived wall asset (360×240, public/media/MANIFEST.json). A photo is laid out
+   by that height with `width: auto`, so nothing is ever shown wider than the file it
+   came from and the 360px-wide derivatives are never upscaled. */
+
+.photo-strip {
+  /* 240px: the height of the shortest derived wall asset (360×240), so every photo is shown
+     at or below its own size — a photo 360×240 stays 360×240, the taller ones are scaled
+     down. A taller strip would upscale that first photo, which the task forbids. */
+  height: calc(var(--sp-40) * 6);
+  margin-block: var(--sp-24);
+  overflow: hidden;
+  background: var(--c-rule);
+}
+
+/* Seamless loop: the track is rendered twice and the reel travels exactly one track
+   width (-50%), so the second copy lands where the first began. 48s is one full cycle —
+   Music's reel is ~5400px wide, so the drift is ~113px/s of ambient travel, not an
+   entrance. It is the one animation on the site that outlives the 800ms ceiling, so it is
+   registered by name in the AMBIENT_ANIMATIONS table of tools/verify-motion.mjs; the
+   reduce branch below holds the wall still. */
+.photo-strip__reel {
+  display: flex;
+  width: max-content;
+  height: 100%;
+  animation: photo-strip-cycle 48s linear infinite;
+}
+
+/* The trailing padding equals the gap, so the junction between the second copy's last
+   photo and the first copy's first photo is spaced like every other pair. */
+.photo-strip__track {
+  display: flex;
+  gap: var(--sp-8);
+  height: 100%;
+  padding-inline-end: var(--sp-8);
+}
+
+.photo-strip__img {
+  display: block;
+  flex: none;
+  height: 100%;
+  width: auto;
+}
+
+@keyframes photo-strip-cycle {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Reduced motion: the wall holds still and the reader scrolls it by hand. The clone is
+   the loop's scaffolding, so it is dropped and only the nine / four real photos remain. */
+@media (prefers-reduced-motion: reduce) {
+  .photo-strip {
+    overflow-x: auto;
+  }
+
+  .photo-strip__reel {
+    animation: none;
+  }
+
+  .photo-strip__track[data-clone="true"] {
+    display: none;
+  }
+}
+
+/* A 320px viewport gets a fourth of its height back: same 240px wall would push the
+   section's own text off the first screen. Shrinking the strip only ever scales the
+   photos down further, so the no-upscale rule holds at every tier. */
+@media (max-width: 900px) {
+  .photo-strip {
+    height: calc(var(--sp-40) * 4);
+  }
+}

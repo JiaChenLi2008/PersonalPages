@@ -74,9 +74,9 @@
 
 复核方法：同 viewport 量 `document.documentElement.scrollHeight`，与稿面全高 7433 相减；面板贡献逐块点开 `[aria-expanded="false"]` 后重测增量。
 
-## 4. 死键登记（0 条：字典有，src 无字面量引用）
+## 4. 死键登记（1 条：字典有，src 无字面量引用）
 
-本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=0 of 138 dictionary keys`（字典 138 键、`referenced=138`、`via_literal_call=85`、`via_key_literal=53`）。
+本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=5 of 188 dictionary keys`（字典 188 键、`referenced=183`、`via_literal_call=85`、`via_key_literal=98`）。其中 1 个是下表登记的 `sport.body`，另 4 个是 `docx-2026-10` 轮之后仍待 Index / Scholarly lane 接线的键（`index.head.title`、`scholarly-hir.lead1/2/3`）——它们是**待接线缺口，不是死键**，故不在本节登记，也不在 `UNREFERENCED` 白名单里（门禁仍会点名它们：该 4 条属其它 lane 的收口范围）。
 
 D2 收口把本节清空，五个原死键逐条处置如下。
 
@@ -85,6 +85,7 @@ D2 收口把本节清空，五个原死键逐条处置如下。
 | 1 | `elder.title.zh`、`music.title`、`sport.title` | 保留，改由字面串到达 | 三键是 02/03/04 节标题对的**中文半**：各节 JSX 只写英文半（`elder.title.en` / `music.titleEn` / `sport.titleEn`），中文半在 `src/i18n/copy.ts` 的 `TITLE_PAIRS` 里成对登记（`satisfies Partial<Record<CopyKey, CopyKey>>`：任一半键离开字典即 `tsc` 报错），门禁按 `via_key_literal` 计入；设计稿 02/03/04 节 `Section/Head` 无独立中文标题节点，中文由 chrome kicker（`elder.kicker` 等）承载，故这半不渲染 |
 | 2 | `scholarly.imagePending`（`image pending` / `配图待补`） | 删除（两字典一致） | 01 节三张图已接线（`scholarly-igem.fig1-720` / `scholarly-igem.fig2-720` / `scholarly-hir.fig-2688`，alt 走 `scholarly-igem.fig1/fig2.alt`、`scholarly-hir.fig.alt` chrome 键），图位占位文本无渲染者；§1 原第 13 行随之撤除 |
 | 3 | `elder.contentPending`（`Community volunteering` / `社区志愿服务`） | 删除（两字典一致） | `src/sections/Elder/**` 不消费该键；02 节内容由 `elder.pull` / `elder.kv.*` 承担，该键与 `elder.kv.v` 同文同 src、纯重复条目，不得接成渲染文案；§1 原第 24 行随之撤除 |
+| 4 | `sport.body`（`Football and badminton. …` / `足球与羽毛球。…`） | **保留键，不再渲染**（docx-2026-10 页面7 以 `sport.lead` 替换） | 用户裁决「新段替换旧句」：`sport.lead` 占据原 `sport.body` 在 pull 块的位置，旧句不上页面。键在两份字典里留着，将来改主意时一行即可恢复；`tools/verify-copy-wiring.mjs` 的 `UNREFERENCED` 已同步加入该键，否则 `unreferenced key is not registered as dead` 会 rc=1 |
 
 白名单本身不改（本 lane 不动 `tools/verify-copy-wiring.mjs`）：其上 7 个名字现全部落在「已由字面串到达」（`scholarly.title.zh` 走 `Scholarly.tsx` 的 `text()` 调用，另三个见上表第 1 行）或「已随字典删除」（`scholarly-jhu.hint`、`scholarly-hir.card.file`、`elder.body`，前序 lane 已删）两侧，故 `unreferenced=0`。
 
