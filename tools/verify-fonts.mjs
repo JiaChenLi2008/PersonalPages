@@ -55,7 +55,10 @@ const LATIN_NODES = [
   { family: "IBM Plex Mono", selectors: [".hero__eyebrow", ".scholarly__onum"] },
 ];
 /** CJK nodes: must stay on a system CJK face, never on the two Latin families. */
-const CJK_SELECTORS = [".hero__title-cn", ".scholarly__qtext"];
+const CJK_SELECTORS = [".scholarly__qtext"];
+/** Zh-only nodes: single-side rendering keeps these out of the en DOM, so they need their
+    own tab at `?lang=zh-Hans`. Probing them on the en page always reported `no such element`. */
+const CJK_SELECTORS_ZH = [".hero__title-cn"];
 const CJK_FAMILY = /CJK|Han|PingFang|Hiragino|Heiti|Songti|YaHei|SimSun|WenQuanYi|Droid Sans Fallback/i;
 /** The <noscript> notice in index.html, asserted in both languages it is written in. */
 const NOSCRIPT_TEXT = ["此站点需要启用 JavaScript", "requires JavaScript"];
@@ -152,7 +155,7 @@ function send(method, params = {}, sessionId) {
 }
 
 /** Open a tab, optionally without script execution, and return its session helpers. */
-async function openTab(scriptsEnabled) {
+async function openTab(scriptsEnabled, query = "") {
   const { targetId } = await send("Target.createTarget", { url: "about:blank" });
   const { sessionId } = await send("Target.attachToTarget", { targetId, flatten: true });
   const S = (m, p) => send(m, p, sessionId);
@@ -167,7 +170,7 @@ async function openTab(scriptsEnabled) {
     if (r.exceptionDetails) throw new Error("evaluate threw: " + (r.exceptionDetails.exception?.description || r.exceptionDetails.text));
     return r.result.value;
   };
-  await S("Page.navigate", { url: ORIGIN });
+  await S("Page.navigate", { url: ORIGIN + query });
   for (;;) {
     const state = await evalJs("document.readyState").catch(() => "");
     if (state === "complete") break;
@@ -192,19 +195,36 @@ await page.evalJs("document.fonts.ready.then(() => 1)").catch(() => 0);
 await sleep(400);
 
 const probed = [
-  ...LATIN_NODES.flatMap(({ family, selectors }) => selectors.map((selector) => ({ selector, wantFamily: family }))),
-  ...CJK_SELECTORS.map((selector) => ({ selector, wantFamily: null })),
+  ...LATIN_NODES.flatMap(({ family, selectors }) => selectors.map((selector) => ({ selector, wantFamily: family, tab: "en" }))),
+  ...CJK_SELECTORS.map((selector) => ({ selector, wantFamily: null, tab: "en" })),
+  ...CJK_SELECTORS_ZH.map((selector) => ({ selector, wantFamily: null, tab: "zh" })),
 ];
-const declared = await page.evalJs(`(() => {
+/** Same probe, run against whichever tab owns the selector's mode. */
+const probeStyles = (tab, selectors) =>
+  tab.evalJs(`(() => {
   const out = {};
-  for (const s of ${JSON.stringify(probed.map((p) => p.selector))}) {
+  for (const s of ${JSON.stringify(selectors)}) {
     const el = document.querySelector(s);
     out[s] = el ? { stack: getComputedStyle(el).fontFamily, weight: getComputedStyle(el).fontWeight } : null;
   }
   return out;
 })()`);
+const zhPage = CJK_SELECTORS_ZH.length ? await openTab(true, "?lang=zh-Hans") : null;
+if (zhPage) {
+  await zhPage.evalJs("document.fonts.ready.then(() => 1)").catch(() => 0);
+  await sleep(400);
+}
+const declaredEn = await probeStyles(page, probed.filter((p) => p.tab === "en").map((p) => p.selector));
+const declaredZh = zhPage ? await probeStyles(zhPage, probed.filter((p) => p.tab === "zh").map((p) => p.selector)) : {};
+const declared = { ...declaredEn, ...declaredZh };
+/** Which tab owns a selector decides where its DOM root and platform-font query go. */
+const tabOf = (selector) => (probed.find((p) => p.selector === selector)?.tab === "zh" ? zhPage : page);
+const roots = new Map();
+const rootOf = async (tab) => {
+  if (!roots.has(tab)) roots.set(tab, (await tab.S("DOM.getDocument", { depth: -1 })).root);
+  return roots.get(tab);
+};
 
-const { root } = await page.S("DOM.getDocument", { depth: -1 });
 let latinOk = 0;
 let cjkOk = 0;
 for (const { selector, wantFamily } of probed) {
@@ -214,12 +234,14 @@ for (const { selector, wantFamily } of probed) {
     fail(`${raw} | actual=-`);
     continue;
   }
-  const { nodeId } = await page.S("DOM.querySelector", { nodeId: root.nodeId, selector }).catch(() => ({ nodeId: 0 }));
+  const tab = tabOf(selector);
+  const root = await rootOf(tab);
+  const { nodeId } = await tab.S("DOM.querySelector", { nodeId: root.nodeId, selector }).catch(() => ({ nodeId: 0 }));
   if (!nodeId) {
     fail(`${raw} | actual=- (node not found in the DOM tree)`);
     continue;
   }
-  const { fonts } = await page.S("CSS.getPlatformFontsForNode", { nodeId }).catch((err) => {
+  const { fonts } = await tab.S("CSS.getPlatformFontsForNode", { nodeId }).catch((err) => {
     fail(`${raw} | actual=<CSS.getPlatformFontsForNode failed: ${err.message}>`);
     return { fonts: null };
   });
@@ -270,6 +292,7 @@ for (const text of NOSCRIPT_TEXT) {
 
 /* ---------- report + teardown ---------- */
 await page.close();
+if (zhPage) await zhPage.close();
 ws.close();
 server.close();
 
