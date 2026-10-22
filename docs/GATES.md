@@ -61,12 +61,12 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |
 |---|---|---|---|
 | `tools/verify-tokens.mjs` | `src/styles/tokens.css` 160 个 token 与设计简报 §9 + 实现补充表**逐字节同值** | 谁消费了哪个 token、某节档位取值、视觉结果 | CI |
-| `tools/verify-deploy.mjs` | Pages 发布链静态约定 57 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序） | 运行结果、UI | CI |
+| `tools/verify-deploy.mjs` | Pages 发布链静态约定 62 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序） | 运行结果、UI | CI |
 | `npm run build`（`tsc --noEmit` + vite） | 类型可编译、可打包 | 视觉、设计值、布局 | CI |
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
-| `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行） | 本地（未接 CI，见 §5 未决项） |
+| `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行） | CI（build 后，排 `verify-ssr-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` SSR 产物，实测 0.2s、无 CDP） |
 | `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧） | 只覆盖 scholarly 节；视觉 | CI |
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 **188 键**）、字段类型、材料侧 `text` 逐字溯源（本轮 **213 条**）、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」（**79 条**）、材料混排 7 槽位按**覆盖率**下限（两侧折叠后各自命中比例之和 ≥0.75 且最长单片段 ≥8 字，**10 条**）、chrome/src 归属、※ 禁止；`src` 可定位的 brief 现在含 `docx-2026-10-brief.md`（同一 `段[N]` 语义） | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检）；覆盖率的**分母口径**（见 §5） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
@@ -77,8 +77,8 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对；`fidelity-scholarly` 的两处文案豁免逐条登记在门禁内（标点折叠按 board 节点逐键比对、混排标题要求 src 已接线，F1 收口） | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；后三条本轮**未审**（§2 C）；豁免只覆盖已登记的那四个 board 节点/键 | 本地 |
 | `tools/verify-fonts.mjs` | 抽样 6 个节点的**实际选中**字体族（CDP `CSS.getPlatformFontsForNode`）：4 个声明 Inter / IBM Plex Mono 的节点确由该族绘制且 `isCustomFont=true`（自托管 woff2 已加载），2 个中文节点落在含 CJK 的系统字体上且 `isCustomFont=false` | 未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机与其它浏览器 | 本地（需宿主 CDP `127.0.0.1:9222`，可 `CDP=` 覆盖）；端点不可达以 rc=2 单行 `UNAVAILABLE:` 退出，不进 CI |
 
-上表 10 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → verify-deploy → verify-motion →
-build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-lang-purity）。
+上表 11 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → verify-deploy → verify-motion →
+build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-music-sport-dom → verify-lang-purity）。
 四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、fonts **未接入 CI**，其假绿 CI 不会拦下。
 `tools/verify-deploy.mjs` 会检查「workflow/README 引用的每个 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，
 但**不逐条点名**必须包含哪些新步骤：删掉 `verify-motion` 步骤它仍 rc=0（§4 D1，已记为未决项）。
@@ -204,9 +204,9 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
   2. `tools/verify-render.mjs` 第 3 条（逐元素自溢）改成**按性质豁免**，两类分开：① **滚动容器**（`getComputedStyle(el).overflowX` 为 `auto`/`scroll`）一律跳过——那是该属性的用途，读者能滚到内容，且新增一个不用改门禁；② **跑马灯裁切盒** `.photo-strip` 按名登记，因为 `overflow: hidden` 的可计算样式与「误裁」不可区分（reel 比裁切盒宽就是动效本身，页面6/页面7）。两类都只跳过该盒**自身**，子元素照旧逐条测量；**页面级横向溢出（第 1 条）完全未豁免**。实测三条：`.photo-strip__track` 压到 100px → `offenders=12` 点名 reel/track 且 rc=1；抽掉 `.music__resume` 的 `overflow-x: auto` → `overflow_cells=1`、`horizontal overflow 359px` rc=1；两者复原 → `overflow_cells=0 offenders=0` rc=0。
   3. `tools/verify-music-sport-dom.mjs`（**新增门禁**）补三处此前无任何门禁测的新结构：照片墙张数（Music 9 / Sport 4，含 clone 轨）、履历表行数 + 日期单调递减 + 逐格属于本行键、以及 `sport.lead` 已替换 `sport.body`（两键都在字典里，故只能读 markup 才分得清这两个状态）。三条应拒负例各已实测红→复原→绿（§4 T4-N1..N3）。
   4. `tools/verify-copy-wiring.mjs` 的 `UNREFERENCED` 白名单加 `sport.body`（裁决⑤，见 §4.1）；`docs/CHROME.md` §4 死键表随之由 0 条变 1 条并改实测计数 `referenced=183 / unreferenced=5 / via_literal_call=85 / via_key_literal=98`。**剩余 4 条 `[NOT REGISTERED]`（`index.head.title`、`scholarly-hir.lead1/2/3`）属 Index / Scholarly 两个 lane 的待接线缺口，不在本 lane 可改路径内**，故本门禁在本 lane 收尾时仍 rc=1，红因仅这 4 条。
-  5. `docs/GATES.md` §1 的「160 token」与「61 项 deploy」为门禁自身打印值，本轮未变。
+  5. `docs/GATES.md` §1 的「160 token」与「62 项 deploy」为门禁自身打印值（deploy 由 61 升 62：workflow 多引用一个脚本，「references existing script」多一条）。
 - `tools/verify-music-sport-dom.mjs` 的**边界**：它读 SSR markup，不读浏览器。故它不能证「照片墙在真机上是否真的在动」「表格在窄屏下滚动手感如何」——前者归 `verify-motion` 的登记 + `verify-render` 的溢出矩阵，后者只经 `/tmp` 一次性 CDP 实测（320/375/900/1440 四档：页面 `ovf=0`、`.music__resume` 自身 `scrollW=640 clientW=257`），**未进 CI**。
-- **未决项（T4 遗留）**：`tools/verify-music-sport-dom.mjs` 未接入 `.github/workflows/deploy.yml`。原因是 `tools/verify-deploy.mjs` 会断言「workflow 引用的每个 `node tools/*.mjs` 都在树上」但**不逐条点名**应含哪些步骤（§5 P15-D1 同一盲区），加步骤不改变任何门禁结果，且本轮任务书未列 workflow 为可改路径。该门禁的判据（墙张数 / 表格倒序 / 逐格归属）目前只在本地跑。收紧方式同 P15-D1：改 `verify-deploy.mjs` 点名必需步骤。
+- **T4 遗留未决项已收口（T9 轮）**：`tools/verify-music-sport-dom.mjs` 已接入 `.github/workflows/deploy.yml` 的 build job，排在 `verify-ssr-dom` 之后、`verify-lang-purity` 之前。可进 CI 的依据：自建 `/tmp` SSR 产物（`node_modules` 即可，不读 `dist/`）、无 CDP（`grep -ciE "9222|CDP"` = 0）、实测单跑 0.2s。`tools/verify-deploy.mjs` 未改：新增步骤后 checks 61 → 62，全绿（多出的一条是它自己「workflow references existing script」）。**仍未收口的盲区**：它的「门禁步骤必须在发布步骤之前」以 `actions/deploy-pages@` 的**文件位置**为锚，故把该步骤移到 `Upload artifact` 之后（仍在 build job 内、`deploy-pages` 之前）**不会红**（实测 rc=0，`checked=62 passed=62`）；这不算真实发布漏洞——build job 红则 `deploy` 因 `needs: build` 不会跑——但「artifact 已上传后再校验」这一顺序它看不见。真正的发布边界仍会红：把该步骤移进 deploy job、排在 `actions/deploy-pages@v5` 之后 → rc=1，FAIL 行点名 `late: tools/verify-music-sport-dom.mjs`（实测）。另：删掉该步骤 `verify-deploy.mjs` 仍 rc=0（实测 `checked=61 passed=61`；不逐条点名，§5 P15-D1 同一盲区），收紧方式同 P15-D1。
 - `tools/verify-render.mjs` 全量矩阵（7 宽 × 2 语言 = 14 格）在本机实测**超过 90s**（基线 HEAD 树同样超时，与本轮改动无关），故本轮的 red/green 证据取自 `WIDTHS=[320,1440]`、`LANG_QUERIES=[""]` 的 2 格副本（28s 跑完）；全量矩阵未在本轮实跑。
 
 

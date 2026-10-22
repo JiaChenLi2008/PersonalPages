@@ -72,6 +72,12 @@ jobs:
       - name: Verify SSR DOM
         run: node tools/verify-ssr-dom.mjs
 
+      # Renders Music/Sport through the same in-repo SSR path as the gate above and
+      # asserts what only markup shows: the two photo walls' counts and order, the
+      # résumé table's 14 rows in date-descending order, and that sport.body is gone.
+      - name: Verify music and sport DOM
+        run: node tools/verify-music-sport-dom.mjs
+
       # Runs its own two-mode (en / zh-Hans) SSR build, so it is the slowest gate
       # and needs node_modules, not dist/: last.
       - name: Verify language purity
