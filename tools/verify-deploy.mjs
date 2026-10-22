@@ -143,10 +143,19 @@ for (const rel of ["tools/verify-tokens.mjs", "tools/verify-deploy.mjs", "tools/
   check(`${WORKFLOW} runs node ${rel}`, has(workflow, `node ${rel}`));
 }
 
-// These three gates need nothing but the checkout (no browser, no repo-external
-// assets), so the workflow must keep running them. Anchored to the whole `run:`
-// line: a renamed script (tools/verify-head-x.mjs) must not pass as a substring.
-for (const rel of ["tools/verify-head.mjs", "tools/verify-responsive.mjs", "tools/verify-ssr-dom.mjs"]) {
+// Required list: the build job must run these gates. Each one needs nothing but
+// the checkout (no browser, no repo-external assets), and deleting its step must
+// turn this gate red instead of quietly dropping a CI gate. Anchored to the whole
+// `run:` line: a renamed script (tools/verify-head-x.mjs) must not pass as a
+// substring.
+for (const rel of [
+  "tools/verify-head.mjs",
+  "tools/verify-responsive.mjs",
+  "tools/verify-ssr-dom.mjs",
+  "tools/verify-motion.mjs",
+  "tools/verify-lang-purity.mjs",
+  "tools/verify-music-sport-dom.mjs",
+]) {
   const escaped = rel.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const stepPattern = new RegExp(`^\\s*run:\\s*node\\s+${escaped}\\s*$`, "m");
   check(`${WORKFLOW} runs node ${rel}`, stepPattern.test(workflow));

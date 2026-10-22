@@ -61,7 +61,7 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |
 |---|---|---|---|
 | `tools/verify-tokens.mjs` | `src/styles/tokens.css` 160 个 token 与设计简报 §9 + 实现补充表**逐字节同值** | 谁消费了哪个 token、某节档位取值、视觉结果 | CI |
-| `tools/verify-deploy.mjs` | Pages 发布链静态约定 62 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序） | 运行结果、UI | CI |
+| `tools/verify-deploy.mjs` | Pages 发布链静态约定 66 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序、6 条必需门禁步骤逐条点名） | 运行结果、UI | CI |
 | `npm run build`（`tsc --noEmit` + vite） | 类型可编译、可打包 | 视觉、设计值、布局 | CI |
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
@@ -81,7 +81,8 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-music-sport-dom → verify-lang-purity）。
 四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、fonts **未接入 CI**，其假绿 CI 不会拦下。
 `tools/verify-deploy.mjs` 会检查「workflow/README 引用的每个 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，
-但**不逐条点名**必须包含哪些新步骤：删掉 `verify-motion` 步骤它仍 rc=0（§4 D1，已记为未决项）。
+并对 6 条自足门禁脚本（head / responsive / ssr-dom / motion / lang-purity / music-sport-dom）逐条点名：
+删掉其中任一步骤即 rc=1，且整行锚定 `^\s*run:\s*node\s+<path>\s*$`，改名冒充也不放行（P15-D1 的盲区由 T10 轮收口，见文末）。
 
 ## 2 逐条盲区
 
@@ -153,7 +154,7 @@ P15 轮新增的三条自足门禁不与 `ui.pen` 相干，其反例在**干净�
 | P15-M1 | `node tools/verify-motion.mjs --self-test`（自毁 /tmp 副本：加一处未声明的 `.motion-*` 钩子 + 一条动画 `height` 的 transition） | verify-motion | 1（`[HOOK]` + `[PROPERTY]` 各一条；副本未被拦住则 rc=2 自报失明） |
 | P15-L1 | 干净克隆里 `docs/copy-en.json` 的 `nav.brand.name.text` 追加「中文」二字 | verify-lang-purity | 1（`en: CJK=2`）；复原 0 |
 | P15-A1 | 把 `public/media/hir-fig-2688.jpg` 重编成 474742 B（q85）；另把 `FULL_BLEED` 白名单加一个不存在的图位名 | verify-assets.py | 1（字节数不符 ＋ `474742 字节 > 320 KB 上限（全幅宽白名单）`）；另 1（`白名单含未知图位: ['nope-1x1']`）；两次复原均 0 |
-| P15-D1 | 从 `.github/workflows/deploy.yml` 删掉 `Verify motion layer` 步骤 | verify-deploy | **0**（未覆盖，见 §5） |
+| P15-D1 | 从 `.github/workflows/deploy.yml` 删掉 `Verify motion layer` 步骤 | verify-deploy | **0**（T9 及此前口径）→ **1**（T10 起点名断言，FAIL 行点名 `tools/verify-motion.mjs`，见文末 T10 节） |
 | M1-N0 | 旧树旧判据（`git archive HEAD~1` 到 /tmp/m1-pre，`node_modules` 软链后实跑） | verify-render（`HEAD~1`） | **0**（10 槽永隐、10 图零请求，门禁仍绿——§3 M1 的假绿面） |
 | M1-N1 | worktree 内把 `src/lib/useInView.ts` / `src/components/primitives/Reveal.tsx` 回退为 `HEAD` 前的观察自身行为（只改这两文件，门禁不动） | verify-render | **1**：`clips_checked=140 clips_closed=98`、`images_checked=196 images_unloaded=84`，逐条点名 `div.photo-band__media.motion-clip`（`is-in=false, clip-path=inset(0px 100% 0px 0px)`）与 `igem-fig1-720.webp` 等；复原 rc=0 |
 | M1-N2 | 探针取读数前把 `.photo-band__img` 的 `src` 指向不存在的 `./media/m1-missing-file.webp`（改 DOM，仓内未动；临时改门禁文件、跑完即复原） | verify-render | **1**：`images_unloaded=14`，14 格各点名 `m1-missing-file.webp`，同轮 `clips_closed=0`（两组断言互不遮蔽）；复原 rc=0 |
@@ -187,7 +188,7 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 - 本文件登记**判据强度**，不登记门禁条数或覆盖率；「已修」只指本轮/上列提交的判据改动，「未修」「未审」「未实测」即字面意思。
 - 门禁条数以门禁自身输出为准：`verify-tokens.mjs` 本轮打印 160/160（83 `design brief §9` + 77 `implementation supplement`），原记的 156（83+73）与实测不符，已在 §1 与 `README.md` 改为实测值。
 - `tools/verify-assets.py` 的仓库外依赖为零，但有**运行期依赖**：`python3` + Pillow（`PIL`）。workflow 该步骤先试 `python3 -c "import PIL"`，失败才 `python3 -m pip install --quiet pillow`；本机与 GitHub `ubuntu-latest` 镜像的差异未实测（无 runner 环境），CI 首跑才算验过。
-- `tools/verify-deploy.mjs` 的覆盖边界：它只断言「workflow/README 引用的 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，**不逐条点名**应包含哪些步骤 —— 删掉 `Verify motion layer` 仍 rc=0（§4 P15-D1）。收紧需改 `tools/verify-deploy.mjs` 本身，不在本轮可改路径内，记为未决项。
+- `tools/verify-deploy.mjs` 的覆盖边界：它断言「workflow/README 引用的 `node tools/*.mjs` 都在树上」「门禁步骤全在发布步骤之前」与「6 条自足门禁步骤逐条点名」。T9 及此前只有前两条，故删掉 `Verify motion layer` 等步骤仍 rc=0（§4 P15-D1）；T10 轮已把 motion / lang-purity / music-sport-dom 三条加进必需清单，删步骤即红、改名冒充也红。仍**不**断言的内容：步骤之间的相对顺序（除「全在发布之前」）、步骤的 `name:` 字样、以及需要仓外资产或浏览器的门禁（`docs/verify-copy.mjs`、`fidelity-*`、`verify-render` / `verify-fonts` / `verify-lang-toggle`）——后者的口径相反：它们**必须不出现在** workflow 里（`verify-deploy` 对前两类有两条 `check(...)` 守此）。
 - 单语纯度：EN 模式就是 SSR 默认产物；ZH 模式由构建期改写 `DEFAULT_LANG` 一个字面量后走同一条渲染路径（改写不生效即 rc≠0，不会静默扫两遍英文）。**纯度 ≠ 语义**：译文与原文的语义一致只能由人工抽检（`translation-policy.md` §验收 2，≥10 条含 HIR 长答与 mono 短标）。
 - 元素级 `lang`：中文页上的白名单拉丁 token 已带 `lang="en"`（`tools/verify-lang-purity.mjs` 第 3 项逐元素断言）；英文页上分节仍输出冗余 `lang="en"`（BLUEPRINT §6.4 #5 待分节 lane 成对锁定收口），本门禁不断言该冗余，只断言「无 CJK 且无其它语言」。
 - 四条 fidelity 门禁都依赖 `ui.pen` 冻结哈希（`PEN_SHA256_PREFIX`）与字节大小，改冻版必须同步改门禁常量，否则先红在哈希检查。
@@ -206,7 +207,7 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
   4. `tools/verify-copy-wiring.mjs` 的 `UNREFERENCED` 白名单加 `sport.body`（裁决⑤，见 §4.1）；`docs/CHROME.md` §4 死键表随之由 0 条变 1 条并改实测计数 `referenced=183 / unreferenced=5 / via_literal_call=85 / via_key_literal=98`。**剩余 4 条 `[NOT REGISTERED]`（`index.head.title`、`scholarly-hir.lead1/2/3`）属 Index / Scholarly 两个 lane 的待接线缺口，不在本 lane 可改路径内**，故本门禁在本 lane 收尾时仍 rc=1，红因仅这 4 条。
   5. `docs/GATES.md` §1 的「160 token」与「62 项 deploy」为门禁自身打印值（deploy 由 61 升 62：workflow 多引用一个脚本，「references existing script」多一条）。
 - `tools/verify-music-sport-dom.mjs` 的**边界**：它读 SSR markup，不读浏览器。故它不能证「照片墙在真机上是否真的在动」「表格在窄屏下滚动手感如何」——前者归 `verify-motion` 的登记 + `verify-render` 的溢出矩阵，后者只经 `/tmp` 一次性 CDP 实测（320/375/900/1440 四档：页面 `ovf=0`、`.music__resume` 自身 `scrollW=640 clientW=257`），**未进 CI**。
-- **T4 遗留未决项已收口（T9 轮）**：`tools/verify-music-sport-dom.mjs` 已接入 `.github/workflows/deploy.yml` 的 build job，排在 `verify-ssr-dom` 之后、`verify-lang-purity` 之前。可进 CI 的依据：自建 `/tmp` SSR 产物（`node_modules` 即可，不读 `dist/`）、无 CDP（`grep -ciE "9222|CDP"` = 0）、实测单跑 0.2s。`tools/verify-deploy.mjs` 未改：新增步骤后 checks 61 → 62，全绿（多出的一条是它自己「workflow references existing script」）。**仍未收口的盲区**：它的「门禁步骤必须在发布步骤之前」以 `actions/deploy-pages@` 的**文件位置**为锚，故把该步骤移到 `Upload artifact` 之后（仍在 build job 内、`deploy-pages` 之前）**不会红**（实测 rc=0，`checked=62 passed=62`）；这不算真实发布漏洞——build job 红则 `deploy` 因 `needs: build` 不会跑——但「artifact 已上传后再校验」这一顺序它看不见。真正的发布边界仍会红：把该步骤移进 deploy job、排在 `actions/deploy-pages@v5` 之后 → rc=1，FAIL 行点名 `late: tools/verify-music-sport-dom.mjs`（实测）。另：删掉该步骤 `verify-deploy.mjs` 仍 rc=0（实测 `checked=61 passed=61`；不逐条点名，§5 P15-D1 同一盲区），收紧方式同 P15-D1。
+- **T4 遗留未决项已收口（T9 轮）**：`tools/verify-music-sport-dom.mjs` 已接入 `.github/workflows/deploy.yml` 的 build job，排在 `verify-ssr-dom` 之后、`verify-lang-purity` 之前。可进 CI 的依据：自建 `/tmp` SSR 产物（`node_modules` 即可，不读 `dist/`）、无 CDP（`grep -ciE "9222|CDP"` = 0）、实测单跑 0.2s。`tools/verify-deploy.mjs` 未改：新增步骤后 checks 61 → 62，全绿（多出的一条是它自己「workflow references existing script」）。**仍未收口的盲区**：它的「门禁步骤必须在发布步骤之前」以 `actions/deploy-pages@` 的**文件位置**为锚，故把该步骤移到 `Upload artifact` 之后（仍在 build job 内、`deploy-pages` 之前）**不会红**（实测 rc=0，`checked=62 passed=62`）；这不算真实发布漏洞——build job 红则 `deploy` 因 `needs: build` 不会跑——但「artifact 已上传后再校验」这一顺序它看不见。真正的发布边界仍会红：把该步骤移进 deploy job、排在 `actions/deploy-pages@v5` 之后 → rc=1，FAIL 行点名 `late: tools/verify-music-sport-dom.mjs`（实测）。另：删掉该步骤 `verify-deploy.mjs` 仍 rc=0（实测 `checked=61 passed=61`；不逐条点名，§5 P15-D1 同一盲区）——**T10 轮已收紧**：该步骤现被逐条点名，删掉即 rc=1（见文末 T10 节）。
 - `tools/verify-render.mjs` 全量矩阵（7 宽 × 2 语言 = 14 格）在本机实测**超过 90s**（基线 HEAD 树同样超时，与本轮改动无关），故本轮的 red/green 证据取自 `WIDTHS=[320,1440]`、`LANG_QUERIES=[""]` 的 2 格副本（28s 跑完）；全量矩阵未在本轮实跑。
 
 
@@ -263,3 +264,19 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 
   375 下 39 字符 URL 在 22px 等宽下约 515px，靠 `.scholarly__ctaUrl` 既有的 `overflow-wrap: anywhere`
   折成两行（未用 `overflow: hidden` 裁字）。
+
+## T10 轮（verify-deploy 补「必需清单」逐条点名）
+
+- **原盲区（T9 实测）**：`tools/verify-deploy.mjs` 的步骤断言此前只有两处作用面——`has(workflow, 'node <rel>')`（只点名 tokens / deploy 自身 / copy-wiring 三个脚本）与「门禁步骤全在 `actions/deploy-pages@` 之前」（只比位置）。故**删掉一个步骤它不红**：T9 实测删 `Verify music and sport DOM` 一步 → `checked=62 passed=62`、rc=0，该门禁在 CI 里静默消失（`verify-lang-purity` 同类，§4 P15-D1 早已记 `verify-motion` 同一形态）。
+- **修法**：把 `tools/verify-motion.mjs`、`tools/verify-lang-purity.mjs`、`tools/verify-music-sport-dom.mjs` 加进既有「必需清单」循环，连同原有的 head / responsive / ssr-dom 共 6 条。判据沿用整行锚定 `^\s*run:\s*node\s+<path>\s*$`，故「把 run 改成 `verify-motion-x.mjs`」这种改名冒充不放行。两条排除断言未动：`docs/verify-copy.mjs` 与 `fidelity-*` 仍必须**不**出现在 workflow 内（需要仓外资产/浏览器的那批口径相反，见 §5）。
+- **a / b / c 三个负例的结论**（a、b 为 T9 报的两条，c 是本轮修的盲区）：
+  - **a：锚点错位，不是漏洞。** 把 `Verify music and sport DOM` 移到 `Upload artifact` 之后、`actions/deploy-pages@` 之前 → rc=0。锚是 `actions/deploy-pages@` 的**文件位置**，故「artifact 已上传后再校验」这一顺序它看不见；但 build job 红则 `deploy` 因 `needs: build` 不跑，不构成真实发布泄漏。
+  - **b：必红，有牙。** 把该步骤移进 deploy job、排在 `actions/deploy-pages@v5` 之后 → rc=1，FAIL 行点名 `late: tools/verify-music-sport-dom.mjs`。
+  - **c：本轮修的盲区。** 删掉该步骤 → T9 时 rc=0（假绿）；T10 起 rc=1，FAIL 行点名 `tools/verify-music-sport-dom.mjs`。
+- **本轮三条应拒负例（各自红→复原→绿，`checked` 与 FAIL 行均为 `verify-deploy` 自身输出）**：
+  1. 删 `Verify music and sport DOM` 一步 → rc=1，`FAIL .github/workflows/deploy.yml runs node tools/verify-music-sport-dom.mjs`（`checked=65 passed=64`）；复原 → rc=0 `checked=66 passed=66`。
+  2. 删 `Verify language purity` 一步 → rc=1，`FAIL .github/workflows/deploy.yml runs node tools/verify-lang-purity.mjs`（`checked=65 passed=64`）；复原 → rc=0 `checked=66 passed=66`。
+  3. 把 `Verify motion layer` 的 `run:` 改成 `node tools/verify-motion-x.mjs`（改名冒充）→ rc=1，`FAIL … runs node tools/verify-motion.mjs`（点名的是**原脚本**，即锚定生效）；复原 → rc=0。
+     锚定的单独证据：同一脚本、行尾多加 `&& true`（脚本仍存在，故「references existing script」照旧通过）→ **只有**该条点名断言红（`checked=66 passed=65`），说明拦下冒充的是整行锚定，不是存在性检查。
+- **条数**：`verify-deploy` 61（T4）→ 62（T9 接步骤）→ **66**（T10：+3 条点名断言 +1 条 `README.md references existing script tools/verify-music-sport-dom.mjs`，因 README 的 CI 清单同时补上该脚本）。README 的「CI 十条」随之为「十一条」，「build 之后的五条」为「六条」。
+- **仍是缺口（未修）**：必需清单只覆盖 6 条自足门禁。`verify-tokens` / `verify-deploy` 自身 / `verify-copy-wiring` 走的是 `has()` 子串式断言（不锚定整行，理论上可被「`node tools/verify-tokens.mjs.bak`」这类引用绕过，但那种引用会同时红在「references existing script」）；`verify-assets.py` 仍只被「references existing script」间接覆盖，删它不会红。收紧方式同本轮：把它也写进必需清单。
