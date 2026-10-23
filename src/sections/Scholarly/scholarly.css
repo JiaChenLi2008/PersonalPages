@@ -9,33 +9,21 @@
   padding: var(--pad-section-y) var(--gutter-x);
 }
 
-/* Head `R3XJ39`: kicker left, English title right, both on the baseline. */
+/* Head `R3XJ39`: the kicker alone names the section, on the baseline.
+   docx-1023 item 8 (user ruling): drop the right-hand duplicate title, kicker 14px/--c-blue. */
 .scholarly__head {
   display: flex;
   align-items: flex-end;
-  justify-content: space-between;
   padding-bottom: 20px;
 }
 
 .scholarly__kicker {
   margin: 0;
-  color: var(--c-ink);
+  color: var(--c-blue);
   font-family: var(--ff-mono);
-  font-size: var(--fs-12);
+  font-size: var(--fs-14);
   font-weight: var(--fw-normal);
   letter-spacing: var(--ls-eyebrow);
-}
-
-/* The board renders the English title uppercased; the dictionary keeps the
-   manuscript's sentence case (docs/CHROME.md, comparison rules). */
-.scholarly__title {
-  margin: 0;
-  color: var(--c-muted);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-figcap);
-  text-transform: uppercase;
 }
 
 /* ---- sub-block shell (01.1–01.4): SubHead + hairline + body ---- */
@@ -135,7 +123,10 @@
   border-block-start: var(--rule-h) solid var(--c-rule);
 }
 
-/* docx-1021 item 3: the 2x2 pillar matrix, full width under both iGEM columns.
+/* docx-1021 item 3: the 2x2 pillar matrix, in the iGEM left column between the result
+   block and the Paris heading (docx-1023 item 1, the user's ruling). Two columns of the
+   column's own width — ~450px per card at the 1440 board's 937px column — so the matrix
+   keeps its shape without the full body width it used to take.
    The reference site (2025.igem.wiki/subcat-shanghai) draws the same four blocks as
    borderless white cards on a tinted band, with a 24px/700 heading and 16px/24px items.
    The docx asks for four squares. This section keeps its own paper palette and hairline
@@ -156,6 +147,9 @@
 
 .scholarly__pillar {
   display: flex;
+  /* A grid item's automatic minimum is its min-content width, which the long compound
+     words in the card titles make wider than the cell; zero lets the card wrap instead. */
+  min-width: 0;
 }
 
 .scholarly__pillarCard {
@@ -163,6 +157,7 @@
   flex: 1 1 auto;
   flex-direction: column;
   gap: var(--sp-16);
+  min-width: 0;
   padding: var(--sp-28) var(--sp-24);
   /* No stroke: the reference separates its cards by fill alone, and a second box outline
      inside this section's ruled column would read as a table cell, not a card. */
@@ -188,6 +183,9 @@
   margin: 0;
   padding-block-end: var(--sp-12);
   border-block-end: var(--rule-h) solid var(--c-rule);
+  /* The card now lives inside the iGEM column, so a compound word such as
+     "Environmentally-friendly" is wider than the cell on the narrow tiers. */
+  overflow-wrap: anywhere;
   color: var(--c-ink);
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-22);
@@ -453,6 +451,12 @@
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-14);
   line-height: var(--lh-body);
+}
+
+/* docx-1023 item 2 (user ruling): the third lead ends the block in the same green the
+   answer panels' closing lines use; size and line height stay the lead's own. */
+.scholarly__lead--green {
+  color: var(--c-green);
 }
 
 .scholarly__hint {

@@ -22,23 +22,13 @@
   padding: 0 0 var(--head-pad-b) 0;
 }
 
+/* docx-1023 item 8 (user ruling): drop the right-hand duplicate title, kicker 14px/--c-blue. */
 .sport__kicker {
-  color: var(--c-ink);
+  color: var(--c-blue);
   font-family: var(--ff-mono);
-  font-size: var(--fs-12);
+  font-size: var(--fs-14);
   font-weight: var(--fw-normal);
   letter-spacing: var(--ls-eyebrow);
-}
-
-/* ui.pen renders the English section name in caps; the dictionary keeps the
-   material's own casing, so the case shift is a render style (docs/CHROME.md). */
-.sport__title-en {
-  color: var(--c-muted);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-figcap);
-  text-transform: uppercase;
 }
 
 .sport__body {
@@ -80,28 +70,8 @@
   line-height: var(--lh-running);
 }
 
-.sport__kv {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-16);
-  margin: 0;
-}
-
-.sport__k {
-  color: var(--c-muted);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-figcap);
-}
-
-.sport__v {
-  margin: 0;
-  color: var(--c-ink);
-  font-family: var(--ff-sans-cn);
-  font-size: var(--fs-13);
-  font-weight: var(--fw-normal);
-}
+/* docx-1023 item 9 (user ruling): the Sport KV line (hero.key.sport / hero.val.sport) is
+   gone from this section; both keys stay in the dictionaries for Hero's own row. */
 
 .sport__fig {
   display: flex;

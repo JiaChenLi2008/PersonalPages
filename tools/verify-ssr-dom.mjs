@@ -150,9 +150,16 @@ if (h2.id !== "scholarly-title") {
 if (h2.lang !== "en") {
   fail(`h2 lang ${JSON.stringify(h2.lang)} != "en" (the section title is written in the page's language)`);
 }
-const h2Text = en["scholarly.title.en"].text;
+/* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue。The head's one visible
+   line is the kicker, and that line is the h2; the clean section name survives as its
+   aria-label so the accessible name is still the title key rather than "01 / …". */
+const h2Text = en["scholarly.kicker"].text;
 if (!html.includes(`>${h2Text}</h2>`)) {
-  fail(`the h2 does not render the page's own title key verbatim (${JSON.stringify(h2Text)})`);
+  fail(`the h2 does not render the kicker verbatim (${JSON.stringify(h2Text)})`);
+}
+const h2Title = en["scholarly.title.en"].text;
+if (!html.includes(`aria-label="${h2Title}"`)) {
+  fail(`the h2 aria-label is not the page's title key verbatim (${JSON.stringify(h2Title)})`);
 }
 
 /* ---------- 2. the reveal skeleton and the §4 devices ---------- */
@@ -413,10 +420,23 @@ if (pillarsAt < 0) {
   if (blocks.length !== 4) {
     fail(`the pillar matrix renders ${blocks.length} block(s), the docx lists 4`);
   }
-  const bodyAt = html.indexOf('class="scholarly__body scholarly__body--igem"');
-  const bodyEnd = html.indexOf('class="scholarly__pillars"');
-  if (bodyAt < 0 || bodyEnd < bodyAt) {
-    fail("the pillar matrix is not under the two iGEM columns");
+  /* docx-1023 item 1（用户裁决）：the matrix moves up into the iGEM left column, between the
+     result block and the Paris Conference heading. The order is the contract: para1 → result
+     → pillars → sub2 → para2 → CTA, and the matrix sits inside `.scholarly__igemCol`. */
+  const columnAt = html.indexOf('class="scholarly__igemCol"');
+  const columnEnd = html.indexOf('class="scholarly__figcol"');
+  const resultAt = html.indexOf('class="scholarly__result"');
+  const parisAt = html.indexOf(`>${en["scholarly-igem.sub2"].text}</h4>`);
+  const para2At = html.indexOf(`>${en["scholarly-igem.para2"].text}</p>`);
+  if (columnAt < 0 || columnEnd < columnAt) {
+    fail("no .scholarly__igemCol / .scholarly__figcol pair to locate the pillar matrix");
+  } else if (!(columnAt < resultAt && resultAt < pillarsAt && pillarsAt < parisAt && parisAt < para2At)) {
+    fail(
+      "the pillar matrix is not between the result block and the Paris heading " +
+        `(igemCol=${columnAt}, result=${resultAt}, pillars=${pillarsAt}, sub2=${parisAt}, para2=${para2At})`,
+    );
+  } else if (pillarsAt > columnEnd) {
+    fail("the pillar matrix is outside .scholarly__igemCol (it must move up into the left column)");
   }
   [1, 2, 3, 4].forEach((n, index) => {
     const block = blocks[index];

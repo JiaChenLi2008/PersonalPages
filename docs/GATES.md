@@ -425,3 +425,70 @@ zh 侧只验首列（en 的 48 格已逐格对过）；不证单元格折行后�
 「build 之后的六条」→「七条」。`verify-deploy` 的必需清单（6 条）未动，故删掉 `Verify elder guide DOM`
 一步仍不会让 `verify-deploy` 变红——新步骤靠既有「workflow/README 引用的脚本须存在」与「门禁步骤全在发布之前」
 两条间接覆盖，收紧方式同 §T10 的留口。
+
+## W1-B 轮（docx-1023 第 1/4/8/9 条：结构四处）的判据变更
+
+本轮按《细节调试-1023》的用户裁决改四处结构：iGEM 四白卡上移到 result 段与 Paris Conference 之间、
+HIR 第三节 lead 改绿字、四节名条去右侧重复标题且 kicker 14px/--c-blue、Sport 删 KV 行。
+`docs/copy-*.json`、`docs/CHROME.md`、`public/**` 未动（另 lane 在写）。下面列出判据改动与正/负例实测：
+
+### 1 `tools/fidelity-elder-music-sport.mjs`：退役节点与 kicker 裁决值
+
+- **原判据**：节点 → 选择器 1:1，每个节点逐值比对；`VtA4j` / `G3NNMY` / `ZCort`（三节右侧英文标题）
+  与 `iHPvo` / `wmLb1` / `m9FVq`（Sport KV 行及其 K/V）都要求对应选择器声明同值。
+- **裁决后**：上述节点在 DOM 与 CSS 中删除，映射表新增 `retired` 表：`checkRetired` 断言该选择器
+  在 `.css` 与 `.tsx` 中**都不再出现**（整类名匹配，`.sport__k` 不会误配 `.sport__kicker`）；
+  重新引入即 rc=1 点名。kicker 三节点 `WIGFx` / `Q6MMlj` / `B63uxr` 的 `fontSize` / `fill` 由
+  `overrides` 覆盖为 14px / `#1B4BC4`（其余值仍按 board 比对）。
+- **正例**：`node tools/fidelity-elder-music-sport.mjs` → `checked=179 missing=0`，rc=0。
+- **应拒负例（两例，各红→复原→绿）**：
+  1. `Elder.css` 的 `.elder__kicker` 字号改回 `var(--fs-12)` → rc=1，
+     `MISSING elder WIGFx L fontSize=14: .elder__kicker font-size: var(--fs-12) resolves to 12, design says 14`；
+     复原 → `checked=179 missing=0`，rc=0。
+  2. 把 `<dl className="sport__kv">` 整块加回 `Sport.tsx` → rc=1，三条
+     `MISSING sport iHPvo … retired: .sport__kv is back in src/sections/Sport/Sport.tsx` /
+     `sport m9FVq V retired` / `sport wmLb1 K retired`；复原 → rc=0。
+
+### 2 `tools/fidelity-scholarly.mjs`：`Af0af` 角色退役 + kicker 裁决值
+
+- **原判据**：`TEXT_ROLES` 的 `Af0af` → `.scholarly__title` 逐值比对字号/字距/颜色。
+- **裁决后**：`.scholarly__title` 删除，`Af0af` 角色退役；`Mb1np` 的 kicker 加 `ruling: {fontSize:14, fill:"#1B4BC4"}`。
+  新增一条退役断言：`.scholarly__title` 出现在 CSS 或 JSX 即 rc=1。board 串仍由 copy 段覆盖
+  （h2 的 aria-label 引用 `scholarly.title.*`，`board strings` 计数不变）。
+- **正例**：`node tools/fidelity-scholarly.mjs` → `checked=152 missing=0`，rc=0（输出 `22 text roles`）。
+- **应拒负例**：`.scholarly__kicker` 字号改回 `var(--fs-12)`、色改回 `var(--c-ink)` → rc=1，
+  `[css] role Mb1np <L> -> .scholarly__kicker font-size: var(--fs-12) resolves to [12], missing 14` +
+  `[role] Mb1np …: #111111 != board fill #1B4BC4`；复原 → `checked=152 missing=0`，rc=0。
+
+### 3 `tools/verify-music-sport-dom.mjs`：Sport KV 不存在 + 节头单 span
+
+- 新增：`#sport` 内不得有 `.sport__kv`，也不得出现 `hero.val.sport` 的文本（键留给 Hero）；
+  Music/Sport 的 `h2.*__head` 内只能有一个 `<span>`（kicker），且不得有 `*__title-en` 类。
+- **正例**：rc=0（既有 PASS 行逐字未改）。
+- **应拒负例**：把 Sport KV 块加回 → rc=1，
+  `sport KV: .sport__kv is still rendered; docx-1023 item 9 removes the whole row` +
+  `sport KV: the removed row's value ("Football · Badminton") is still rendered inside #sport; the keys stay for Hero only`；
+  复原 → rc=0。
+
+### 4 `tools/verify-ssr-dom.mjs`：方阵位置与 h2 文本口径
+
+- **原判据**：`h2` 必须逐字渲染 `scholarly.title.en`；方阵只要求「在 `.scholarly__body--igem` 之下」。
+- **裁决后**：`h2` 的可见行是 kicker（`scholarly.kicker` 逐字），干净节名改为 h2 的 `aria-label`
+  （仍逐字取 `scholarly.title.en`，可访问名不丢）；方阵位置改为
+  `igemCol < result < pillars < sub2 < para2` 且 `pillars` 在 `.scholarly__igemCol` 内。
+- **正例**：rc=0（`h2=1 h3=4 h4=2 h1=0`，`4 dictionary-sourced aria-label(s)`）。
+- **应拒负例**：把方阵移回两栏之下 → rc=1，
+  `the pillar matrix is not between the result block and the Paris heading (igemCol=578, result=1144, pillars=3434, sub2=1818, para2=1873)`；
+  复原 → rc=0。
+
+### 5 `tools/verify-lang-toggle.mjs`（越界授权：仅四节节头相关断言）
+
+- **原判据**：`HEAD_PAIRS` 的 `elder.title` 读 `#elder .elder__title-en` 且比 `elder.title.en`；
+  `PAIRS` 的 `scholarly.title` / `elder.title` 为 `dual`（期望 zh+en 两串都在默认 en 页）。
+- **裁决后**：`HEAD_PAIRS` 两节都只读 kicker（`kickerKey` = `scholarly.kicker` / `elder.kicker`），
+  断言「折叠空白与大小写后，kicker 全文 = 本语言 kicker 串，且不含另一语言 kicker 串」；
+  `PAIRS` 两条改 `single`，读同一 kicker 键。其余 11 对、其余断言、阈值、输出格式一字未动。
+- **正例**：`pairs_checked=13 single=7 dual=6 missing=0`，rc=0（改前 `single=5 dual=8 missing=0`）。
+- **应拒负例**：把 Elder 的 kicker 硬编码成 `02 / 助老活动`（中文串出现在 en 页）→ rc=1，
+  `elder.title kicker = elder.kicker: "02 / 助老活动" != "02 / hands for the elder"` +
+  `elder.title kicker has no zh-Hans text: true != false`（6 个场景各两条）；复原 → rc=0。

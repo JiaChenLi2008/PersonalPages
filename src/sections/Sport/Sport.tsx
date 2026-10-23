@@ -32,14 +32,11 @@ export function Sport() {
 
   return (
     <section id="sport" data-section="sport" className="sport" aria-labelledby="sport-title">
-      {/* The head's two texts arrive at the first stagger tier; the kicker carries the
-          section number, so it is the block that slides in (motion.css .motion-slide). */}
+      {/* docx-1023 item 8 (user ruling): drop the right-hand duplicate title, kicker 14px/--c-blue.
+          The kicker alone names the section; it stays the one block that slides in. */}
       <h2 id="sport-title" className="sport__head">
         <Reveal as="span" className="sport__kicker motion-slide">
           {text("sport.kicker")}
-        </Reveal>
-        <Reveal as="span" className="sport__title-en">
-          {text("sport.titleEn")}
         </Reveal>
       </h2>
       <Rule variant="baseline" />
@@ -52,14 +49,6 @@ export function Sport() {
               {text("sport.lead")}
             </p>
           </div>
-          <dl className="sport__kv motion-hover">
-            <dt className="sport__k" lang={langOf("hero.key.sport")}>
-              {text("hero.key.sport")}
-            </dt>
-            <dd className="sport__v" lang={langOf("hero.val.sport")}>
-              {text("hero.val.sport")}
-            </dd>
-          </dl>
         </Reveal>
         {/* The figure sweeps in under its clip-path mask one tier behind the text column.
             A clipped element has no visible area, so the 15% observer default could never
