@@ -72,13 +72,15 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
 | `tools/verify-lang-toggle.mjs` | 语言切换逐条键（默认 `en`）、不重载、同值点击持久化 | 视觉 | 本地 |
 | `tools/verify-render.mjs` | 真实浏览器渲染度量（驱动器无本机浏览器，走宿主 Chrome CDP `127.0.0.1:9222`）：7 宽 × 2 语言逐格量横向溢出 / 11 区块高度 / 逐元素自溢（**T4 起滚动容器按 `overflow-x` 自动豁免、跑马灯裁切盒 `.photo-strip` 按名登记，均只豁免盒自身，子元素照测，页面级溢出未豁免**）/ nav 锚落点 / 占位盒离树，**加本轮两条**——滚过全页后每个 `.motion-clip` 已揭开（`is-in` 且 `getComputedStyle().clipPath` 不含 `100%`）、页内每个 `<img>` 已加载（`naturalWidth>0`，含 `loading="lazy"`）；**加 F1 四条**——每格先断言**预期规模**（`.motion-clip` == 10、`<img>` ≥ 14、槽名 ≥1 `.photo-band__media` ＋ ≥6 `.scholarly__clip`），不足即 rc=1，探针空跑不再走空循环（既有四键名与语义未动）；本轮输出 `clips_checked=140 clips_closed=0 images_checked=196 images_unloaded=0`（14 格 × 10 槽 / 14 图） | CI 无此环境；不证 mask sweep 的时长与缓动（归 `verify-motion`）、不证版式；第 7 条不区分「lazy 未被调度」与「文件缺失」（两者同为 `naturalWidth=0`），也不证「仅靠滚动手势即能触发 lazy」（§2 R1）；预期规模常量按当前 11 节结构写死，增删 `.motion-clip` 槽须同步改常量（§5） | 本地 |
-| `tools/verify-assets.py` | `MANIFEST.json` **64 条目**的字段/存在/字节/尺寸/格式/禁放大、清单集合==磁盘集合、总字节须少于源图、10 组图位派生图（存在 / 像素尺寸精确匹配 / webp+jpg 成对 / 非空白 / 单文件 ≤250 KB，全幅宽白名单 `hir-fig-2688`+`photoband-2880` ≤320 KB） | 版式、设计值、画面内容是否就是设计稿那张图（只判非空白）；**⑧ 只覆盖 `DERIVED` 里硬编码的十组 ui.pen 图位**——`docx-2026-10` 新增的 13 组墙图（`music-wall-*`/`sport-wall-*`）只走 ①②③④⑤，不受 ⑧ 的成对与尺寸断言约束（§2 docx-2026-10 ③） | CI（`python3` + Pillow，见 §5） |
+| `tools/verify-assets.py` | `MANIFEST.json` **72 条目**的字段/存在/字节/尺寸/格式/禁放大、清单集合==磁盘集合、总字节须少于源图、**14 组**图位派生图（存在 / 像素尺寸精确匹配 / webp+jpg 成对 / 非空白 / 单文件 ≤250 KB，全幅宽白名单 `hir-fig-2688`+`photoband-2880` ≤320 KB）；`NON_DERIVED` 里的非位图附件（`hir-essay.pdf`、`shanghai-hospitals.xlsx`）只判存在、不计入条目数与总字节 | 版式、设计值、画面内容是否就是设计稿那张图（只判非空白）；**⑧ 只覆盖 `DERIVED` 里硬编码的十组 ui.pen 图位**——`docx-2026-10` 新增的 13 组墙图（`music-wall-*`/`sport-wall-*`）只走 ①②③④⑤，不受 ⑧ 的成对与尺寸断言约束（§2 docx-2026-10 ③） | CI（`python3` + Pillow，见 §5） |
+| `tools/verify-hospitals-xlsx.py` | `public/media/shanghai-hospitals.xlsx` 的 6 类事实：zip 可解析；两个 sheet 名与顺序（`中文` / `English`）；各 sheet 表头 5 列逐字等于字典（`elder.guide.head.*`，序号列表头是无字典键的字面量）；12 行 × 5 列**逐格逐字**等于字典（中文页对 zh、English 页对 en，失败行点名 `sheet/行列/字典键`）；行列数无多余或缺失；与生成器重算**逐字节**一致（版式、entry 顺序、ZIP 时间戳一并锁住）。`inlineStr` 与 `sharedStrings` 两种存法都能解 | 读者真会下载到的那条链接是否指向该文件（归 Elder 的 DOM 门禁）、版式的视觉观感、Excel/WPS 客户端的渲染差异、打印分页 | CI（`python3` 标准库，无 Pillow） |
 | `tools/verify-motion.mjs` | 动效层 7 类：12 个冻结 motion token 逐字同值且被样式消费、无作废旧名（`--dur-fast` 等）、每个动效钩子（7 个 animated 加全部 `motion-*`/`reveal*` 选择器）都有 `prefers-reduced-motion: reduce` 终态、揭晓契约（`0fr→1fr`、`overflow-anchor: none`、`aria-expanded`/`aria-controls`/`aria-labelledby`/`data-state`、无内联 style）、11 节均有入场钩子、禁用项（过冲缓动、动画 `top/left/height/margin`、`transition: all`、scroll 监听）、时长预算（单条 ≤800ms、首屏链 ≤800ms；**T4 起 `AMBIENT_ANIMATIONS` 按文件+动画名+登记时长三者同时命中才豁免，且须自带 reduce 终态**）、BLUEPRINT §2.11 同名同值 | 实际观感、真机帧率、`reduced-motion` 下的渲染结果（不跑浏览器）；`motion-spec-frozen.md` 自身的措辞（仓外文件，只比三处同源物） | CI（自带 `--self-test` 自毁副本反例） |
 | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对；`fidelity-scholarly` 的两处文案豁免逐条登记在门禁内（标点折叠按 board 节点逐键比对、混排标题要求 src 已接线，F1 收口） | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；后三条本轮**未审**（§2 C）；豁免只覆盖已登记的那四个 board 节点/键 | 本地 |
 | `tools/verify-fonts.mjs` | 抽样 6 个节点的**实际选中**字体族（CDP `CSS.getPlatformFontsForNode`）：4 个声明 Inter / IBM Plex Mono 的节点确由该族绘制且 `isCustomFont=true`（自托管 woff2 已加载），2 个中文节点落在含 CJK 的系统字体上且 `isCustomFont=false` | 未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机与其它浏览器 | 本地（需宿主 CDP `127.0.0.1:9222`，可 `CDP=` 覆盖）；端点不可达以 rc=2 单行 `UNAVAILABLE:` 退出，不进 CI |
 
-上表 11 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → verify-deploy → verify-motion →
+上表 12 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → **verify-hospitals-xlsx** → verify-deploy → verify-motion →
 build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-music-sport-dom → verify-lang-purity）。
+`tools/verify-hospitals-xlsx.py` 是**唯一**只用 `python3` 标准库的门禁（zipfile + ElementTree），不吃 Pillow；它与生成器 `tools/build-hospitals-xlsx.py` 共用同一份行/字节口径（按路径加载生成器，不复制字典读法）。
 四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、fonts **未接入 CI**，其假绿 CI 不会拦下。
 `tools/verify-deploy.mjs` 会检查「workflow/README 引用的每个 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，
 并对 6 条自足门禁脚本（head / responsive / ssr-dom / motion / lang-purity / music-sport-dom）逐条点名：
@@ -169,6 +171,10 @@ P15 轮新增的三条自足门禁不与 `ui.pen` 相干，其反例在**干净�
 | T4-N3 | **干净 /tmp 副本**（`docs/copy-*.json` 在 lane 内禁改，故在副本上改）删掉 `copy-zh.json` 的 `music.resume.r08.theme` | verify-lang-purity（zh 模式渲染整页） | **1**：`zh-Hans: outside=5`，逐条 `BREACH "Saint-Sa"` / `"ns"` / `"Night"` / `"Classical"` / `"Concert"` ＋ `FAIL: 5 language-purity problem(s)`；该副本另跑 `verify-music-sport-dom` 亦 **1**（`row 8: docs/copy-en.json has no music.resume.r08.theme`）。复原（副本弃用）后主树两条均 0 |
 | F1-N3 | worktree 内把 `Index.tsx` 的 `before` 改回只读上一次 map（`const before = previous.current`，即本轮修前行为），1440→1100 后点切语言 | /tmp CDP 探针（一次性） | **1**：四行 `pin=(16, 183.75/223.75/263.75/303.75)` vs 实测 `before−after=(0, 52.5/52.5/39.21/39.21)`，`max |err|=264.54px`（阈值 ≤1px）；改回捕获后同一探针 `max |err|=0.01px` |
 
+| W2X-N1 | worktree 内把 `docs/copy-zh.json` 的 `elder.guide.r05.name` 由「华山医院」改成「华山医院X」（跑完 `git checkout -- docs/copy-zh.json` 复原） | verify-hospitals-xlsx | **1**：`FAIL 中文 第6行 B列 (elder.guide.r05.name): 表里 '华山医院' != 字典 '华山医院X'` ＋ `FAIL 与生成器重算不一致: 首个差异字节 1581（磁盘 7045 B / 重算 7050 B）`；复原 **0** |
+| W2X-N2 | worktree 内删 `public/media/music-fig-1440.webp`（删前 cp 到 /tmp，复原后 md5 `01f668a9…` 一致） | verify-assets.py | **1**：`FAIL music-fig-1440.webp: 派生图缺失（nodeId vVdM9）` ＋ `FAIL 文件数与清单条目数不一致 磁盘 73 != 清单 74`（4 条）；复原 **0** |
+| W2X-N2b | 同上，改删本轮保留的 `sport-fig-1440.webp`（elder 那一套撤除后复测拦截力） | verify-assets.py | **1**：`FAIL sport-fig-1440.webp: 派生图缺失（nodeId rWg3m）` ＋ `磁盘 71 != 清单 72`（4 条）；复原 **0** |
+| W2X-N3 | /tmp 沙盒副本（`src/ tools/ docs/ public/ index.html` ＋ 配置文件全量拷出，`node_modules` 软链；worktree 的 `src/**` 与字典未动）里在 `Elder.tsx` 插 4 个 `<p>` 渲染医院指南句子，先跑新白名单，再把该副本字典的 `3pm` 改 `3pmX`，最后换 `HEAD` 的旧白名单各跑一次 | verify-lang-purity | 新白名单 **0**（`latin_tokens=11 whitelist_hits=11`，含 `pm ×2` / `B` / `CT` / `XLSX` / `Excel`）；`3pmX` → **1**（`BREACH "pmX"`）；旧白名单 **1**（6 条：`pm`×2 / `B` / `CT` / `Excel` / `XLSX`） |
 计数口径：`fidelity-index-method-values-footer` 的 `checked` 由 324 增至 332（+8 = 新绑定的 2 属性 × 4 卡；
 P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 84（`--token` 锚的数字从共用数字集合
 移入各自的 token 断言，总数不变；hero 的 `--col-hero-right 304px` 只算一条，token 区间已先屏蔽）。
@@ -329,3 +335,48 @@ SVG 是矢量源而非派生位图。真渲染验收见本节末。
      锚定的单独证据：同一脚本、行尾多加 `&& true`（脚本仍存在，故「references existing script」照旧通过）→ **只有**该条点名断言红（`checked=66 passed=65`），说明拦下冒充的是整行锚定，不是存在性检查。
 - **条数**：`verify-deploy` 61（T4）→ 62（T9 接步骤）→ **66**（T10：+3 条点名断言 +1 条 `README.md references existing script tools/verify-music-sport-dom.mjs`，因 README 的 CI 清单同时补上该脚本）。README 的「CI 十条」随之为「十一条」，「build 之后的五条」为「六条」。
 - **仍是缺口（未修）**：必需清单只覆盖 6 条自足门禁。`verify-tokens` / `verify-deploy` 自身 / `verify-copy-wiring` 走的是 `has()` 子串式断言（不锚定整行，理论上可被「`node tools/verify-tokens.mjs.bak`」这类引用绕过，但那种引用会同时红在「references existing script」）；`verify-assets.py` 仍只被「references existing script」间接覆盖，删它不会红。收紧方式同本轮：把它也写进必需清单。
+
+## W2-X 轮（医院指南 xlsx 门禁 + 灯箱 1440 派生图 + zh 白名单补 6 个拉丁 token）
+
+**判据新增一条、登记两处资产、白名单加 6 条（均属收紧或不变，无判据放宽）**：
+
+1. **`tools/verify-hospitals-xlsx.py`（新，纯标准库）**：`public/media/shanghai-hospitals.xlsx` 与字典的 6 类事实
+   —— zip 可解析 / 两个 sheet 名与顺序（`中文`、`English`）/ 表头 5 列 / 12 行 × 5 列逐格逐字 / 行列数
+   / 与生成器 `tools/build-hospitals-xlsx.py` **重算逐字节**一致。失败行点名 `sheet 第N行 X列 (字典键)`。
+   生成器与门禁同源：门禁按路径加载生成器（`importlib`，`sys.dont_write_bytecode=True` 以免在 `tools/` 留
+   `__pycache__`），不另抄一份字典读法。**可复现**：ZIP 内 entry 顺序固定、`date_time=(1980,1,1,0,0,0)`、
+   `create_system=0`、`external_attr=0`、deflate level 9；两次 `--write` 的 md5 实测相同
+   （`859b5317…`，7045 B）。不读环境变量、不读时钟。
+2. **`tools/verify-assets.py`**：`DERIVED` 加 4 组灯箱放大档（`music-fig-1440` / `sport-fig-1440` /
+   `igem-fig1-1440` / `igem-fig2-1440`，各 1440×1080），`NON_DERIVED` 加 `shanghai-hospitals.xlsx`
+   （zip 不是位图，只判存在）。`MANIFEST.json` 64 → **72 条目**、派生图位 10 → **14 组**；
+   `DERIVED_MAX_BYTES` / `FULL_BLEED` / 其它断言未动。
+3. **`tools/verify-lang-purity.mjs`**：`WHITELIST` 加 6 条首尾锚定正则（`/^[13]?pm$/`、`/^B$/`、`/^CT$/`、
+   `/^XLSX$/`、`/^Excel$/` 与既有条目并列），判定逻辑一字未改。**为何不是 `/^3pm$/` `/^1pm$/`**：该门禁的
+   `LATIN_TOKEN` 从字母起算，`3pm` 的数字被切掉，扫描器实际读到的是 `pm`（沙盒实测 token 表：`pm ×2`），
+   照抄字面量会得到两条永不命中的死正则、且 Elder lane 一接线就红；`/^[13]?pm$/` 两端锚定，只认
+   `pm`/`1pm`/`3pm` 三种形态。**未**把任何模式放宽成无锚定。
+
+**正例（全部实跑，rc 与耗时）**：
+
+| 命令 | rc | 耗时 | 末行 |
+|---|---|---|---|
+| `python3 tools/build-hospitals-xlsx.py --write` | 0 | 33 ms | `OK 写入 public/media/shanghai-hospitals.xlsx 7045 B，2 个 sheet × 12 行` |
+| `python3 tools/build-hospitals-xlsx.py --check` | 0 | 19 ms | `OK … 与字典重算逐字节一致（7045 B）` |
+| `python3 tools/verify-hospitals-xlsx.py` | 0 | 24 ms | `OK …: sheet ['中文', 'English']，各 1 行表头 + 12 行 × 5 列逐字等于字典，与生成器重算一致（7045 B）` |
+| `python3 tools/verify-assets.py` | 0 | 189 ms | `files=72 total_bytes=5487536 … 新增 14 组图位通过` |
+| `node tools/verify-lang-purity.mjs` | 0 | 225 ms | `PASS: … zh-Hans has 6 Latin token(s), all whitelisted …` |
+| `node tools/verify-deploy.mjs` | 0 | 17 ms | `checked=66 passed=66` |
+
+**负例**：见 §4 的 `W2X-N1` / `W2X-N2` / `W2X-N2b` / `W2X-N3`（各自红 → 复原 → 绿）。
+
+**撤除的一套：`elder-fig-1440` 不做（领导裁决）**。源 `Uh3XX.jpg`（3200×1801）在 1440×1080 4:3 中裁下，
+250 KB 上限要压到 **jpg q38（247951 B）/ webp q36（245324 B）** 才达标，而 q60 时分别是 341851 B / 356224 B
+——即「q60 仍 >250 KB」的停手条件成立。比 720 档（jpg q85 138796 B / webp q82 124604 B）更糊，属负收益；
+把单图塞进 320 KB 那类白名单属判据蠕变，故撤除这一对（`DERIVED` 与 `MANIFEST.json` 均已不含该 base）。
+Elder 的可见档仍是 720，本轮机箱只覆盖 music / sport / igem×2 四个图位（外加既有 `hir-fig-2688`）。
+
+**仍是缺口**：`tools/verify-deploy.mjs` 的必需清单只点名 6 条 `node tools/verify-*.mjs`，新门禁是
+`python3` 调用，故删掉 `Verify hospitals workbook` 一步**不会**让它变红（它只经「README/workflow 引用的
+脚本须存在」这一条间接覆盖，且那条只匹配 `node … .mjs`）。本轮未改 `verify-deploy.mjs`（不在本 lane 的
+白名单内），留作下一轮的收紧点：把 `python3 tools/verify-*.py` 也纳入逐条点名的必需清单。

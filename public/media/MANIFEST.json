@@ -241,6 +241,30 @@
     "src": "T0FU1.jpg",
     "w": 2688
   },
+  "igem-fig1-1440.jpg": {
+    "aspect": 1.3333,
+    "bytes": 213609,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 1080,
+    "nodeId": "u2okj",
+    "note": "iGEM fig1 灯箱放大档；u2okj.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 82,
+    "src": "u2okj.jpg",
+    "w": 1440
+  },
+  "igem-fig1-1440.webp": {
+    "aspect": 1.3333,
+    "bytes": 104514,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 1080,
+    "nodeId": "u2okj",
+    "note": "iGEM fig1 灯箱放大档；u2okj.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 80,
+    "src": "u2okj.jpg",
+    "w": 1440
+  },
   "igem-fig1-720.jpg": {
     "aspect": 1.3333,
     "bytes": 61577,
@@ -264,6 +288,30 @@
     "quality": 82,
     "src": "docx-image7.png",
     "w": 720
+  },
+  "igem-fig2-1440.jpg": {
+    "aspect": 1.3333,
+    "bytes": 119848,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 1080,
+    "nodeId": "I2wlYa",
+    "note": "iGEM fig2 灯箱放大档；I2wlYa.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 82,
+    "src": "I2wlYa.jpg",
+    "w": 1440
+  },
+  "igem-fig2-1440.webp": {
+    "aspect": 1.3333,
+    "bytes": 48938,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 1080,
+    "nodeId": "I2wlYa",
+    "note": "iGEM fig2 灯箱放大档；I2wlYa.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 80,
+    "src": "I2wlYa.jpg",
+    "w": 1440
   },
   "igem-fig2-720.jpg": {
     "aspect": 1.3333,
@@ -543,6 +591,30 @@
     "src": "docx-image5.png",
     "w": 296
   },
+  "music-fig-1440.jpg": {
+    "aspect": 1.3333,
+    "bytes": 179567,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 1080,
+    "nodeId": "vVdM9",
+    "note": "Music 右图灯箱放大档；vVdM9.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 82,
+    "src": "vVdM9.jpg",
+    "w": 1440
+  },
+  "music-fig-1440.webp": {
+    "aspect": 1.3333,
+    "bytes": 99690,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 1080,
+    "nodeId": "vVdM9",
+    "note": "Music 右图灯箱放大档；vVdM9.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 80,
+    "src": "vVdM9.jpg",
+    "w": 1440
+  },
   "music-fig-720.jpg": {
     "aspect": 1.3333,
     "bytes": 89010,
@@ -786,6 +858,30 @@
     "quality": 82,
     "src": "FvW5q.jpg",
     "w": 2880
+  },
+  "sport-fig-1440.jpg": {
+    "aspect": 1.3333,
+    "bytes": 242296,
+    "crop": "4x3",
+    "format": "jpg",
+    "h": 1080,
+    "nodeId": "rWg3m",
+    "note": "Sport 左图灯箱放大档；rWg3m.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 66,
+    "src": "rWg3m.jpg",
+    "w": 1440
+  },
+  "sport-fig-1440.webp": {
+    "aspect": 1.3333,
+    "bytes": 218168,
+    "crop": "4x3",
+    "format": "webp",
+    "h": 1080,
+    "nodeId": "rWg3m",
+    "note": "Sport 左图灯箱放大档；rWg3m.jpg 4:3 中心裁（720 档同框比，禁放大）",
+    "quality": 80,
+    "src": "rWg3m.jpg",
+    "w": 1440
   },
   "sport-fig-720.jpg": {
     "aspect": 1.3333,
