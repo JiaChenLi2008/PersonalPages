@@ -236,23 +236,45 @@ if (tableAt < 0) {
 
   /* Date-descending: read each row's own date cell, never the dictionary's row order, so a
      re-sorted table is caught even if its cells are all still real entries. */
+  /* Date order: the table is sortable, so either monotonic direction is legal — but a table
+     that is not monotonic in either direction, or whose rows drifted out of the dictionary,
+     still fails. The direction must also match the `aria-sort` the head advertises, or the
+     arrow and the data would disagree. */
   const keys = rows.map((cells) => {
     const match = /^([A-Z][a-z]{2}) (\d{4})$/.exec(cells[0] ?? "");
     const month = match === null ? -1 : MONTHS.indexOf(match[1]);
     return match === null ? Number.NaN : Number(match[2]) * 12 + (month < 0 ? Number.NaN : month);
   });
+  let descending = true;
+  let ascending = true;
   keys.forEach((key, index) => {
     if (Number.isNaN(key)) {
       fail(`music table row ${index + 1}: date ${JSON.stringify(rows[index]?.[0])} is not a month + year`);
       return;
     }
-    if (index > 0 && !Number.isNaN(keys[index - 1]) && key > keys[index - 1]) {
-      fail(
-        `music table row ${index + 1}: date ${JSON.stringify(rows[index][0])} is newer than the row ` +
-          `above it (${JSON.stringify(rows[index - 1][0])}); the table must read date-descending`,
-      );
+    if (index === 0 || Number.isNaN(keys[index - 1])) {
+      return;
     }
+    if (key > keys[index - 1]) descending = false;
+    if (key < keys[index - 1]) ascending = false;
   });
+  if (!descending && !ascending) {
+    fail("music table: dates are monotonic in neither direction — the rows are out of order");
+  }
+  const advertised = /aria-sort="(ascending|descending)"/.exec(table)?.[1];
+  if (advertised === undefined) {
+    fail('music table: the date head carries no aria-sort, so the sort control is unannounced');
+  } else if (advertised === "ascending" ? !ascending : !descending) {
+    fail(
+      `music table: aria-sort="${advertised}" but the rows read ` +
+        `${ascending ? "ascending" : descending ? "descending" : "neither"}`,
+    );
+  }
+  /* The control itself: a button inside the date head, so the column name is clickable and
+     keyboard-reachable rather than a bare glyph. */
+  if (!/<th\b[^>]*>\s*<button\b/.test(table)) {
+    fail("music table: the date head renders no <button>, so the sort control is not operable");
+  }
 
   /* Every cell is that row's own entry: a key that fell out of the dictionary would fall
      back to en and quietly break the one-language-per-page rule. */

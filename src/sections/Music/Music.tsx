@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { PhotoStrip, type StripPhoto } from "../../components/PhotoStrip/PhotoStrip";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
@@ -74,23 +75,27 @@ const RESUME_HEADS = [
  * order, so the page never re-sorts a row and never pairs one language's date with the
  * other language's venue. Every key is spelled out: tools/verify-copy-wiring.mjs only
  * sees a dictionary key it can read as a string literal.
+ *
+ * `dateOrder` is the numeric sort key (year × 12 + month), kept beside the keys so the head
+ * button can flip the table without parsing the rendered date string — the zh dictionary
+ * writes `2026年9月`, which no `Date` constructor accepts.
  */
 const RESUME_ROWS = [
-  { date: "music.resume.r01.date", theme: "music.resume.r01.theme", venue: "music.resume.r01.venue" },
-  { date: "music.resume.r02.date", theme: "music.resume.r02.theme", venue: "music.resume.r02.venue" },
-  { date: "music.resume.r03.date", theme: "music.resume.r03.theme", venue: "music.resume.r03.venue" },
-  { date: "music.resume.r04.date", theme: "music.resume.r04.theme", venue: "music.resume.r04.venue" },
-  { date: "music.resume.r05.date", theme: "music.resume.r05.theme", venue: "music.resume.r05.venue" },
-  { date: "music.resume.r06.date", theme: "music.resume.r06.theme", venue: "music.resume.r06.venue" },
-  { date: "music.resume.r07.date", theme: "music.resume.r07.theme", venue: "music.resume.r07.venue" },
-  { date: "music.resume.r08.date", theme: "music.resume.r08.theme", venue: "music.resume.r08.venue" },
-  { date: "music.resume.r09.date", theme: "music.resume.r09.theme", venue: "music.resume.r09.venue" },
-  { date: "music.resume.r10.date", theme: "music.resume.r10.theme", venue: "music.resume.r10.venue" },
-  { date: "music.resume.r11.date", theme: "music.resume.r11.theme", venue: "music.resume.r11.venue" },
-  { date: "music.resume.r12.date", theme: "music.resume.r12.theme", venue: "music.resume.r12.venue" },
-  { date: "music.resume.r13.date", theme: "music.resume.r13.theme", venue: "music.resume.r13.venue" },
-  { date: "music.resume.r14.date", theme: "music.resume.r14.theme", venue: "music.resume.r14.venue" },
-] as const satisfies readonly Record<"date" | "theme" | "venue", CopyKey>[];
+  { date: "music.resume.r01.date", theme: "music.resume.r01.theme", venue: "music.resume.r01.venue", dateOrder: 2026 * 12 + 8 },
+  { date: "music.resume.r02.date", theme: "music.resume.r02.theme", venue: "music.resume.r02.venue", dateOrder: 2026 * 12 + 5 },
+  { date: "music.resume.r03.date", theme: "music.resume.r03.theme", venue: "music.resume.r03.venue", dateOrder: 2026 * 12 + 5 },
+  { date: "music.resume.r04.date", theme: "music.resume.r04.theme", venue: "music.resume.r04.venue", dateOrder: 2025 * 12 + 11 },
+  { date: "music.resume.r05.date", theme: "music.resume.r05.theme", venue: "music.resume.r05.venue", dateOrder: 2025 * 12 + 11 },
+  { date: "music.resume.r06.date", theme: "music.resume.r06.theme", venue: "music.resume.r06.venue", dateOrder: 2025 * 12 + 5 },
+  { date: "music.resume.r07.date", theme: "music.resume.r07.theme", venue: "music.resume.r07.venue", dateOrder: 2025 * 12 + 5 },
+  { date: "music.resume.r08.date", theme: "music.resume.r08.theme", venue: "music.resume.r08.venue", dateOrder: 2025 * 12 + 3 },
+  { date: "music.resume.r09.date", theme: "music.resume.r09.theme", venue: "music.resume.r09.venue", dateOrder: 2025 * 12 + 0 },
+  { date: "music.resume.r10.date", theme: "music.resume.r10.theme", venue: "music.resume.r10.venue", dateOrder: 2024 * 12 + 9 },
+  { date: "music.resume.r11.date", theme: "music.resume.r11.theme", venue: "music.resume.r11.venue", dateOrder: 2024 * 12 + 6 },
+  { date: "music.resume.r12.date", theme: "music.resume.r12.theme", venue: "music.resume.r12.venue", dateOrder: 2024 * 12 + 5 },
+  { date: "music.resume.r13.date", theme: "music.resume.r13.theme", venue: "music.resume.r13.venue", dateOrder: 2024 * 12 + 0 },
+  { date: "music.resume.r14.date", theme: "music.resume.r14.theme", venue: "music.resume.r14.venue", dateOrder: 2023 * 12 + 8 },
+] as const satisfies readonly Record<"date" | "theme" | "venue" | "dateOrder", CopyKey | number>[];
 
 /**
  * Music (03, `SOUND & SOUL`) — the ui.pen frame Z79UYi: section head, 2px baseline, then
@@ -104,6 +109,13 @@ const RESUME_ROWS = [
  */
 export function Music() {
   const { text, langOf } = useCopy();
+  /* The résumé table opens in the dictionary's own order (date-descending, the docx's order)
+     and the head button flips it. Sorting by the numeric key beside each row keeps the two
+     languages in step: the zh dictionary writes `2026年9月`, which Date cannot parse. */
+  const [ascending, setAscending] = useState(false);
+  const rows = ascending ? [...RESUME_ROWS].reverse() : RESUME_ROWS;
+  const sortDirection = ascending ? "ascending" : "descending";
+  const toggleSort = () => setAscending((value) => !value);
 
   return (
     <section id="music" data-section="music" className="music" aria-labelledby="music-title">
@@ -200,18 +212,31 @@ export function Music() {
         tabIndex={0}
       >
         <table className="music__table">
+          <colgroup>
+            <col className="music__colDate" />
+            <col className="music__colTheme" />
+            <col />
+          </colgroup>
           <thead>
             <tr>
-              {RESUME_HEADS.map((key) => (
-                <th key={key} scope="col" className="music__th" lang={langOf(key)}>
-                  {text(key)}
+              {RESUME_HEADS.map((key, at) => (
+                <th key={key} scope="col" className="music__th" lang={langOf(key)} aria-sort={at === 0 ? sortDirection : undefined}>
+                  {/* Only the date column sorts: it is the table's own order, and a second
+                      sortable column would need a second key to be honest about. */}
+                  {at === 0 ? (
+                    <button type="button" className="music__sort" onClick={toggleSort}>
+                      {text(key)}
+                    </button>
+                  ) : (
+                    text(key)
+                  )}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {RESUME_ROWS.map((row) => (
-              <tr key={row.date}>
+            {rows.map((row) => (
+              <tr key={row.date} className="music__row" tabIndex={0}>
                 <td className="music__td music__td--date" lang={langOf(row.date)}>
                   {text(row.date)}
                 </td>

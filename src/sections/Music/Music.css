@@ -202,7 +202,12 @@
    No table exists elsewhere in src/, so the whole treatment lives here. The columns are
    data columns, not flex children: the date stays on one line, the theme takes the room it
    needs, the venue wraps. The box is a scroll container at every width, which is the narrow
-   screen's answer — the table never widens the page, it scrolls inside this box. */
+   screen's answer — the table never widens the page, it scrolls inside this box.
+
+   The table was 14 rows of ~50px over a wide canvas with most of each column empty. Three
+   changes, none of which drops a row: fixed column widths sized to the real content, a row
+   rhythm set by the line height instead of a 3×-font padding, and a hover/focus tint plus a
+   sort control on the date head so the table is something you can work with. */
 
 .music__resume {
   margin-block-start: var(--sp-32);
@@ -218,10 +223,21 @@
   min-width: 640px;
   border-collapse: collapse;
   text-align: start;
+  /* The date is the narrowest column; the theme and venue share the rest in proportion to
+     their own longest lines, so neither column carries a screen of empty paper. */
+  table-layout: fixed;
+}
+
+.music__colDate {
+  width: 13%;
+}
+
+.music__colTheme {
+  width: 47%;
 }
 
 .music__th {
-  padding: var(--sp-10) var(--sp-16) var(--sp-10) 0;
+  padding: var(--sp-8) var(--sp-16) var(--sp-8) 0;
   border-block-end: var(--rule-h-strong) solid var(--c-rule-strong);
   color: var(--c-muted);
   font-family: var(--ff-mono);
@@ -230,25 +246,70 @@
   letter-spacing: var(--ls-figcap);
   text-transform: uppercase;
   white-space: nowrap;
+  text-align: start;
+}
+
+/* The date head is the sort control: a button that owns the whole cell, so the hit area is
+   the column name and not a 12px glyph. The arrow is drawn by CSS from aria-sort, so the
+   two states cannot disagree with the attribute a screen reader reads. */
+.music__sort {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-8);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+}
+
+.music__sort::after {
+  content: "↓";
+  font-size: var(--fs-12);
+  line-height: 1;
+  opacity: 0.85;
+}
+.music__sort[aria-sort="ascending"]::after {
+  content: "↑";
+}
+
+.music__sort:focus-visible {
+  outline: var(--rule-h-strong) solid var(--c-blue);
+  outline-offset: var(--sp-2);
 }
 
 .music__td {
-  padding: var(--sp-12) var(--sp-16) var(--sp-12) 0;
+  /* 6px = --sp-8 minus --sp-2: 34px rows at 13px/1.70, tight without crowding. */
+  padding: calc(var(--sp-8) - var(--sp-2)) var(--sp-16) calc(var(--sp-8) - var(--sp-2)) 0;
   border-block-end: var(--rule-h) solid var(--c-rule);
   color: var(--c-ink);
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-13);
   font-weight: var(--fw-normal);
-  line-height: var(--lh-body);
-  vertical-align: top;
+  line-height: var(--lh-running);
+  vertical-align: baseline;
 }
 
-/* The date column is the table's sort key: it stays one line so the descending order is
-   what the eye reads down, and its mono face keeps the four-digit years aligned. */
+/* The date column is the table's sort key: it stays one line so the order is what the eye
+   reads down, and its mono face keeps the four-digit years aligned. */
 .music__td--date {
   font-family: var(--ff-mono);
   font-size: var(--fs-12);
   white-space: nowrap;
+  color: var(--c-muted);
+}
+
+/* One hover target per row: the whole row tints, so a 640px-wide line stays trackable. */
+.music__row:hover > .music__td,
+.music__row:focus-within > .music__td {
+  background: var(--c-rule);
+}
+
+.music__td {
+  transition: background-color var(--dur-1) var(--ease-out);
 }
 
 @media (max-width: 1200px) {
