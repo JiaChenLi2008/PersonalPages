@@ -103,6 +103,34 @@
   font-weight: var(--fw-normal);
 }
 
+/* docx-1023 段[2]…[6]: the two lead-ins the docx adds — three lines ahead of the twelve
+   drawings, two lines ahead of the performance résumé. Both reuse the body's own column
+   rhythm (14px in --c-ink-body, 18px between paragraphs), so neither invents a text tier:
+   the first continues the body, the second hands the reader to the table. */
+.music__intro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-18);
+  color: var(--c-ink-body);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
+.music__intro p {
+  margin: 0;
+}
+
+/* The résumé pair starts as far from the grid above as the table starts from it (32px), and
+   its second line is the muted tail — the same key/value emphasis the section already uses. */
+.music__intro--resume {
+  margin-block-start: var(--sp-32);
+}
+
+.music__intro--resume p:last-child {
+  color: var(--c-muted);
+}
+
 .music__fig {
   display: flex;
   flex: none;

@@ -1,0 +1,49 @@
+/* Lightbox (native <dialog>). The trigger is a transparent box around the section's own
+   photograph, so wiring it cannot move that photograph: no size, ratio or object-fit is set
+   here — the section stylesheet still owns all three, and the trigger is only as tall as the
+   photo it wraps. */
+
+.lightbox__trigger {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: inherit;
+  cursor: zoom-in;
+}
+
+/* The same keyboard ring the rest of the page draws (Music.css / BLUEPRINT §6.2). */
+.lightbox__trigger:focus-visible {
+  outline: var(--rule-h-strong) solid var(--c-blue);
+  outline-offset: var(--sp-2);
+}
+
+/* One dark field for the dialog box and for the page behind it: --c-ink at 92%, mixed rather
+   than written as a literal so the colour stays a token (there is no alpha token). */
+.lightbox {
+  max-width: min(96vw, var(--page-w));
+  max-height: 92vh;
+  padding: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--c-ink) 92%, transparent);
+}
+
+.lightbox::backdrop {
+  background: color-mix(in srgb, var(--c-ink) 92%, transparent);
+}
+
+/* The enlarged file is never enlarged past its own pixels: `contain` keeps its ratio inside
+   the 96vw × 92vh box instead of cropping it the way the section's `cover` photographs do.
+   `width`/`height: auto` let the file's own ratio (its two attributes) set the box, so the
+   dark field is exactly the photo and every pixel outside it closes the dialog. */
+.lightbox__img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(96vw, var(--page-w));
+  max-height: 92vh;
+  object-fit: contain;
+}
