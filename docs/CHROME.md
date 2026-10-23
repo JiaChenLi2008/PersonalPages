@@ -10,7 +10,7 @@
 
 比对归一化口径：设计稿文本与字典比对时仅折叠大小写与空白。设计稿把 `Scholarly Pursuits`/`Sound & Soul` 等稿件英文名以全大写渲染（`SCHOLARLY PURSUITS`/`SOUND & SOUL`），属 text-transform 渲染样式；字典保留稿件原文大小写，不改写。
 
-## 1. chrome 清单（33 条）
+## 1. chrome 清单（34 条）
 
 | # | 字典键 | text | lang | 设计位置 | 判定 |
 |---|---|---|---|---|---|
@@ -47,13 +47,14 @@
 | 30 | `elder.guide.head.checkin` | `Check-in`（zh：`签到方式`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
 | 31 | `elder.guide.head.tests` | `Other tests`（zh：`其他检查`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
 | 32 | `elder.guide.head.tips` | `Tips`（zh：`避坑提示`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
+| 33 | `photo.zoom` | `Click to view larger`（zh：`点击放大`） | `en` | 03 音乐时光 / 04 律动时刻 · Section · 照片墙按钮 | docx-1023 第 5 条：照片可点开放大，交互提示 |
 
-本表 33 条 = 冻版设计稿上逐节点可查的 26 条 chrome 键 + docx-2026-10 段[6] 新增的 `scholarly.revealClick` + docx-1023 第 10 条新增的 6 条指南 chrome 键（meta、download、4 个表头：表格列名与下载件标签由站点固定给，不属底稿原文，故记 chrome）（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 39 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 除 `scholarly.revealClick`（docx-2026-10 段[6]，docx 原文 + 按「中英都上」定的中文）与上表 27–32 行的 6 条指南 chrome 键（docx-1023 第 10 条的下载件标签与表头，中英两串由用户给定）外，全部取自冻版设计稿对应节点，未改写、未翻译。
+本表 34 条 = 冻版设计稿上逐节点可查的 26 条 chrome 键 + docx-2026-10 段[6] 新增的 `scholarly.revealClick` + docx-1023 第 10 条新增的 6 条指南 chrome 键（meta、download、4 个表头：表格列名与下载件标签由站点固定给，不属底稿原文，故记 chrome）+ docx-1023 第 5 条新增的照片墙交互提示 `photo.zoom`（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 40 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 除 `scholarly.revealClick`（docx-2026-10 段[6]，docx 原文 + 按「中英都上」定的中文）与上表 27–32 行的 6 条指南 chrome 键（docx-1023 第 10 条的下载件标签与表头，中英两串由用户给定）与 33 行的 `photo.zoom`（docx-1023 第 5 条的照片墙交互提示，中英两串由本 lane 按 chrome 键流程新增）外，全部取自冻版设计稿对应节点，未改写、未翻译。
 
 对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 138 键（en=zh），其中 src-traced 106 条、chrome 32 条（docx-2026-10 轮后 chrome 33 条，见下）。
 **docx-2026-10 轮之后的现状**：字典 **189 键**（en=zh；src-traced **156** 条 + chrome **33** 条：docx-2026-10 段[6] 的 `scholarly.revealClick` 为接线 lane 按 chrome 键流程新增并登记于 §1）；冻版设计稿上 5 串已被本轮新文案整句取代（`scholarly-hir.title` 与 Index 四行小字 `index.row1.body` … `index.row4.body`），故与 `ui.pen` 的差集**不再为空**——`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐（`tools/fidelity-scholarly.mjs` 因此 rc=1，见 `docs/GATES.md` §2 docx-2026-10 轮 ④）。
 
-**docx-1023 轮追加**：字典 **280 键**（en=zh；`node docs/verify-copy.mjs` 实测 src-traced **241** 条 + chrome **39** 条）。本轮新增 chrome 6 条已入上表 27–32 行；新增 src-traced 55 条（`elder.guide.title` / `.body`、`elder.guide.r01…r12` 各 4 字段共 48 条、`music.intro.p1…p3`、`music.resume.intro1/2`）溯源 `docx-1023-brief.md`；替换 3 条（`scholarly.revealSwipe` 改 `tap to reveal`、`music.body`、`sport.lead`，后两者见 §4）。
+**docx-1023 轮追加**：字典 **281 键**（en=zh；`node docs/verify-copy.mjs` 实测 src-traced **241** 条 + chrome **40** 条）。本轮新增 chrome 7 条已入上表 27–33 行（照片墙的 `photo.zoom` 见 33 行）；新增 src-traced 55 条（`elder.guide.title` / `.body`、`elder.guide.r01…r12` 各 4 字段共 48 条、`music.intro.p1…p3`、`music.resume.intro1/2`）溯源 `docx-1023-brief.md`；替换 3 条（`scholarly.revealSwipe` 改 `tap to reveal`、`music.body`、`sport.lead`，后两者见 §4）。
 
 ## 2. ※ 注解清单（7 条，不入典、不渲染）
 

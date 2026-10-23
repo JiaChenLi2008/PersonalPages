@@ -57,7 +57,7 @@ export function ScholarlyHir() {
 
       <div className="scholarly__body scholarly__body--hir motion-reveal-group">
         <Lightbox
-          full="./media/hir-fig-2688.webp"
+          src="./media/hir-fig-2688.webp"
           alt={text("scholarly-hir.fig.alt")}
           width={2688}
           height={840}

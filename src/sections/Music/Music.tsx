@@ -107,7 +107,7 @@ const RESUME_ROWS = [
  * The wall sits between the head and the body: the reader meets the whole impression of the
  * section first and its detail after. The 4:3 photograph keeps its box and its alt key —
  * T1 replaced the file behind `music-fig-720`, not the slot — and it is the click-to-enlarge
- * slot: its 1440-tier file opens in the shared `Lightbox`.
+ * slot: the shared `Lightbox` enlarges that same 720 file, not a second tier of it.
  *
  * docx-1023 段[2]…[6] add two pieces of copy this section did not render: three lines between
  * the pull-quote body and the twelve drawings (“点开下面的图片就能看到是哪些” introduces
@@ -158,10 +158,10 @@ export function Music() {
             name — the photograph is named once, by the control, never twice. */}
         <Reveal as="figure" className="music__fig motion-clip" delay={2} threshold={0}>
           <Lightbox
-            full="media/music-fig-1440.webp"
+            src="media/music-fig-720.webp"
             alt={text("music.fig.alt")}
-            width={1440}
-            height={1080}
+            width={720}
+            height={540}
           >
             <div className="music__media" aria-hidden="true">
               <img
@@ -178,8 +178,9 @@ export function Music() {
         </Reveal>
       </div>
       {/* docx-1023 段[2]…[4]: the three lines that introduce the twelve drawings below.
-          Same column rhythm as `.music__body` — 14px/1.90 in `--c-ink-body`, 18px apart —
-          so the intro reads as the body's continuation, not as a new text tier. */}
+          Same column and colour as `.music__body`, one step tighter on the leading (13px on
+          1.3, 10px apart), so the intro reads as the body's continuation and not as a new
+          text tier. */}
       <div className="music__intro">
         <p lang={langOf("music.intro.p1")}>{text("music.intro.p1")}</p>
         <p lang={langOf("music.intro.p2")}>{text("music.intro.p2")}</p>

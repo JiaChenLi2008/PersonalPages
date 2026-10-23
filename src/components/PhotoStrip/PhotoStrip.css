@@ -38,6 +38,27 @@
   padding-inline-end: var(--sp-8);
 }
 
+/* The photo's own trigger. The Lightbox stylesheet writes this button as a full-width block
+   for the five section figures; a wall photo is a flex item of the track, so it is sized by
+   the photograph instead — one override, no second trigger class. */
+.photo-strip .lightbox__trigger {
+  flex: none;
+  width: auto;
+  height: 100%;
+}
+
+/* The clone is the loop's scaffolding (docx-2026-10 页面6/页面7): the real track one track to
+   the left owns the dialog, so the copy is unclickable and — through `aria-hidden` +
+   `tabindex="-1"` in PhotoStrip.tsx — unreachable from the keyboard as well. */
+.photo-strip__clone {
+  flex: none;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  pointer-events: none;
+}
+
 .photo-strip__img {
   display: block;
   flex: none;
@@ -55,6 +76,14 @@
        exactly right for the two copies that render in that state. */
     transform: translate3d(var(--strip-shift, -50%), 0, 0);
   }
+}
+
+/* The pause switch, and nothing else: `data-paused` is the one attribute PhotoStrip.tsx sets
+   when the pointer rests on the wall or the keyboard is inside it. The keyframes, the
+   measured `--strip-shift` and the track structure are untouched, so the stop is the browser
+   holding the same animation rather than a second way of moving the reel. */
+.photo-strip[data-paused="true"] .photo-strip__reel {
+  animation-play-state: paused;
 }
 
 /* Reduced motion: the wall holds still and the reader scrolls it by hand. The clone is

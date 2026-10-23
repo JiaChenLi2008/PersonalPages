@@ -10,8 +10,12 @@
  *   1. each wall carries exactly its contract photo count — Music 9 (`music-wall-1..9`),
  *      Sport 4 (`sport-wall-1..4`) — in contract order, in the real track and again in the
  *      seamless loop's clone, so a photo cannot disappear behind the duplicate;
- *   2. both walls are decoration: `aria-hidden="true"`, `alt=""`, `loading="lazy"`,
- *      `decoding="async"` (BLUEPRINT §6.3 / §2.11);
+ *   2. both walls' photographs are decoration — `alt=""`, `loading="lazy"`,
+ *      `decoding="async"` (BLUEPRINT §6.3 / §2.11) — while every photo in the real track is a
+ *      lightbox trigger named by the chrome key `photo.zoom`, and the loop's clone track is
+ *      `aria-hidden="true"` with `tabindex="-1"` (docx-1023 第 5 条: 照片可点开放大). The
+ *      strip container itself is no longer `aria-hidden`: a focusable control inside one is
+ *      unreachable;
  *   3. the wall sits after the section head and before the body (docx: Music "这个 section
  *      加一个照片墙", Sport "先放照片滚动墙");
  *   4. the résumé table is 14 body rows × 3 columns under 3 `<th scope="col">`, its dates run
@@ -153,8 +157,16 @@ for (const wall of WALLS) {
     continue;
   }
   const stripMarkup = strip.slice(0, stripEnd);
-  if (!/aria-hidden="true"/.test(stripMarkup)) {
-    fail(`${label}: the wall is not aria-hidden="true" (the dictionaries carry no alt key for it)`);
+  /* The strip holds the wall's lightbox triggers now, so it may not be aria-hidden: a
+     focusable control inside such a subtree is unreachable, not decoration. What stays
+     decorative is each photograph (`alt=""`, asserted below). */
+  const reelAt = stripMarkup.indexOf('class="photo-strip__reel"');
+  if (reelAt < 0) {
+    fail(`${label}: the strip has no .photo-strip__reel`);
+    continue;
+  }
+  if (/aria-hidden="true"/.test(stripMarkup.slice(0, reelAt))) {
+    fail(`${label}: the wall container is aria-hidden="true", which would hide its lightbox triggers`);
   }
 
   /* The loop's second copy is the clone; the real track is everything before it. */
@@ -163,8 +175,46 @@ for (const wall of WALLS) {
     fail(`${label}: the seamless loop has no cloned track (data-clone="true")`);
     continue;
   }
-  const realPhotos = tagsOf(stripMarkup.slice(0, cloneAt), "img");
-  const clonePhotos = tagsOf(stripMarkup.slice(cloneAt), "img");
+  const realTrack = stripMarkup.slice(0, cloneAt);
+  const cloneTrack = stripMarkup.slice(cloneAt);
+  const realPhotos = tagsOf(realTrack, "img");
+  const clonePhotos = tagsOf(cloneTrack, "img");
+
+  /* docx-1023 第 5 条: a wall photo enlarges on click, and its button name is the one chrome
+     key this lane adds. Named per button, because a trigger without an `aria-label` is a
+     control a screen reader reads out as "button". */
+  const zoomLabel = en["photo.zoom"].text;
+  const realButtons = tagsOf(realTrack, "button");
+  const cloneButtons = tagsOf(cloneTrack, "button");
+  if (realButtons.length !== wall.count) {
+    fail(`${label}: ${realButtons.length} lightbox trigger(s) in the track, expected ${wall.count}`);
+  }
+  for (const button of realButtons) {
+    if (button.type !== "button") {
+      fail(`${label}: wall trigger has type=${JSON.stringify(button.type)}, expected "button"`);
+    }
+    if (button["aria-label"] !== zoomLabel) {
+      fail(
+        `${label}: wall trigger has aria-label=${JSON.stringify(button["aria-label"])}, ` +
+          `expected ${JSON.stringify(zoomLabel)} (photo.zoom)`,
+      );
+    }
+  }
+  if (cloneButtons.length !== realButtons.length) {
+    fail(
+      `${label}: the cloned track carries ${cloneButtons.length} button(s) but the real track ` +
+        `${realButtons.length}; the loop would jump`,
+    );
+  }
+  for (const button of cloneButtons) {
+    if (button["aria-hidden"] !== "true" || button.tabindex !== "-1") {
+      fail(
+        `${label}: a clone button is aria-hidden=${JSON.stringify(button["aria-hidden"])} ` +
+          `tabindex=${JSON.stringify(button.tabindex)}, expected the loop's copy to be ` +
+          `aria-hidden="true" tabindex="-1" (the same photo must not be focusable twice)`,
+      );
+    }
+  }
 
   if (realPhotos.length !== wall.count) {
     fail(`${label}: ${realPhotos.length} photo(s) in the track, expected ${wall.count}`);
@@ -204,6 +254,26 @@ for (const wall of WALLS) {
   }
   if (!/--strip-shift/.test(component)) {
     fail(`${label}: PhotoStrip does not set --strip-shift, so a 3+ copy reel would shift by -50% and jump`);
+  }
+
+  /* The wall holds still under the pointer and for the keyboard reader: the pause is one
+     attribute the component sets from `pointerenter`/`pointerleave` (mouse) and a
+     `:focus-visible` inside the wall, and one `animation-play-state` switch in the
+     stylesheet. No second way of moving the reel, no dependency on the hover media query —
+     the host browser reports `hover: none`, so the wall would never pause if the switch
+     were gated on it. */
+  const stripCss = readFileSync(join(REPO, "src/components/PhotoStrip/PhotoStrip.css"), "utf8");
+  for (const [needle, why] of [
+    ["onPointerEnter", "PhotoStrip does not listen to pointerenter"],
+    ["onPointerLeave", "PhotoStrip does not listen to pointerleave"],
+    ['data-paused={paused ? "true" : undefined}', "PhotoStrip does not expose the pause as data-paused"],
+    [".photo-strip[data-paused=\"true\"] .photo-strip__reel", "PhotoStrip.css does not pause the reel on data-paused"],
+    ["animation-play-state: paused", "PhotoStrip.css does not hold the reel (no animation-play-state)"],
+  ]) {
+    const source = needle.startsWith(".") || needle.startsWith("animation") ? stripCss : component;
+    if (!source.includes(needle)) {
+      fail(`${label}: ${why}`);
+    }
   }
 
   /* docx order: the wall comes after head + baseline and before the body. */
@@ -601,7 +671,7 @@ if (failures.length > 0) {
   process.exit(1);
 }
 console.log(
-  `PASS: music wall 9 + sport wall 4 photos (track + clone, aria-hidden, lazy/async), ` +
+  `PASS: music wall 9 + sport wall 4 photos (track + clone, photo.zoom triggers, clone aria-hidden/tabindex=-1, lazy/async), ` +
     "walls ahead of their bodies, résumé table 14 rows × 3 columns date-descending, " +
     "cells are their own dictionary entries, percussion 12 tiles in contract order with drawing + lang + tabindex, " +
     "sport.body replaced, en only",

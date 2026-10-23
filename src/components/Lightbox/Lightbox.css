@@ -21,24 +21,38 @@
   outline-offset: var(--sp-2);
 }
 
-/* One dark field for the dialog box and for the page behind it: --c-ink at 92%, mixed rather
-   than written as a literal so the colour stays a token (there is no alpha token). */
+/* The dark field is the ::backdrop alone. The dialog's own box is exactly the photograph
+   (fit-content), so a background here would be invisible while it is closed over the photo
+   and would sit at the final size while the open animation still has the photograph scaled
+   down inside it — a dark rectangle the size of the finished photo, one frame into the
+   click. Without it the fade of the ::backdrop is the whole field. */
 .lightbox {
   max-width: min(96vw, var(--page-w));
   max-height: 92vh;
   padding: 0;
   border: 0;
-  background: color-mix(in srgb, var(--c-ink) 92%, transparent);
+  background: none;
 }
 
+/* One dark field, --c-ink at 92%, mixed rather than written as a literal so the colour stays
+   a token (there is no alpha token). */
 .lightbox::backdrop {
   background: color-mix(in srgb, var(--c-ink) 92%, transparent);
 }
 
-/* The enlarged file is never enlarged past its own pixels: `contain` keeps its ratio inside
-   the 96vw × 92vh box instead of cropping it the way the section's `cover` photographs do.
-   `width`/`height: auto` let the file's own ratio (its two attributes) set the box, so the
-   dark field is exactly the photo and every pixel outside it closes the dialog. */
+/* The animated box (Lightbox.tsx reads this rectangle and scales the photograph's own into
+   it). `transform-origin: top left` is what makes translate + scale land on the trigger: the
+   scaled corner stays the top-left corner. The wrapper is as large as the photograph — the
+   `figure` margins are the UA's only contribution here, and they are zero — so the dark
+   field is exactly the photo and every pixel outside it closes the dialog. */
+.lightbox__figure {
+  margin: 0;
+  transform-origin: top left;
+}
+
+/* The same file, never enlarged past its own pixels: `contain` keeps its ratio inside the
+   96vw × 92vh box instead of cropping it the way the section's `cover` photographs do.
+   `width`/`height: auto` let the file's own ratio (its two attributes) set the box. */
 .lightbox__img {
   display: block;
   width: auto;
@@ -46,4 +60,32 @@
   max-width: min(96vw, var(--page-w));
   max-height: 92vh;
   object-fit: contain;
+}
+
+/* The two legs of the open/close animation, keyed off the `data-animating` attribute that
+   Lightbox.tsx holds for exactly their duration (250ms / 200ms in the script). Gated on
+   `no-preference` because the script also skips both legs there; under `reduce` the
+   attribute never appears, so neither keyframe can run. */
+@media (prefers-reduced-motion: no-preference) {
+  .lightbox[data-animating="open"]::backdrop {
+    animation: lightbox-backdrop-in 250ms ease-out;
+  }
+
+  /* `forwards` holds the transparent field until the script closes the dialog, so the last
+     frame of the fade is not a one-frame flash of the full field. */
+  .lightbox[data-animating="close"]::backdrop {
+    animation: lightbox-backdrop-out 200ms ease-in forwards;
+  }
+}
+
+@keyframes lightbox-backdrop-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes lightbox-backdrop-out {
+  to {
+    opacity: 0;
+  }
 }

@@ -1398,5 +1398,10 @@
     "text": "Take a look at where I’ve performed over the years!",
     "src": "docx-1023-brief.md#段[6]",
     "lang": "en"
+  },
+  "photo.zoom": {
+    "text": "Click to view larger",
+    "chrome": true,
+    "lang": "en"
   }
 }

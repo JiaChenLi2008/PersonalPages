@@ -95,9 +95,8 @@
 
 /* docx-1023 段[2]…[6]: the two lead-ins the docx adds — three lines ahead of the twelve
    drawings, two lines ahead of the performance résumé. Both sit one step tighter than the
-   body's column rhythm (13px on --lh-running, 10px between paragraphs) so each reads as a
-   lead-in band rather than a further body column; 13px / 1.70 is the floor this band keeps
-   (--fs-13, line-height >= 1.5) and the résumé's 32px lead above it is unchanged. */
+   body's column rhythm (13px on 1.3, 10px between paragraphs) so each reads as a lead-in
+   band rather than a further body column; the résumé's 32px lead above it is unchanged. */
 .music__intro {
   display: flex;
   flex-direction: column;
@@ -105,7 +104,7 @@
   color: var(--c-ink-body);
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-13);
-  line-height: var(--lh-running);
+  line-height: 1.3;
 }
 
 .music__intro p {
@@ -116,6 +115,7 @@
    its second line is the muted tail — the same key/value emphasis the section already uses. */
 .music__intro--resume {
   margin-block-start: var(--sp-32);
+  line-height: 1.3;
 }
 
 .music__intro--resume p:last-child {

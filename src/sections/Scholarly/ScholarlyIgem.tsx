@@ -155,10 +155,10 @@ export function ScholarlyIgem() {
         <div className="scholarly__figcol">
           <figure className="scholarly__fig">
             <Lightbox
-              full="./media/igem-fig1-1440.webp"
+              src="./media/igem-fig1-720.webp"
               alt={text("scholarly-igem.fig1.alt")}
-              width={1440}
-              height={1080}
+              width={720}
+              height={540}
             >
               <div className="scholarly__media scholarly__media--4x3">
                 <Reveal className="scholarly__clip motion-clip">
@@ -181,10 +181,10 @@ export function ScholarlyIgem() {
 
           <figure className="scholarly__fig">
             <Lightbox
-              full="./media/igem-fig2-1440.webp"
+              src="./media/igem-fig2-720.webp"
               alt={text("scholarly-igem.fig2.alt")}
-              width={1440}
-              height={1080}
+              width={720}
+              height={540}
             >
               <div className="scholarly__media scholarly__media--4x3">
                 <Reveal className="scholarly__clip motion-clip">

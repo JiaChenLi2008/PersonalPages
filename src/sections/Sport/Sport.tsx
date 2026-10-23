@@ -56,12 +56,7 @@ export function Sport() {
             be met: threshold 0 is the trigger this hook needs. The box stays decorative
             (BLUEPRINT §6.3) while its alt key becomes the lightbox trigger's accessible name. */}
         <Reveal as="figure" className="sport__fig motion-clip" delay={2} threshold={0}>
-          <Lightbox
-            full="media/sport-fig-1440.webp"
-            alt={text("sport.fig.alt")}
-            width={1440}
-            height={1080}
-          >
+          <Lightbox src="media/sport-fig-720.webp" alt={text("sport.fig.alt")} width={720} height={540}>
             <div className="sport__media" aria-hidden="true">
               <img
                 className="sport__photo"

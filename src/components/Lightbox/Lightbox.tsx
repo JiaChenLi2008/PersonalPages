@@ -1,8 +1,12 @@
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import "./Lightbox.css";
 
 /**
- * Lightbox: click a photograph to read the 1440-tier file in a native modal `<dialog>`.
+ * Lightbox: click a photograph to see *that same file* enlarged in a native modal `<dialog>`.
+ *
+ * There is no second, larger tier: the dialog loads the src the page already shows, so the
+ * browser serves it from the cache the trigger warmed and the reader never sees a different
+ * file than the one they clicked (`*-1440` derivatives are gone from the wiring).
  *
  * The element does the work, so no focus trap is written here: `showModal()` moves focus into
  * the dialog, ESC closes it, and closing hands focus back to the element that had it (the
@@ -15,16 +19,23 @@ import "./Lightbox.css";
  * field — the dialog's own box and its ::backdrop both report the dialog as `event.target`,
  * so one identity check covers both fields and a click on the photo never closes it.
  *
- * The enlarged file is mounted only while the dialog is open: a closed dialog is
- * `display: none`, so parked 1440-tier images would either download for nothing or never
- * load, and `tools/verify-render.mjs` fails an `<img>` left at naturalWidth 0. Opening is
- * also the first moment the file is wanted — the photograph is click-to-enlarge, not
- * pre-fetched.
+ * Open and close are FLIP animations (no View Transition API, which Safari/Firefox do not
+ * ship): the enlarged box starts on the trigger photograph's own rectangle — read with
+ * `getBoundingClientRect()`, applied as `translate + scale` from `transform-origin: top left`
+ * — and travels to where the modal puts it, while the backdrop fades in through the
+ * `data-animating` attribute. Closing is the same trip backwards, and `dialog.close()` runs
+ * only when it lands. `prefers-reduced-motion: reduce` skips both legs. The attribute doubles
+ * as the guard: while a leg runs, a stray click on the dark field and a second ESC are
+ * ignored, so a fast double click cannot leave a half-animated dialog behind.
+ *
+ * The enlarged image is mounted only while the dialog is open: a closed dialog is
+ * `display: none`, so a parked `<img>` there would never load and `tools/verify-render.mjs`
+ * fails an `<img>` left at naturalWidth 0.
  */
 type LightboxProps = {
-  /** The enlarged file the dialog shows, e.g. `media/music-fig-1440.webp`. */
-  full: string;
-  /** The visible photo's alt text: the trigger's accessible name and the dialog's label. */
+  /** The file the trigger already shows, e.g. `media/music-fig-720.webp`. Same string, same file. */
+  src: string;
+  /** The photograph's alt text: the trigger's accessible name and the dialog's label. */
   alt: string;
   width: number;
   height: number;
@@ -37,27 +48,105 @@ type LightboxProps = {
   children: React.ReactNode;
 };
 
-export function Lightbox({ full, alt, width, height, children }: LightboxProps) {
+/** 220–280ms out, 180–240ms in (the lane's contract): short enough to feel like the click. */
+const OPEN_MS = 250;
+const CLOSE_MS = 200;
+
+/** Read per click: the reader may flip the OS switch between two openings. */
+const reduceMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+/**
+ * The starting transform of the open leg — and, with the endpoints swapped, of the close
+ * leg: the scaled box lands exactly on `rect` because the origin is the box's top-left
+ * corner. `null` when the box has no area yet (a hidden dialog cannot be measured), which
+ * leaves the plain open/close with no animation rather than a jump from nowhere.
+ */
+function flipFrom(box: DOMRect, rect: DOMRect): string | null {
+  if (box.width === 0 || box.height === 0) return null;
+  const x = rect.left - box.left;
+  const y = rect.top - box.top;
+  return `translate(${x}px, ${y}px) scale(${rect.width / box.width}, ${rect.height / box.height})`;
+}
+
+export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const figureRef = useRef<HTMLElement>(null);
+  /** The trigger photograph's rectangle at click time, for the open leg. */
+  const originRef = useRef<DOMRect | null>(null);
+  const closingRef = useRef(false);
   const [expanded, setExpanded] = useState(false);
 
+  /** The photograph the reader clicked: the trigger's own `<img>`, not the button's box. */
+  const triggerRect = () =>
+    (triggerRef.current?.querySelector("img") ?? triggerRef.current)?.getBoundingClientRect() ?? null;
+
   const open = () => {
-    const dialog = dialogRef.current;
-    if (dialog === null || dialog.open) return;
-    /* The enlarged file joins the dialog on this click, then the dialog opens over the page. */
+    if (expanded || dialogRef.current === null) return;
+    originRef.current = triggerRect();
     setExpanded(true);
-    dialog.showModal();
+  };
+
+  /* The image has to be in the DOM before it can be measured, so the dialog opens here
+     rather than in the click handler — one commit, no frame of the un-animated modal. */
+  useLayoutEffect(() => {
+    if (!expanded) return;
+    const dialog = dialogRef.current;
+    const figure = figureRef.current;
+    if (dialog === null || figure === null) return;
+    if (!dialog.open) dialog.showModal();
+    const origin = originRef.current;
+    originRef.current = null;
+    if (reduceMotion() || origin === null) return;
+    const from = flipFrom(figure.getBoundingClientRect(), origin);
+    if (from === null) return;
+    dialog.dataset.animating = "open";
+    const animation = figure.animate([{ transform: from }, { transform: "none" }], {
+      duration: OPEN_MS,
+      easing: "ease-out",
+    });
+    const settle = () => delete dialog.dataset.animating;
+    animation.onfinish = settle;
+    animation.oncancel = settle;
+  }, [expanded]);
+
+  const close = () => {
+    const dialog = dialogRef.current;
+    const figure = figureRef.current;
+    if (dialog === null || !dialog.open || closingRef.current) return;
+    closingRef.current = true;
+    const finish = () => {
+      closingRef.current = false;
+      delete dialog.dataset.animating;
+      dialog.close();
+    };
+    const origin = triggerRect();
+    const to =
+      figure !== null && origin !== null ? flipFrom(figure.getBoundingClientRect(), origin) : null;
+    if (reduceMotion() || to === null || figure === null) {
+      finish();
+      return;
+    }
+    dialog.dataset.animating = "close";
+    const animation = figure.animate([{ transform: "none" }, { transform: to }], {
+      duration: CLOSE_MS,
+      easing: "ease-in",
+    });
+    animation.onfinish = finish;
+    animation.oncancel = finish;
   };
 
   const closeOnField = (event: React.MouseEvent<HTMLDialogElement>) => {
-    if (event.target === event.currentTarget) {
-      event.currentTarget.close();
-    }
+    if (event.target !== event.currentTarget) return;
+    /* A click that lands mid-animation is the misclick the guard exists for. */
+    if (event.currentTarget.dataset.animating !== undefined) return;
+    close();
   };
 
   return (
     <>
-      <button type="button" className="lightbox__trigger" aria-label={alt} onClick={open}>
+      <button ref={triggerRef} type="button" className="lightbox__trigger" aria-label={alt} onClick={open}>
         {children}
       </button>
       <dialog
@@ -65,22 +154,33 @@ export function Lightbox({ full, alt, width, height, children }: LightboxProps) 
         className="lightbox"
         aria-label={alt}
         onClick={closeOnField}
-        /* ESC and the backdrop click both land here; dropping the file leaves no stale
-           `<img>` in the document between two openings. */
-        onClose={() => setExpanded(false)}
+        /* ESC is answered here instead of by the browser so the close leg can run: `cancel`
+           is cancelled, the animation plays, and `close()` follows it. */
+        onCancel={(event) => {
+          event.preventDefault();
+          if (event.currentTarget.dataset.animating === "open") return;
+          close();
+        }}
+        /* Whichever way it closed, the enlarged image leaves the document: no stale `<img>`
+           between two openings, and nothing left for the animation to hold on to. */
+        onClose={() => {
+          delete dialogRef.current?.dataset.animating;
+          setExpanded(false);
+        }}
       >
         {expanded ? (
-          /* alt="" on purpose: the dialog already carries this text as its label, so a second
-             copy would be announced twice. */
-          <img
-            className="lightbox__img"
-            src={full}
-            alt=""
-            width={width}
-            height={height}
-            loading="lazy"
-            decoding="async"
-          />
+          <figure ref={figureRef} className="lightbox__figure">
+            {/* alt="" on purpose: the dialog already carries this text as its label, so a
+                second copy would be announced twice. */}
+            <img
+              className="lightbox__img"
+              src={src}
+              alt=""
+              width={width}
+              height={height}
+              decoding="async"
+            />
+          </figure>
         ) : null}
       </dialog>
     </>

@@ -1398,5 +1398,10 @@
     "text": "看看这些年我都在哪些地方演出过！",
     "src": "docx-1023-brief.md#段[6]",
     "lang": "zh-Hans"
+  },
+  "photo.zoom": {
+    "text": "点击放大",
+    "chrome": true,
+    "lang": "zh-Hans"
   }
 }
