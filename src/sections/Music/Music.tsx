@@ -24,9 +24,9 @@ const MUSIC_WALL = [
 
 /**
  * The twelve percussion instruments of docx-1021 段[1]…段[12] — one key per instrument,
- * both languages in the same slot. The docx asks for a dense grid of small instrument
- * images that turn into the instrument's English name on hover; the user's ruling is text
- * only, so the grid keeps the density and swaps in the *other* language's name instead.
+ * both languages in the same slot. Each tile carries its cartoon instrument drawing
+ * (public/media/percussion/<slug>.svg) and the page's own name; hovering or focusing the
+ * tile swaps the name for the other language's, which is the English name on the zh page.
  * Every key is spelled out: tools/verify-copy-wiring.mjs only sees a dictionary key it can
  * read as a string literal.
  */
@@ -44,6 +44,23 @@ const PERCUSSION = [
   "music.perc.11",
   "music.perc.12",
 ] as const satisfies readonly CopyKey[];
+
+/** One drawing per key above, in the same order: a tile and its picture cannot drift apart
+    without tools/verify-music-sport-dom.mjs naming the pair. */
+const PERCUSSION_ART = [
+  "01-handpan",
+  "02-marimba",
+  "03-drum-kit",
+  "04-timpani",
+  "05-cymbals",
+  "06-vibraphone",
+  "07-tubular-bells",
+  "08-xylophone",
+  "09-glockenspiel",
+  "10-tambourine",
+  "11-clapper",
+  "12-congas",
+] as const;
 
 /** The table's three column names (docx 段[11]). */
 const RESUME_HEADS = [
@@ -148,10 +165,12 @@ export function Music() {
           </div>
         </Reveal>
       </div>
-      {/* docx-1021 段[1]…[12]: a dense tile grid that swaps to the instrument's other-language
-          name. Hover and keyboard focus both drive it (`tabIndex` + onFocus), so the swap is
-          not mouse-only; `:focus-visible` in Music.css draws the ring. No transition is
-          declared, so `prefers-reduced-motion` has nothing to disable. */}
+      {/* docx-1021 段[1]…[12]: a dense tile grid of cartoon instrument drawings that swaps to
+          the instrument's other-language name on hover — the English name on the zh page, as
+          the docx asks. Hover and keyboard focus both drive it (`tabIndex` + onFocus), so the
+          swap is not mouse-only; `:focus-visible` in Music.css draws the ring. The drawing is
+          decorative (the name beside it is the label), so it stays out of the accessibility
+          tree. No transition is declared, so `prefers-reduced-motion` has nothing to disable. */}
       <ul className="music__perc">
         {PERCUSSION.map((key, index) => {
           const swapped = swappedAt === index;
@@ -160,14 +179,25 @@ export function Music() {
             <li
               key={key}
               className="music__percItem"
-              lang={shown.lang}
               tabIndex={0}
               onMouseEnter={() => setSwappedAt(index)}
               onMouseLeave={() => release(index)}
               onFocus={() => setSwappedAt(index)}
               onBlur={() => release(index)}
             >
-              {shown.text}
+              <img
+                className="music__percArt"
+                src={`media/percussion/${PERCUSSION_ART[index]}.svg`}
+                alt=""
+                aria-hidden="true"
+                width={56}
+                height={56}
+                loading="lazy"
+                decoding="async"
+              />
+              <span className="music__percName" lang={shown.lang}>
+                {shown.text}
+              </span>
             </li>
           );
         })}

@@ -35,7 +35,7 @@ node tools/verify-copy-wiring.mjs  # 文案键确实进了 dist/assets/*.js（�
 node tools/verify-head.mjs         # index.html 文档头与字典 hero.* 逐字一致
 node tools/verify-responsive.mjs   # 蓝图 §3 的响应式数值逐条比对
 node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite SSR 构建）
-node tools/verify-music-sport-dom.mjs  # Music/Sport 的 SSR DOM 事实（照片墙张数、履历表、4:3 图）
+node tools/verify-music-sport-dom.mjs  # Music/Sport 的 SSR DOM 事实（照片墙张数、履历表、12 格打击乐图名配对、4:3 图）
 node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一份 SSR 产物）
 ```
 

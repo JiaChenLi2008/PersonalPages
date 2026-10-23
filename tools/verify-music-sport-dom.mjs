@@ -18,9 +18,10 @@
  *      date-descending, every cell is that row's own dictionary entry, and the table carries
  *      an accessible name taken from a dictionary-sourced heading;
  *   4b. the twelve-instrument grid of docx-1021 items 1…12 renders its twelve tiles in contract
- *      order, each with its own dictionary text, that entry's `lang` (the mark the hover swap
- *      replaces with the other side's) and `tabindex="0"` for keyboard reach, ahead of the
- *      table;
+ *      order, each with its own cartoon drawing (`media/percussion/<slug>.svg`, alt="" because
+ *      the name beside it is the label) and its own dictionary text under that entry's `lang`
+ *      (the mark the hover swap replaces with the other side's) with `tabindex="0"` for
+ *      keyboard reach, ahead of the table;
  *   5. Music's 4:3 figure still renders the T1 photograph (`music-fig-720.webp`) with its own
  *      alt key; Sport renders the docx's `sport.lead` and no longer its superseded
  *      `sport.body` (the ruling is "replace", and both keys are still in the dictionaries);
@@ -31,7 +32,7 @@
  * Temporary output: /tmp/music-sport-ssr-out (rebuilt each run) + /tmp/music-sport-ssr.html.
  */
 
-import { readFileSync, writeFileSync } from "node:fs";
+import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { build } from "vite";
@@ -282,44 +283,100 @@ if (tableAt < 0) {
 
 /* ---------- 5. the twelve-instrument grid (docx-1021 items 1…12) ---------- */
 
-/* The grid is new structure: without this block a tile could be deleted, reordered or
-   render the wrong language and every gate would stay green. Each tile renders the page's
-   own side of its key and carries that entry's `lang`, which is the mark the hover swap
-   replaces with the other side's — so a tile that loses its `lang` fails here. */
+/* The grid is new structure: without this block a tile could be deleted, reordered, lose its
+   drawing or render the wrong language and every gate would stay green. Each tile pairs one
+   drawing with the page's own side of its key under that entry's `lang`, which is the mark the
+   hover swap replaces with the other side's — so a tile that loses its `lang`, or a tile whose
+   drawing drifted out of the contract order, fails here. The drawing's own file is checked on
+   disk: the pair is only half a pair if the SVG is missing. */
 const PERCUSSION = Array.from(
   { length: 12 },
   (_, index) => `music.perc.${String(index + 1).padStart(2, "0")}`,
 );
+const PERCUSSION_ART = [
+  "01-handpan",
+  "02-marimba",
+  "03-drum-kit",
+  "04-timpani",
+  "05-cymbals",
+  "06-vibraphone",
+  "07-tubular-bells",
+  "08-xylophone",
+  "09-glockenspiel",
+  "10-tambourine",
+  "11-clapper",
+  "12-congas",
+];
 const percGrid = /<ul class="music__perc">([\s\S]*?)<\/ul>/.exec(music);
 if (percGrid === null) {
   fail("music percussion: the section renders no <ul class=\"music__perc\"> grid");
 } else {
-  const tiles = tagsOf(percGrid[1], "li");
+  const tiles = [...percGrid[1].matchAll(/<li\b([^>]*)>([\s\S]*?)<\/li>/g)].map((match) => {
+    const attrs = {};
+    for (const attr of match[1].matchAll(/([a-zA-Z-]+)="([^"]*)"/g)) {
+      attrs[attr[1]] = attr[2];
+    }
+    const art = /<img\b([^>]*)>/.exec(match[2]);
+    const artAttrs = {};
+    for (const attr of (art?.[1] ?? "").matchAll(/([a-zA-Z-]+)="([^"]*)"/g)) {
+      artAttrs[attr[1]] = attr[2];
+    }
+    const name = /<span\b([^>]*)>([\s\S]*?)<\/span>/.exec(match[2]);
+    const nameAttrs = {};
+    for (const attr of (name?.[1] ?? "").matchAll(/([a-zA-Z-]+)="([^"]*)"/g)) {
+      nameAttrs[attr[1]] = attr[2];
+    }
+    return { attrs, art: artAttrs, name: nameAttrs, text: decode(name?.[2] ?? "").trim() };
+  });
   if (tiles.length !== PERCUSSION.length) {
     fail(`music percussion: ${tiles.length} tile(s), the docx lists ${PERCUSSION.length} instruments`);
   }
-  const texts = [...percGrid[1].matchAll(/<li\b[^>]*>([^<>]*)<\/li>/g)].map((match) => decode(match[1]).trim());
   PERCUSSION.forEach((key, index) => {
     const wanted = en[key];
     if (wanted === undefined) {
       fail(`music percussion tile ${index + 1}: docs/copy-en.json has no ${key}`);
       return;
     }
-    if (texts[index] !== wanted.text) {
+    const tile = tiles[index];
+    if (tile === undefined) {
+      return;
+    }
+    if (tile.text !== wanted.text) {
       fail(
-        `music percussion tile ${index + 1}: ${JSON.stringify(texts[index])} != ${key} ` +
+        `music percussion tile ${index + 1}: ${JSON.stringify(tile.text)} != ${key} ` +
           `(${JSON.stringify(wanted.text)})`,
       );
     }
-    if (tiles[index]?.lang !== wanted.lang) {
+    if (tile.name.lang !== wanted.lang) {
       fail(
-        `music percussion tile ${index + 1}: lang=${JSON.stringify(tiles[index]?.lang)} != ` +
+        `music percussion tile ${index + 1}: lang=${JSON.stringify(tile.name.lang)} != ` +
           `${JSON.stringify(wanted.lang)} (the tile's own dictionary entry) — the hover swap ` +
           `replaces this mark with the other side's, so the tile must carry one`,
       );
     }
-    if (tiles[index]?.tabindex !== "0") {
+    if (tile.attrs.tabindex !== "0") {
       fail(`music percussion tile ${index + 1}: not reachable by keyboard (tabindex missing)`);
+    }
+    const slug = PERCUSSION_ART[index];
+    if (tile.art.src !== `media/percussion/${slug}.svg`) {
+      fail(
+        `music percussion tile ${index + 1}: drawing ${JSON.stringify(tile.art.src)} != ` +
+          `"media/percussion/${slug}.svg" — the tile and its drawing are one pair`,
+      );
+    }
+    if (tile.art.alt !== undefined && tile.art.alt !== "") {
+      fail(`music percussion tile ${index + 1}: the drawing is decoration, alt must be empty`);
+    }
+    /* Explicit width/height is what reserves the box before the SVG arrives; without it the
+       twelve tiles reflow on load. Both must match the drawing's own square. */
+    if (tile.art.width !== "56" || tile.art.height !== "56") {
+      fail(
+        `music percussion tile ${index + 1}: drawing width/height ` +
+          `${JSON.stringify([tile.art.width, tile.art.height])} != ["56","56"] (CLS reservation)`,
+      );
+    }
+    if (!existsSync(join(REPO, "public", "media", "percussion", `${slug}.svg`))) {
+      fail(`music percussion tile ${index + 1}: public/media/percussion/${slug}.svg is missing`);
     }
   });
   const gridAt = music.indexOf('<ul class="music__perc">');
@@ -374,6 +431,6 @@ if (failures.length > 0) {
 console.log(
   `PASS: music wall 9 + sport wall 4 photos (track + clone, aria-hidden, lazy/async), ` +
     "walls ahead of their bodies, résumé table 14 rows × 3 columns date-descending, " +
-    "cells are their own dictionary entries, percussion 12 tiles in contract order with lang + tabindex, " +
+    "cells are their own dictionary entries, percussion 12 tiles in contract order with drawing + lang + tabindex, " +
     "sport.body replaced, en only",
 );

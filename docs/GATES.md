@@ -66,7 +66,7 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
-| `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行） | CI（build 后，排 `verify-ssr-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` SSR 产物，实测 0.2s、无 CDP） |
+| `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增；T11 扩打击乐）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK；**T11 新增** 12 格打击乐逐格比对字典原文 + `lang` + `tabindex="0"` + 图片 `src`（`PERCUSSION_ART` 顺序对 `public/media/percussion/<slug>.svg`）+ `alt=""` + `width/height=56`，且 SVG 文件须在磁盘上 | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行）；不证 SVG 画面内容（只判文件存在） | CI（build 后，排 `verify-ssr-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` SSR 产物，实测 0.2s、无 CDP） |
 | `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧） | 只覆盖 scholarly 节；视觉 | CI |
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 **188 键**）、字段类型、材料侧 `text` 逐字溯源（本轮 **213 条**）、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」（**79 条**）、材料混排 7 槽位按**覆盖率**下限（两侧折叠后各自命中比例之和 ≥0.75 且最长单片段 ≥8 字，**10 条**）、chrome/src 归属、※ 禁止；`src` 可定位的 brief 现在含 `docx-2026-10-brief.md`（同一 `段[N]` 语义） | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检）；覆盖率的**分母口径**（见 §5） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
@@ -235,10 +235,20 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 
 ### 2 `tools/verify-music-sport-dom.mjs`：新增第 4b 节（12 块打击乐格）
 
-新结构此前无任何判据：少一块、顺序错、语言配错、去掉键盘可达都在门前全绿。新断言逐块比对
-`music.perc.NN` 的字典原文 + 该条目的 `lang` + `tabindex="0"`，并断言网格在履历表之前。
+新结构此前无任何判据：少一块、顺序错、语言配错、去掉键盘可达、缺图都在门前全绿。新断言逐块比对
+`music.perc.NN` 的字典原文 + 该条目的 `lang` + `tabindex="0"` + 该格图片的 `src`（按
+`PERCUSSION_ART` 顺序与 `public/media/percussion/<slug>.svg` 一一对应，且文件须在磁盘上、`alt` 为空），
+并断言网格在履历表之前。
 应拒负例：删第 12 块 → rc=1（`music percussion tile 12: undefined != music.perc.12 ("Congas")` 等 4 条）；
-去掉 `lang={shown.lang}` → rc=1（12 条 `lang=undefined != "en"`）。
+去掉 `lang={shown.lang}` → rc=1（12 条 `lang=undefined != "en"`）；
+把第 5 格 `src` 指向 `05-cymbal.svg`（少一个 s）→ rc=1
+（`music percussion tile 5: drawing "media/percussion/05-cymbal.svg" != "media/percussion/05-cymbals.svg"`）；
+临时移走 `05-cymbals.svg` → rc=1（`music percussion tile 5: public/media/percussion/05-cymbals.svg is missing`）。
+
+**插图契约（T11 续）**：12 张 SVG 为手写矢量（pencil 生图配额见底，非 `Generate` 产物），
+64×64 viewBox、`#111111` 墨线描边 + 平涂，落 `public/media/percussion/01-handpan.svg` … `12-congas.svg`。
+它们不进 `MANIFEST.json`、不受 `verify-assets.py` 管：该门禁只认 webp/jpg 位图对（`EXT_FORMAT` 只有两种），
+SVG 是矢量源而非派生位图。真渲染验收见本节末。
 
 ### 3 `tools/verify-ssr-dom.mjs`：新增第 3b 节（iGEM 宣传块 + 四块方阵）
 
@@ -264,6 +274,24 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 
   375 下 39 字符 URL 在 22px 等宽下约 515px，靠 `.scholarly__ctaUrl` 既有的 `overflow-wrap: anywhere`
   折成两行（未用 `overflow: hidden` 裁字）。
+
+### 2.1 T11 真渲染验收（12 格打击乐 + 插图）
+
+`npm run build` 产物经 `vite preview`（4173）在宿主 Chrome 实测，**1440 / 500 / 320 三档**：
+
+| 项 | 1440（en / zh） | 500 | 320 |
+|---|---|---|---|
+| 格数 / 列数 | 12 / 4 列（`314.25px ×4`） | 12 / 2 列（`210.5px ×2`） | 12 / 2 列 |
+| 插图渲染宽 | 56px（natural 150×150） | 40px | 40px |
+| 图片加载 | 12/12 `complete` | 12/12 | 12/12 |
+| 横向溢出 | 无 | 无（`scrollWidth==clientWidth==485`） | 无 |
+| 悬停换语 | zh 页 `架子鼓` → `Drum Kit`（`lang` zh-Hans → en）；移出复原 | — | — |
+| en 页文字 | Handpan / Marimba / Drum Kit / Timpani / Crash Cymbals / Vibraphone / Tubular Bells / Xylophone / Glockenspiel / Tambourine / Clapper / Congas | — | — |
+| zh 页文字 | 手碟 / 马林巴琴 / 架子鼓 / 定音鼓 / 对镲 / 颤音琴 / 管钟 / 木琴 / 钟琴 / 铃鼓 / 快板 / 康加鼓 | — | — |
+
+插图目视结论（vision 子代理读 1440 与 500 截图）：12 格全满、风格统一、无缺图/白块/裁切、图左文右垂直居中、
+行距一致（标签行 y≈431 / 521 / 611，行距 90px）。已知限制：图标在 1440 下约 30–36px 视觉尺寸，
+细部（如 Timpani 鼓槌朝向）不可辨；配色约 4 色（黑描线 + 金黄 / 红 / 蓝），够统一但不算丰富。
 
 ## T10 轮（verify-deploy 补「必需清单」逐条点名）
 

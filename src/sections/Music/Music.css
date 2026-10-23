@@ -134,10 +134,11 @@
 }
 
 /* ---- Percussion grid (docx-1021 段[1]…[12]) ----
-   The docx asks for a dense set of small instrument tiles that turn into the instrument's
-   English name on hover. The image-free version the user ruled for keeps the density and
-   swaps the other language's name in instead. Four tiles across at the 1440 board, three at
-   900, two at 600 — a tile never has to hold more than one instrument name. */
+   The docx asks for a dense set of small instruments that turn into the instrument's English
+   name on hover. Each tile is a cartoon drawing (public/media/percussion) over the page's own
+   name; hovering or focusing swaps the name for the other language, which is English on the
+   zh page. Four tiles across at the 1440 board, three at 900, two at 600 — a tile never has to
+   hold more than one instrument name beside its 56px drawing. */
 .music__perc {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -148,6 +149,9 @@
 }
 
 .music__percItem {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-12);
   padding-block: var(--sp-10);
   border-block-start: var(--rule-h) solid var(--c-rule);
   color: var(--c-ink);
@@ -156,6 +160,20 @@
   line-height: var(--lh-body);
 }
 
+/* The drawing is fixed at 56px so twelve tiles of different subjects keep one optical size;
+   it is decorative (the name is the label), so it takes no margin of its own. */
+.music__percArt {
+  flex: none;
+  width: 56px;
+  height: 56px;
+}
+
+/* The longest names (Glockenspiel, Tambourine) overflow a 128px tile at 320 with the drawing
+   beside them: the name wraps instead of widening the grid. */
+.music__percName {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
 /* The only cue that the tile is interactive: a keyboard ring. The swap itself is the
    hover/focus effect, and nothing here animates, so reduced-motion needs no branch. */
 .music__percItem:focus-visible {
@@ -270,5 +288,19 @@
   .music__perc {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: var(--sp-8) var(--sp-16);
+  }
+
+  /* Two 56px drawings plus their names do not fit a 320px column: the art is the tile's
+     ornament, the name is its content, so the drawing gives up the room and moves above
+     the name — side by side, Glockenspiel breaks mid-word (`Glockenspi|el`) at 128px. */
+  .music__percItem {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--sp-8);
+  }
+
+  .music__percArt {
+    width: 40px;
+    height: 40px;
   }
 }
