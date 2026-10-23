@@ -159,21 +159,32 @@ export function ScholarlyIgem() {
 
       {/* docx-1021 item 3: the 2x2 pillar matrix. It belongs to the sub-block but not
           to one column — full width under both, so each cell holds a sentence-length Chinese
-          bullet on two or three lines instead of six. */}
+          bullet on two or three lines instead of six. Each block is a card
+          (`.scholarly__pillarCard`) that lifts and scales on hover; the outer `Reveal` gives
+          the four cards the same staggered entrance every other block gets. The two live on
+          separate elements on purpose: `.reveal` owns `transition: opacity, transform` and
+          a card that also owned the hover transition would drop one of the two. */}
       <div className="scholarly__pillars">
-        {PILLARS.map((pillar) => (
-          <div key={pillar.title} className="scholarly__pillar">
-            <p className="scholarly__k" lang={langOf(pillar.title)}>
-              {text(pillar.title)}
-            </p>
-            <ul className="scholarly__pillarItems">
-              {pillar.items.map((item) => (
-                <li key={item} lang={langOf(item)}>
-                  {text(item)}
-                </li>
-              ))}
-            </ul>
-          </div>
+        {PILLARS.map((pillar, index) => (
+          <Reveal
+            key={pillar.title}
+            as="div"
+            className="scholarly__pillar"
+            delay={(index % 2 === 0 ? 0 : 1) as 0 | 1}
+          >
+            <div className="scholarly__pillarCard">
+              <p className="scholarly__pillarTitle" lang={langOf(pillar.title)}>
+                {text(pillar.title)}
+              </p>
+              <ul className="scholarly__pillarItems">
+                {pillar.items.map((item) => (
+                  <li key={item} lang={langOf(item)}>
+                    {text(item)}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </Reveal>
         ))}
       </div>
     </div>

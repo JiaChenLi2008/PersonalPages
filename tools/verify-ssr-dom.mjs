@@ -390,7 +390,10 @@ const pillarsAt = html.indexOf('class="scholarly__pillars"');
 if (pillarsAt < 0) {
   fail("no .scholarly__pillars matrix: the docx's four blocks (item 3) are not rendered");
 } else {
-  const blocks = [...html.matchAll(/<div class="scholarly__pillar">([\s\S]*?)<\/div>/g)].map((match) => match[1]);
+  /* The card is a `Reveal`, so its class list also carries the reveal hooks — match the class
+     token, and cut each block at its closing `</ul>` rather than the first `</div>` (the card
+     has no nested div, but the tag may be any element and the list is its last child). */
+  const blocks = [...html.matchAll(/<[a-z]+\b[^>]*class="[^"]*\bscholarly__pillar\b[^"]*"[^>]*>([\s\S]*?<\/ul>)/g)].map((match) => match[1]);
   if (blocks.length !== 4) {
     fail(`the pillar matrix renders ${blocks.length} block(s), the docx lists 4`);
   }
@@ -403,7 +406,10 @@ if (pillarsAt < 0) {
     const block = blocks[index];
     if (block === undefined) return;
     const titleKey = `scholarly-igem.pillar${n}.title`;
-    const title = /<p class="scholarly__k" lang="([^"]*)">([^<]*)<\/p>/.exec(block);
+    /* The card title carries its own class now; accept either the card class or the old key
+       class so the gate tests the text, not the styling hook. */
+    const title = /<p\b[^>]*class="[^"]*\bscholarly__(?:pillarTitle|k)\b[^"]*"[^>]*lang="([^"]*)"[^>]*>([^<]*)<\/p>/.exec(block)
+      ?? /<p\b[^>]*lang="([^"]*)"[^>]*class="[^"]*\bscholarly__(?:pillarTitle|k)\b[^"]*"[^>]*>([^<]*)<\/p>/.exec(block);
     if (title === null || decodeText(title[2]).trim() !== en[titleKey].text) {
       fail(`pillar ${n}: title ${JSON.stringify(title?.[2])} != ${titleKey} (${JSON.stringify(en[titleKey].text)})`);
     } else if (title[1] !== en[titleKey].lang) {

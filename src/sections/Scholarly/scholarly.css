@@ -135,11 +135,19 @@
   border-block-start: var(--rule-h) solid var(--c-rule);
 }
 
-/* docx-1021 item 3: the 2x2 pillar matrix, full width under both iGEM columns. */
+/* docx-1021 item 3: the 2x2 pillar matrix, full width under both iGEM columns.
+   Reference site 2025.igem.wiki/subcat-shanghai renders the same four blocks as bare text
+   runs; the docx asks for "四个方块" (four squares), so each block becomes a card here: a
+   hairline box on paper, the title on its own rule, and the three bullets beneath. The
+   cards carry the pointer micro-motion (lift + scale on hover) that the rest of the site
+   already uses for interactive surfaces. */
 .scholarly__pillars {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: var(--sp-24) var(--sp-32);
+  /* `1fr` rows: the two rows share the tallest card's height, so the four cards read as one
+     matrix instead of two unequal bands. */
+  grid-auto-rows: 1fr;
+  gap: var(--sp-24);
   margin-block-start: var(--sp-32);
   padding-block-start: var(--sp-24);
   border-block-start: var(--rule-h) solid var(--c-rule);
@@ -147,20 +155,78 @@
 
 .scholarly__pillar {
   display: flex;
+}
+
+.scholarly__pillarCard {
+  display: flex;
+  flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--sp-8);
+  gap: var(--sp-12);
+  padding: var(--sp-24);
+  border: var(--rule-h) solid var(--c-rule);
+  background: var(--c-white);
+  /* Transform and colour only — no width/height/margin, so the grid never reflows under
+     the pointer. The 1.02 scale is a constant: tokens.css carries no hover-scale token
+     (--hover-scale is a retired name, see tools/verify-motion.mjs). */
+  transition:
+    transform var(--dur-1) var(--ease-out),
+    border-color var(--dur-1) var(--ease-out),
+    box-shadow var(--dur-1) var(--ease-out);
+}
+
+@media (hover: hover) {
+  .scholarly__pillarCard:hover {
+    transform: translate3d(0, calc(-1 * var(--hover-shift)), 0) scale(1.02);
+    border-color: var(--c-ink);
+    box-shadow: 0 var(--sp-12) var(--sp-24) rgb(17 17 17 / 8%);
+  }
+}
+
+.scholarly__pillarCard:focus-within {
+  border-color: var(--c-ink);
+}
+
+.scholarly__pillarTitle {
+  margin: 0;
+  padding-block-end: var(--sp-12);
+  border-block-end: var(--rule-h) solid var(--c-rule);
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-15);
+  font-weight: var(--fw-key);
 }
 
 .scholarly__pillarItems {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-2);
+  gap: var(--sp-8);
   margin: 0;
-  padding-inline-start: var(--sp-18);
+  padding: 0;
+  /* The last bullet sits on the card's bottom padding, not on the border: without this the
+     three-item cards and the two-line ones end at visibly different heights. */
+  padding-block-end: var(--sp-8);
+  list-style: none;
   color: var(--c-ink-body);
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-14);
   line-height: var(--lh-body);
+}
+
+/* The bullet is a drawn rule, not a list marker: the card's own border already frames the
+   text, and a second indent would push the three lines out of line with the title. */
+.scholarly__pillarItems li {
+  padding-inline-start: var(--sp-16);
+  position: relative;
+}
+
+.scholarly__pillarItems li::before {
+  content: "";
+  position: absolute;
+  inset-inline-start: 0;
+  inset-block-start: 0.95em;
+  width: var(--sp-8);
+  height: var(--rule-h-strong);
+  background: var(--c-blue);
 }
 
 .scholarly__cta,
@@ -517,5 +583,20 @@
   .scholarly__cards,
   .scholarly__cols {
     gap: var(--sp-16);
+  }
+}
+
+/* global.css zeroes every transition under reduced motion, which leaves the card's hover as
+   an instant border change — no lift, no scale, no shadow travel. */
+@media (prefers-reduced-motion: reduce) {
+  .scholarly__pillarCard:hover {
+    transform: none;
+    box-shadow: none;
+  }
+}
+
+@media (max-width: 600px) {
+  .scholarly__pillarCard {
+    padding: var(--sp-16);
   }
 }
