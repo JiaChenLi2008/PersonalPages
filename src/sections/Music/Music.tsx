@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { PhotoStrip, type StripPhoto } from "../../components/PhotoStrip/PhotoStrip";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
-import { dictionaries, useCopy, type CopyKey } from "../../i18n/copy";
+import { useCopy, type CopyKey } from "../../i18n/copy";
 import "./Music.css";
 
 /**
@@ -105,15 +104,6 @@ const RESUME_ROWS = [
  */
 export function Music() {
   const { text, langOf } = useCopy();
-  /* The instrument grid shows the page's own language by default and the other side of the
-     same key while a tile is hovered or focused. One dictionary is read at a time and only
-     the shown side reaches the DOM, so neither page ever carries the other language in its
-     markup (BLUEPRINT §6.4) — a CSS cross-fade of both texts would. `langOf` names which
-     side the page speaks, so no second language hook is needed. */
-  const otherSide = langOf("music.perc.01") === "en" ? dictionaries.zh : dictionaries.en;
-  const [swappedAt, setSwappedAt] = useState<number | null>(null);
-  const release = (index: number) =>
-    setSwappedAt((at) => (at === index ? null : at));
 
   return (
     <section id="music" data-section="music" className="music" aria-labelledby="music-title">
@@ -165,42 +155,36 @@ export function Music() {
           </div>
         </Reveal>
       </div>
-      {/* docx-1021 段[1]…[12]: a dense tile grid of cartoon instrument drawings that swaps to
-          the instrument's other-language name on hover — the English name on the zh page, as
-          the docx asks. Hover and keyboard focus both drive it (`tabIndex` + onFocus), so the
-          swap is not mouse-only; `:focus-visible` in Music.css draws the ring. The drawing is
-          decorative (the name beside it is the label), so it stays out of the accessibility
-          tree. No transition is declared, so `prefers-reduced-motion` has nothing to disable. */}
+      {/* docx-1021 段[1]…[12]: a small, dense grid of cartoon instrument drawings — the docx
+          asks for the drawing to turn into the instrument's English name on hover
+          ("从图片变成乐器的英文"). Default state is the drawing alone; hovering or focusing the
+          tile fades the drawing out and the name in. The name is the tile's own dictionary
+          entry, so it always speaks the page's language — the English page reads English,
+          the Chinese page reads Chinese. Hover and keyboard focus both drive it purely in
+          CSS (`:hover` / `:focus-visible`), so no state and no JS listener is involved and
+          the swap is not mouse-only; `:focus-visible` in Music.css also draws the ring. Both
+          drawing and name stay in the DOM (opacity swap), so the name is the tile's
+          accessible label in every state and the drawing stays decorative. The cross-fade
+          uses the frozen duration/easing tokens; global.css zeroes transitions under
+          `prefers-reduced-motion`, which leaves an instant swap. */}
       <ul className="music__perc">
-        {PERCUSSION.map((key, index) => {
-          const swapped = swappedAt === index;
-          const shown = swapped ? otherSide[key] : { text: text(key), lang: langOf(key) };
-          return (
-            <li
-              key={key}
-              className="music__percItem"
-              tabIndex={0}
-              onMouseEnter={() => setSwappedAt(index)}
-              onMouseLeave={() => release(index)}
-              onFocus={() => setSwappedAt(index)}
-              onBlur={() => release(index)}
-            >
-              <img
-                className="music__percArt"
-                src={`media/percussion/${PERCUSSION_ART[index]}.svg`}
-                alt=""
-                aria-hidden="true"
-                width={56}
-                height={56}
-                loading="lazy"
-                decoding="async"
-              />
-              <span className="music__percName" lang={shown.lang}>
-                {shown.text}
-              </span>
-            </li>
-          );
-        })}
+        {PERCUSSION.map((key, index) => (
+          <li key={key} className="music__percItem" tabIndex={0}>
+            <img
+              className="music__percArt"
+              src={`media/percussion/${PERCUSSION_ART[index]}.svg`}
+              alt=""
+              aria-hidden="true"
+              width={56}
+              height={56}
+              loading="lazy"
+              decoding="async"
+            />
+            <span className="music__percName" lang={langOf(key)}>
+              {text(key)}
+            </span>
+          </li>
+        ))}
       </ul>
       {/* The résumé table is a scroll region of its own at every width: three columns of
           Chinese sentence-length themes cannot stay legible in a 320px column, so the cells

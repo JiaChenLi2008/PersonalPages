@@ -134,48 +134,65 @@
 }
 
 /* ---- Percussion grid (docx-1021 段[1]…[12]) ----
-   The docx asks for a dense set of small instruments that turn into the instrument's English
-   name on hover. Each tile is a cartoon drawing (public/media/percussion) over the page's own
-   name; hovering or focusing swaps the name for the other language, which is English on the
-   zh page. Four tiles across at the 1440 board, three at 900, two at 600 — a tile never has to
-   hold more than one instrument name beside its 56px drawing. */
+   The docx asks for a small, dense set of cartoon instruments that turn into the instrument's
+   name on hover — "从图片变成乐器的英文". So the tile's default state is the drawing alone;
+   hovering or focusing it fades the drawing out and the name in (the other language's name,
+   which is English on the zh page). Both live in the same grid cell, so the swap never moves
+   the tile and the name stays in the accessibility tree while only the drawing is visible.
+   Six tiles across at the 1440 board, four at 900, three at 600. */
 .music__perc {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: var(--sp-12) var(--sp-24);
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: var(--sp-12) var(--sp-16);
   margin-block-start: var(--sp-32);
   padding: 0;
   list-style: none;
 }
 
 .music__percItem {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-12);
-  padding-block: var(--sp-10);
+  display: grid;
+  place-items: center;
+  padding-block: var(--sp-12);
   border-block-start: var(--rule-h) solid var(--c-rule);
   color: var(--c-ink);
   font-family: var(--ff-sans-cn);
-  font-size: var(--fs-14);
+  font-size: var(--fs-12);
   line-height: var(--lh-body);
 }
 
-/* The drawing is fixed at 56px so twelve tiles of different subjects keep one optical size;
-   it is decorative (the name is the label), so it takes no margin of its own. */
+/* Drawing and name share one cell; only opacity decides which is seen. The cross-fade is
+   the docx's "从图片变成乐器的英文"; global.css zeroes transitions under reduced motion,
+   which leaves a plain instant swap. */
+.music__percArt,
+.music__percName {
+  grid-area: 1 / 1;
+  transition: opacity var(--dur-1) var(--ease-out);
+}
+
 .music__percArt {
-  flex: none;
   width: 56px;
   height: 56px;
 }
 
-/* The longest names (Glockenspiel, Tambourine) overflow a 128px tile at 320 with the drawing
-   beside them: the name wraps instead of widening the grid. */
 .music__percName {
   min-width: 0;
   overflow-wrap: anywhere;
+  text-align: center;
+  opacity: 0;
 }
+
+.music__percItem:hover .music__percArt,
+.music__percItem:focus-visible .music__percArt {
+  opacity: 0;
+}
+
+.music__percItem:hover .music__percName,
+.music__percItem:focus-visible .music__percName {
+  opacity: 1;
+}
+
 /* The only cue that the tile is interactive: a keyboard ring. The swap itself is the
-   hover/focus effect, and nothing here animates, so reduced-motion needs no branch. */
+   hover/focus effect. */
 .music__percItem:focus-visible {
   outline: var(--rule-h-strong) solid var(--c-blue);
   outline-offset: var(--sp-2);
@@ -258,7 +275,7 @@
   }
 
   .music__perc {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .music__fig {
@@ -286,17 +303,12 @@
   }
 
   .music__perc {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: var(--sp-8) var(--sp-16);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--sp-8) var(--sp-12);
   }
 
-  /* Two 56px drawings plus their names do not fit a 320px column: the art is the tile's
-     ornament, the name is its content, so the drawing gives up the room and moves above
-     the name — side by side, Glockenspiel breaks mid-word (`Glockenspi|el`) at 128px. */
   .music__percItem {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-8);
+    padding-block: var(--sp-8);
   }
 
   .music__percArt {

@@ -18,10 +18,11 @@
  *      date-descending, every cell is that row's own dictionary entry, and the table carries
  *      an accessible name taken from a dictionary-sourced heading;
  *   4b. the twelve-instrument grid of docx-1021 items 1…12 renders its twelve tiles in contract
- *      order, each with its own cartoon drawing (`media/percussion/<slug>.svg`, alt="" because
- *      the name beside it is the label) and its own dictionary text under that entry's `lang`
- *      (the mark the hover swap replaces with the other side's) with `tabindex="0"` for
- *      keyboard reach, ahead of the table;
+ *      order, each with its own cartoon drawing (`media/percussion/<slug>.svg`, alt="") and its
+ *      own dictionary text under that entry's `lang` (the mark the hover swap replaces with the
+ *      other side's) with `tabindex="0"` for keyboard reach, ahead of the table. The docx's
+ *      interaction is "从图片变成乐器的英文": the tile shows the drawing only until hovered, so
+ *      the CSS must start the name at `opacity: 0` and raise it on `:hover` / `:focus-visible`;
  *   5. Music's 4:3 figure still renders the T1 photograph (`music-fig-720.webp`) with its own
  *      alt key; Sport renders the docx's `sport.lead` and no longer its superseded
  *      `sport.body` (the ruling is "replace", and both keys are still in the dictionaries);
@@ -382,6 +383,63 @@ if (percGrid === null) {
   const gridAt = music.indexOf('<ul class="music__perc">');
   if (gridAt > tableAt) {
     fail("music percussion: the grid sits after the résumé table; the docx puts it ahead of it");
+  }
+
+  /* The docx's interaction is "从图片变成乐器的英文", not "drawing beside a permanent name":
+     the tile must open on the drawing alone. Reading the stylesheet is the only way to catch
+     a regression to the always-visible name — markup alone cannot tell, because the name has
+     to stay in the DOM to be the tile's accessible label. */
+  const musicCss = readFileSync(join(REPO, "src", "sections", "Music", "Music.css"), "utf8");
+  /* Declarations of every top-level block whose selector list contains the exact selector.
+     A selector can appear in a grouped rule (`.a, .b { … }`), so match by splitting the list. */
+  const declarations = (selector) => {
+    const found = [];
+    for (const [, selectors, body] of musicCss.matchAll(/([^{}]+)\{([^{}]*)\}/g)) {
+      const list = selectors.split(",").map((part) => part.trim().replace(/\s+/g, " "));
+      if (list.includes(selector)) {
+        found.push(body);
+      }
+    }
+    return found.join("\n");
+  };
+  const nameIdle = declarations(".music__percName");
+  if (!/opacity:\s*0\s*;/.test(nameIdle)) {
+    fail(
+      "music percussion: .music__percName does not start at opacity: 0 — the docx wants the " +
+        "drawing alone until hover, not a permanent name beside it",
+    );
+  }
+  if (!/opacity:\s*1\s*;/.test(declarations(".music__percItem:hover .music__percName"))) {
+    fail("music percussion: hovering a tile does not reveal .music__percName (opacity: 1 missing)");
+  }
+  if (!/opacity:\s*0\s*;/.test(declarations(".music__percItem:hover .music__percArt"))) {
+    fail("music percussion: hovering a tile does not hide .music__percArt (opacity: 0 missing)");
+  }
+  if (!/opacity:\s*1\s*;/.test(declarations(".music__percItem:focus-visible .music__percName"))) {
+    fail("music percussion: keyboard focus does not reveal the name (opacity: 1 missing)");
+  }
+  const shared = declarations(".music__percArt") + declarations(".music__percName");
+  if (!/grid-area:\s*1\s*\/\s*1\s*;/.test(shared)) {
+    fail("music percussion: drawing and name do not share one grid cell (grid-area: 1 / 1)");
+  }
+
+  /* The name must speak the page's own language in both states. The earlier build swapped to
+     the *other* dictionary on hover, which made the English page reveal Chinese — the docx's
+     "从图片变成乐器的英文" is a picture-to-name swap, not a language swap. The rendered markup
+     above already pins each name to its own entry's lang; this pins the source so a future
+     edit cannot reintroduce a second dictionary read. */
+  const musicTsx = readFileSync(MUSIC, "utf8");
+  if (/dictionaries\s*\.\s*(?:en|zh)/.test(musicTsx)) {
+    fail(
+      "music percussion: Music.tsx reads a dictionary directly — the hover name must be the " +
+        "page's own entry, never the other language's",
+    );
+  }
+  if (/onMouseEnter|onMouseLeave|onFocus=|onBlur=/.test(musicTsx)) {
+    fail(
+      "music percussion: the tile swap is driven by React handlers; it must be CSS-only " +
+        "(:hover / :focus-visible) so the shown name can never diverge from the page language",
+    );
   }
 }
 

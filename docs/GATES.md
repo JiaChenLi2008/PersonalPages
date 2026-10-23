@@ -66,7 +66,7 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
-| `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增；T11 扩打击乐）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK；**T11 新增** 12 格打击乐逐格比对字典原文 + `lang` + `tabindex="0"` + 图片 `src`（`PERCUSSION_ART` 顺序对 `public/media/percussion/<slug>.svg`）+ `alt=""` + `width/height=56`，且 SVG 文件须在磁盘上 | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行）；不证 SVG 画面内容（只判文件存在） | CI（build 后，排 `verify-ssr-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` SSR 产物，实测 0.2s、无 CDP） |
+| `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增；T11 扩打击乐）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK；**T11 新增** 12 格打击乐逐格比对字典原文 + `lang` + `tabindex="0"` + 图片 `src`（`PERCUSSION_ART` 顺序对 `public/media/percussion/<slug>.svg`）+ `alt=""` + `width/height=56`，且 SVG 文件须在磁盘上；另读 `Music.css` / `Music.tsx` 断言交互形态（默认 `opacity: 0` 只显图、`:hover` / `:focus-visible` 显名、两者共 `grid-area: 1 / 1`、名字取自本页语言且不得出现 `dictionaries.*` 或 React 悬停 handler） | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行）；不证 SVG 画面内容（只判文件存在） | CI（build 后，排 `verify-ssr-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` SSR 产物，实测 0.2s、无 CDP） |
 | `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧） | 只覆盖 scholarly 节；视觉 | CI |
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 **188 键**）、字段类型、材料侧 `text` 逐字溯源（本轮 **213 条**）、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」（**79 条**）、材料混排 7 槽位按**覆盖率**下限（两侧折叠后各自命中比例之和 ≥0.75 且最长单片段 ≥8 字，**10 条**）、chrome/src 归属、※ 禁止；`src` 可定位的 brief 现在含 `docx-2026-10-brief.md`（同一 `段[N]` 语义） | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检）；覆盖率的**分母口径**（见 §5） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
@@ -250,6 +250,23 @@ P9 前为 320）。`verify-responsive` 的 `values_checked` 修前修后同为 8
 它们不进 `MANIFEST.json`、不受 `verify-assets.py` 管：该门禁只认 webp/jpg 位图对（`EXT_FORMAT` 只有两种），
 SVG 是矢量源而非派生位图。真渲染验收见本节末。
 
+**交互形态（T11 修正）**：docx 原文是「鼠标放上去就会从图片变成乐器的英文」，故图与名**共占同一格**
+（`grid-area: 1 / 1`），默认 `.music__percName { opacity: 0 }` 只显图，` :hover` / `:focus-visible` 时
+图 `opacity: 0`、名 `opacity: 1`，交叉淡入用 `--dur-1` / `--ease-out`（`global.css` 在 reduced-motion 下
+把 transition 归零，退化为瞬时切换）。此前「图左名右常显」的版本不符要求，已改。
+**门禁守这条**：`verify-music-sport-dom.mjs` 读 `Music.css` 断言 `.music__percName` 起始 `opacity: 0`、
+` :hover` 下名 `opacity: 1` 且图 `opacity: 0`、`:focus-visible` 下名 `opacity: 1`、两者共享 `grid-area: 1 / 1`。
+应拒负例：删掉 `.music__percName` 的 `opacity: 0`（退回常显）→ rc=1
+（`.music__percName does not start at opacity: 0 — the docx wants the drawing alone until hover`）。
+
+**名字语言（T11 再修正）**：悬停显的名字**恒为本页语言**（en 页英文、zh 页中文）。此前实现成了
+「切到另一语言」（英文页悬停反显中文），错。正解是名字直接取本条目 `text(key)` / `langOf(key)`，
+切显隐全由 CSS 完成（` :hover` / `:focus-visible`），无 `useState`、无 `onMouseEnter`/`onFocus`，
+自然不可能跑出第二语言。门禁另读 `Music.tsx`：出现 `dictionaries.en` / `dictionaries.zh` 或
+`onMouseEnter|onMouseLeave|onFocus=|onBlur=` 即红。
+应拒负例：给 `<li>` 加回 `onMouseEnter={() => {}}` → rc=1
+（`the tile swap is driven by React handlers; it must be CSS-only`）。
+
 ### 3 `tools/verify-ssr-dom.mjs`：新增第 3b 节（iGEM 宣传块 + 四块方阵）
 
 宣传块断言：两个键逐字渲染、各自带本条目 `lang`、位置在 lab 段与 Paris 标题之间。
@@ -277,21 +294,25 @@ SVG 是矢量源而非派生位图。真渲染验收见本节末。
 
 ### 2.1 T11 真渲染验收（12 格打击乐 + 插图）
 
-`npm run build` 产物经 `vite preview`（4173）在宿主 Chrome 实测，**1440 / 500 / 320 三档**：
+`npm run build` 产物经 `vite preview`（4173）在宿主 Chrome 实测，**1440 / 900 / 320 三档**：
 
-| 项 | 1440（en / zh） | 500 | 320 |
+| 项 | 1440 | 900 | 320 |
 |---|---|---|---|
-| 格数 / 列数 | 12 / 4 列（`314.25px ×4`） | 12 / 2 列（`210.5px ×2`） | 12 / 2 列 |
-| 插图渲染宽 | 56px（natural 150×150） | 40px | 40px |
+| 格数 / 列数 | 12 / 6 列（`208.16px ×6`） | 12 / 4 列（`193.25px ×4`） | 12 / 3 列（`82.66px ×3`） |
+| 插图渲染宽 | 56px | 56px | 40px |
+| 格子高 | 81px | 81px | 57px |
 | 图片加载 | 12/12 `complete` | 12/12 | 12/12 |
-| 横向溢出 | 无 | 无（`scrollWidth==clientWidth==485`） | 无 |
-| 悬停换语 | zh 页 `架子鼓` → `Drum Kit`（`lang` zh-Hans → en）；移出复原 | — | — |
-| en 页文字 | Handpan / Marimba / Drum Kit / Timpani / Crash Cymbals / Vibraphone / Tubular Bells / Xylophone / Glockenspiel / Tambourine / Clapper / Congas | — | — |
-| zh 页文字 | 手碟 / 马林巴琴 / 架子鼓 / 定音鼓 / 对镲 / 颤音琴 / 管钟 / 木琴 / 钟琴 / 铃鼓 / 快板 / 康加鼓 | — | — |
+| 横向溢出 | 无 | 无 | 无（`scrollWidth==clientWidth==320`） |
+| 长名是否换行 | 否 | 否 | 否（`Glockenspiel` 72px 单行入 83px 格） |
+| 默认态 | 12/12 `art opacity=1`、`name opacity=0` | 同左 | 同左 |
+| 悬停态 | en 页第 3 格：`art 0 / name 1`，显 `Drum Kit`（`lang=en`） | — | — |
+| 悬停态（zh） | zh 页第 3 格：`art 0 / name 1`，显 `架子鼓`（`lang=zh-Hans`） | — | — |
+| en 页名字 | Handpan / Marimba / Drum Kit / Timpani / Crash Cymbals / Vibraphone / Tubular Bells / Xylophone / Glockenspiel / Tambourine / Clapper / Congas | — | — |
+| zh 页名字 | 手碟 / 马林巴琴 / 架子鼓 / 定音鼓 / 对镲 / 颤音琴 / 管钟 / 木琴 / 钟琴 / 铃鼓 / 快板 / 康加鼓 | — | — |
 
-插图目视结论（vision 子代理读 1440 与 500 截图）：12 格全满、风格统一、无缺图/白块/裁切、图左文右垂直居中、
-行距一致（标签行 y≈431 / 521 / 611，行距 90px）。已知限制：图标在 1440 下约 30–36px 视觉尺寸，
-细部（如 Timpani 鼓槌朝向）不可辨；配色约 4 色（黑描线 + 金黄 / 红 / 蓝），够统一但不算丰富。
+插图目视结论（vision 子代理读 1440 默认态与 320 默认态截图）：12 格全满、全为图标无文字、风格统一、
+无缺图/白块/裁切/重叠、格子等高、列等宽、分隔线逐格对齐。已知限制：图标在 1440 下约 56px、320 下 40px，
+细部（如 Timpani 鼓槌朝向）在缩略时不可辨；配色约 4 色（黑描线 + 金黄 / 红 / 蓝），够统一但不算丰富。
 
 ## T10 轮（verify-deploy 补「必需清单」逐条点名）
 
