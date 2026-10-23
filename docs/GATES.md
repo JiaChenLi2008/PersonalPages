@@ -492,3 +492,17 @@ HIR 第三节 lead 改绿字、四节名条去右侧重复标题且 kicker 14px/
 - **应拒负例**：把 Elder 的 kicker 硬编码成 `02 / 助老活动`（中文串出现在 en 页）→ rc=1，
   `elder.title kicker = elder.kicker: "02 / 助老活动" != "02 / hands for the elder"` +
   `elder.title kicker has no zh-Hans text: true != false`（6 个场景各两条）；复原 → rc=0。
+## W4-F 轮（终局收口：`fidelity-scholarly` 的一处 board 串豁免登记）
+
+本轮只**登记一处豁免**，未改阈值、未删断言、未动输出格式：`tools/fidelity-scholarly.mjs` 的
+`SUPERSEDED_BY_DOCX` 增 `HhaEo: "scholarly.revealSwipe"`（先例 `TZa4y → scholarly-hir.title`）。
+
+- **成因**：文案轮（`00cca7b`）按 docx-1023 第 3 条把 chrome 键 `scholarly.revealSwipe` 由 `SWIPE → REVEAL`
+  改为 `tap to reveal`；冻版 board 的 `HhaEo`（`<Hint>`）仍写旧串，于是本轮之前该门禁报
+  `[copy] board text HhaEo <Hint> is not covered by a referenced key: "SWIPE → REVEAL"`（main 既存红）。
+- **豁免分支未动**：表项仍要求 `src/` 里真有 `text("scholarly.revealSwipe")`，缺了照样 rc=1 点名
+  （`referencedKeys` 判据原样）；新串的逐字口径仍由 `docs/verify-copy.mjs` 与 `docs/CHROME.md` 持有。
+- **本轮实测正例**：rc=0，汇总行 `66 board strings (1 joined, 3 punctuation-folded, 2 docx-superseded, 0 split across board nodes)`、
+  `checked=152 missing=0`。
+- 未做「应拒负例」：负例须临时删 `src/sections/Scholarly/ScholarlyImmuno.tsx` 的 `text()` 调用，越本 lane 的改文件边界，
+  故此处只报静态依据（该分支代码本轮未改，仅表项多一键）。
