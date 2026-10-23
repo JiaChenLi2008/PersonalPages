@@ -32,6 +32,12 @@ DERIVED = {
     "index-music-296": ("XywbR", 296, 296),
     "index-sport-296": ("B8NpB", 296, 296),
     "photoband-2880": ("FvW5q", 2880, 1120),
+    # 灯箱放大档：与 720 档同框比（4:3），供灯箱取 1440×1080。Elder 未列入：其源图
+    # Uh3XX.jpg 在此尺寸上 q60 仍 342 KB，只能降到 q38 才达标（比 720 档更糊），故不做。
+    "music-fig-1440": ("vVdM9", 1440, 1080),
+    "sport-fig-1440": ("rWg3m", 1440, 1080),
+    "igem-fig1-1440": ("u2okj", 1440, 1080),
+    "igem-fig2-1440": ("I2wlYa", 1440, 1080),
 }
 DERIVED_MAX_BYTES = 250 * 1024
 # 全幅宽图（通栏、无左右留白，像素最密）单文件上限放宽到 320 KB，**只对下列白名单**生效；
@@ -41,7 +47,10 @@ FULL_BLEED_MAX_BYTES = 320 * 1024
 FULL_BLEED = {"hir-fig-2688", "photoband-2880"}
 BLANK_STDDEV_SUM = 5  # RGB 三通道标准差之和 <= 此值即为空白/占位图
 SOURCE_ORIGINALS = {"image1.jpeg", "image2.jpeg", "image3.jpeg"}
-NON_DERIVED = {"hir-essay.pdf"}  # 原样搬运的附件（非派生位图），不参与位图清单：无像素尺寸，且由 ScholarlyHir 直接 href 使用
+NON_DERIVED = {
+    "hir-essay.pdf",  # 原样搬运的附件（非派生位图），不参与位图清单：无像素尺寸，且由 ScholarlyHir 直接 href 使用
+    "shanghai-hospitals.xlsx",  # 医院指南工作簿：zip 容器不是位图，由 tools/verify-hospitals-xlsx.py 单独校验
+}
 
 
 def main():

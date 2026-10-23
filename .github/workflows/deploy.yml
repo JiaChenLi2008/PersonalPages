@@ -44,6 +44,10 @@ jobs:
           python3 -c "import PIL" 2>/dev/null || python3 -m pip install --quiet pillow
           python3 tools/verify-assets.py
 
+      # Reads docs/copy-{zh,en}.json plus the workbook zip in public/media: stdlib only.
+      - name: Verify hospitals workbook
+        run: python3 tools/verify-hospitals-xlsx.py
+
       - name: Verify deploy configuration
         run: node tools/verify-deploy.mjs
 

@@ -63,6 +63,13 @@ const WHITELIST = [
   /^WebP$/,
   /^EN$/,
   /^ZH$/,
+  /* docx-1023 医院指南：材料原文即含 3pm/1pm/B超/CT；XLSX/Excel 为格式专名 */
+  /* LATIN_TOKEN 从字母起算，「3pm / 1pm」的数字被切掉，扫描器看到的是 pm，故按 [13]?pm 锚定。 */
+  /^[13]?pm$/,
+  /^B$/, // B超
+  /^CT$/,
+  /^XLSX$/,
+  /^Excel$/,
   /^(?:https?:\/\/|www\.)[^\s"'<>)]+$/, // URL
   /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/, // e-mail address
 ];
