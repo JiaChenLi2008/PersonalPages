@@ -415,7 +415,7 @@
     "lang": "en"
   },
   "scholarly.revealSwipe": {
-    "text": "SWIPE → REVEAL",
+    "text": "tap to reveal",
     "chrome": true,
     "lang": "en"
   },
@@ -560,8 +560,8 @@
     "lang": "en"
   },
   "music.body": {
-    "text": "Ten years of percussion (marimba). Rhythm is both constraint and freedom; it taught me to look for variation and grace inside repetition.",
-    "src": "uirpen#Index.03 音乐时光.Body.D",
+    "text": "Ten years behind the kit. Music is how I speak, but creating with friends is how we resonate; a shared voice to the world, one beat at a time.",
+    "src": "docx-1023-brief.md#段[1]",
     "lang": "en"
   },
   "sport.title": {
@@ -940,8 +940,8 @@
     "lang": "en"
   },
   "sport.lead": {
-    "text": "For me, sports were never just about winning. It’s about pushing my physical limits and, more importantly, the joy of growing alongside my teammates. I love how movement creates a shared rhythm—building genuine connections and bonds that go far beyond the game itself.",
-    "src": "docx-2026-10-brief.md#段[26]",
+    "text": "No solo victories. Football and badminton are where I test my limits and bring the energy. The real magic isn't about the scoreboard—it's about growing, sweating, and building momentum together.",
+    "src": "docx-1023-brief.md#段[7]",
     "lang": "en"
   },
   "music.perc.01": {
@@ -1092,6 +1092,311 @@
   "scholarly-igem.pillar4.item3": {
     "text": "Easily adaptable to diverse therapeutic strains",
     "src": "docx-1021-brief.md#段[30]",
+    "lang": "en"
+  },
+  "elder.guide.meta": {
+    "text": "SHANGHAI HOSPITAL GUIDE · XLSX",
+    "chrome": true,
+    "lang": "en"
+  },
+  "elder.guide.download": {
+    "text": "DOWNLOAD XLSX ↗",
+    "chrome": true,
+    "lang": "en"
+  },
+  "elder.guide.head.hospital": {
+    "text": "Hospital",
+    "chrome": true,
+    "lang": "en"
+  },
+  "elder.guide.head.checkin": {
+    "text": "Check-in",
+    "chrome": true,
+    "lang": "en"
+  },
+  "elder.guide.head.tests": {
+    "text": "Other tests",
+    "chrome": true,
+    "lang": "en"
+  },
+  "elder.guide.head.tips": {
+    "text": "Tips",
+    "chrome": true,
+    "lang": "en"
+  },
+  "elder.guide.title": {
+    "text": "Navigating Shanghai's Hospitals",
+    "src": "docx-1023-brief.md#段[8]",
+    "lang": "en"
+  },
+  "elder.guide.body": {
+    "text": "Here's our guide to the local medical process—no more getting lost in the hospital maze. Check it out and share your own tips with us!",
+    "src": "docx-1023-brief.md#段[9]",
+    "lang": "en"
+  },
+  "elder.guide.r01.name": {
+    "text": "Renji Hospital",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "en"
+  },
+  "elder.guide.r01.checkin": {
+    "text": "You must check in on site. After you book and pay online, you still have to check in separately. Once you have, a blue queue number appears at the top of “My Appointments.” Note: after each test, you have to check in again to queue for the follow-up visit (your original number stays the same).",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "en"
+  },
+  "elder.guide.r01.tests": {
+    "text": "Follow the hospital's instructions.",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "en"
+  },
+  "elder.guide.r01.tips": {
+    "text": "Remember to check in again after every test!",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "en"
+  },
+  "elder.guide.r02.name": {
+    "text": "Ninth People's Hospital",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "en"
+  },
+  "elder.guide.r02.checkin": {
+    "text": "No on-site check-in needed. After you book and pay online, just look up your queue number under “My Bookings” in the mini program.",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "en"
+  },
+  "elder.guide.r02.tests": {
+    "text": "For blood tests, take a separate number from the self-service machine at the lab on the first floor.",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "en"
+  },
+  "elder.guide.r02.tips": {
+    "text": "You don't need to check in again after a test; just go over when no one is there.",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "en"
+  },
+  "elder.guide.r03.name": {
+    "text": "Ruijin Hospital - Dapuqiao",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "en"
+  },
+  "elder.guide.r03.checkin": {
+    "text": "No on-site check-in needed. Pay the registration fee online on the day, then go over at your appointment time.",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "en"
+  },
+  "elder.guide.r03.tests": {
+    "text": "Standard procedure.",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "en"
+  },
+  "elder.guide.r03.tips": {
+    "text": "You can ask at the front desk whether your number has passed and whether your name is in the system. Do not book the middle of the afternoon (after 3pm, say) — you will wait a very long time. Book the start of the afternoon session (1pm, say) if you can.",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "en"
+  },
+  "elder.guide.r04.name": {
+    "text": "Zhongshan Hospital",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "en"
+  },
+  "elder.guide.r04.checkin": {
+    "text": "You must register and pay at a machine on site. Then, once you reach the right floor (respiratory medicine is in Building 20, 3rd floor), you have to check in at a machine again before you are in the queue.",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "en"
+  },
+  "elder.guide.r04.tests": {
+    "text": "Standard procedure.",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "en"
+  },
+  "elder.guide.r04.tips": {
+    "text": "Pick up medicine on the second floor. After you pay, the pharmacy window number flashes on the screen only briefly, and there is no paper slip. Watch the screen closely, or you will miss your turn and have to queue again to have your record checked.",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "en"
+  },
+  "elder.guide.r05.name": {
+    "text": "Huashan Hospital",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "en"
+  },
+  "elder.guide.r05.checkin": {
+    "text": "On-site check-in is required. After booking online, scan your ID card or medical insurance card at a self-service machine in the outpatient hall to check in; only then is a queue number issued.",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "en"
+  },
+  "elder.guide.r05.tests": {
+    "text": "For blood draws, scan for a separate number at the machine in the 3rd-floor blood-draw area.",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "en"
+  },
+  "elder.guide.r05.tips": {
+    "text": "Dermatology is extremely busy; waits after check-in are long, so allow plenty of time.",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "en"
+  },
+  "elder.guide.r06.name": {
+    "text": "Shanghai General Hospital",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "en"
+  },
+  "elder.guide.r06.checkin": {
+    "text": "No check-in needed. Pay online, then watch the screen outside the consulting room for your number.",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "en"
+  },
+  "elder.guide.r06.tests": {
+    "text": "For ultrasound, CT and other tests, take a separate number from the machine at the entrance of the relevant department.",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "en"
+  },
+  "elder.guide.r06.tips": {
+    "text": "The main calling screen is sometimes delayed; go to the consulting room as soon as you hear your name, or your number will be passed.",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "en"
+  },
+  "elder.guide.r07.name": {
+    "text": "Xinhua Hospital",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "en"
+  },
+  "elder.guide.r07.checkin": {
+    "text": "You must check in on site, at the triage desk or a self-service machine on the relevant floor.",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "en"
+  },
+  "elder.guide.r07.tests": {
+    "text": "Blood tests need a separate number.",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "en"
+  },
+  "elder.guide.r07.tips": {
+    "text": "Pediatrics and adult services are in different buildings and it is easy to go wrong; read the signs.",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "en"
+  },
+  "elder.guide.r08.name": {
+    "text": "Sixth People's Hospital",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "en"
+  },
+  "elder.guide.r08.checkin": {
+    "text": "No check-in needed. Book online, then go straight to the consulting room at your appointment time.",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "en"
+  },
+  "elder.guide.r08.tests": {
+    "text": "For orthopaedic X-rays, take a separate number in radiology; the queue is long.",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "en"
+  },
+  "elder.guide.r08.tips": {
+    "text": "If you are seeing orthopaedics, go in the morning — films taken in the afternoon may not be reported the same day.",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "en"
+  },
+  "elder.guide.r09.name": {
+    "text": "Fudan University Shanghai Cancer Center",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "en"
+  },
+  "elder.guide.r09.checkin": {
+    "text": "You must check in on site: complete check-in at a self-service machine before you can enter the waiting area.",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "en"
+  },
+  "elder.guide.r09.tests": {
+    "text": "Each test (blood draw, imaging) needs its own separate number.",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "en"
+  },
+  "elder.guide.r09.tips": {
+    "text": "A specialist hospital is strict about process — without check-in you will not be seen, so do not forget.",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "en"
+  },
+  "elder.guide.r10.name": {
+    "text": "Tenth People's Hospital",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "en"
+  },
+  "elder.guide.r10.checkin": {
+    "text": "You can tap “Check in” in the mini program on your phone; there is no need to queue at a machine.",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "en"
+  },
+  "elder.guide.r10.tests": {
+    "text": "Blood tests: take a number from the self-service machine on the 2nd floor.",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "en"
+  },
+  "elder.guide.r10.tips": {
+    "text": "The underground car park jams easily; going by metro is suggested.",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "en"
+  },
+  "elder.guide.r11.name": {
+    "text": "Shuguang Hospital",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "en"
+  },
+  "elder.guide.r11.checkin": {
+    "text": "No check-in needed. Book and pay online, then wait at the door of the consulting room.",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "en"
+  },
+  "elder.guide.r11.tests": {
+    "text": "At the Chinese medicine pharmacy, scan to register first, then wait for your name to be called at the window.",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "en"
+  },
+  "elder.guide.r11.tips": {
+    "text": "Appointments with some senior specialists are hard to get online; watch for the release time in advance.",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "en"
+  },
+  "elder.guide.r12.name": {
+    "text": "Ruijin Hospital - Main",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "en"
+  },
+  "elder.guide.r12.checkin": {
+    "text": "You must check in on site: after booking online, check in at a self-service machine or the triage desk.",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "en"
+  },
+  "elder.guide.r12.tests": {
+    "text": "Blood tests, ECG and the like all need a second number.",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "en"
+  },
+  "elder.guide.r12.tips": {
+    "text": "The main campus is very large and the buildings are far apart; when you have several tests, plan the route so you are not running back and forth.",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "en"
+  },
+  "music.intro.p1": {
+    "text": "Calling all music lovers! Let's make something happen—whether it's creating new tracks, performing live, or just jamming out.",
+    "src": "docx-1023-brief.md#段[2]",
+    "lang": "en"
+  },
+  "music.intro.p2": {
+    "text": "I play 12 different percussion instruments (click on the following pics to see what they are), and I'm always down to collaborate.",
+    "src": "docx-1023-brief.md#段[3]",
+    "lang": "en"
+  },
+  "music.intro.p3": {
+    "text": "Hit me up, and let's make some noise together!",
+    "src": "docx-1023-brief.md#段[4]",
+    "lang": "en"
+  },
+  "music.resume.intro1": {
+    "text": "Where has the rhythm taken me?",
+    "src": "docx-1023-brief.md#段[5]",
+    "lang": "en"
+  },
+  "music.resume.intro2": {
+    "text": "Take a look at where I’ve performed over the years!",
+    "src": "docx-1023-brief.md#段[6]",
     "lang": "en"
   }
 }

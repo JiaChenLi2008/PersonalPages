@@ -415,7 +415,7 @@
     "lang": "zh-Hans"
   },
   "scholarly.revealSwipe": {
-    "text": "滑动 → 揭晓",
+    "text": "点击揭晓",
     "chrome": true,
     "lang": "zh-Hans"
   },
@@ -560,8 +560,8 @@
     "lang": "zh-Hans"
   },
   "music.body": {
-    "text": "十年打击乐（马林巴）。节拍既是约束也是自由，教会我在重复里寻找变化与优雅。",
-    "src": "uirpen#Index.03 音乐时光.Body.D",
+    "text": "在鼓组后面待了十年。音乐是我说话的方式，而与朋友一起创作，是我们共鸣的方式；把同一个声音讲给世界听，一拍接一拍。",
+    "src": "docx-1023-brief.md#段[1]",
     "lang": "zh-Hans"
   },
   "sport.title": {
@@ -940,8 +940,8 @@
     "lang": "zh-Hans"
   },
   "sport.lead": {
-    "text": "对我来说，运动从来不只是为了赢。它关乎把自己身体的极限往前推一点，更重要的是和队友一起成长的快乐。我喜欢运动造出的那种共同节奏——它带来的真实连接与羁绊，远远超出比赛本身。",
-    "src": "docx-2026-10-brief.md#段[26]",
+    "text": "胜利从来不是一个人的。足球和羽毛球，是我试探自己极限、把劲头拿出来的地方。真正奇妙的不是记分牌——而是一起成长、一起流汗、一起把势头攒起来。",
+    "src": "docx-1023-brief.md#段[7]",
     "lang": "zh-Hans"
   },
   "music.perc.01": {
@@ -1092,6 +1092,311 @@
   "scholarly-igem.pillar4.item3": {
     "text": "易于适配多种治疗菌株",
     "src": "docx-1021-brief.md#段[30]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.meta": {
+    "text": "上海就医指南 · Excel 表格",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "elder.guide.download": {
+    "text": "下载 XLSX ↗",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "elder.guide.head.hospital": {
+    "text": "医院",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "elder.guide.head.checkin": {
+    "text": "签到方式",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "elder.guide.head.tests": {
+    "text": "其他检查",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "elder.guide.head.tips": {
+    "text": "避坑提示",
+    "chrome": true,
+    "lang": "zh-Hans"
+  },
+  "elder.guide.title": {
+    "text": "上海就医导航",
+    "src": "docx-1023-brief.md#段[8]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.body": {
+    "text": "这是我们整理的就医流程指南——不必再在医院里绕来绕去。打开看看，也把你自己的避坑经验分享给我们！",
+    "src": "docx-1023-brief.md#段[9]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r01.name": {
+    "text": "仁济医院",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r01.checkin": {
+    "text": "必须当场签到。线上挂号并付费后，需另外签到。签到后，“我的预约”最上方会显示蓝色的排队号。注意：每做完一个检验，必须回去重新签到才能排队复诊（但原序号不变）。",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r01.tests": {
+    "text": "需按医院指引进行。",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r01.tips": {
+    "text": "一定记得每次做完检查都要“重新签到”！",
+    "src": "docx-1023-brief.md#段[10]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r02.name": {
+    "text": "第九人民医院",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r02.checkin": {
+    "text": "无需当场签到。线上挂号并付费后，直接在小程序“我的挂号”里查看排队序号即可。",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r02.tests": {
+    "text": "涉及验血，需要在一楼检验科的自助机器上另外拿号排队。",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r02.tips": {
+    "text": "做完检测后无需重新签到，看准没人的时候直接过去即可。",
+    "src": "docx-1023-brief.md#段[11]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r03.name": {
+    "text": "打浦桥瑞金医院",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r03.checkin": {
+    "text": "无需当场签到。预约当天直接在线上付挂号费，到预约时间直接过去。",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r03.tests": {
+    "text": "常规流程。",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r03.tips": {
+    "text": "前台可以询问是否过号、名字是否在系统里。千万别约下午中段时间（如 3pm 之后），会等非常久！尽量约下午刚开场（如 1pm）。",
+    "src": "docx-1023-brief.md#段[12]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r04.name": {
+    "text": "复旦大学附属中山医院",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r04.checkin": {
+    "text": "必须线下机器挂号并付费，且到对应楼层（如呼吸科在 20 号楼 3 层）后，必须再次用机器签到才算开始排队。",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r04.tests": {
+    "text": "常规流程。",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r04.tips": {
+    "text": "取药在二楼。缴费后屏幕会快速闪过取药窗口号，且没有纸质单子！一定要死盯屏幕，不然过号了得重新排队查记录。",
+    "src": "docx-1023-brief.md#段[13]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r05.name": {
+    "text": "华山医院",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r05.checkin": {
+    "text": "需当场签到。线上预约后，需在门诊大厅自助机上刷身份证/医保卡签到，才能生成排队号。",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r05.tests": {
+    "text": "抽血需在 3 楼抽血处机器上另外扫码取号。",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r05.tips": {
+    "text": "皮肤科非常火爆，签到后等待时间较长，建议预留充足时间。",
+    "src": "docx-1023-brief.md#段[14]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r06.name": {
+    "text": "上海市第一人民医院",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r06.checkin": {
+    "text": "无需签到。线上付费后，直接看诊室门口的屏幕叫号。",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r06.tests": {
+    "text": "B超、CT 等检查均需在各自科室门口机器另外取号。",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r06.tips": {
+    "text": "叫号大屏幕有时会有延迟，听到名字要立刻去诊室，容易过号。",
+    "src": "docx-1023-brief.md#段[15]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r07.name": {
+    "text": "上海交通大学医学院附属新华医院",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r07.checkin": {
+    "text": "必须当场签到。需在对应楼层分诊台或自助机签到。",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r07.tests": {
+    "text": "验血需另外拿号。",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r07.tips": {
+    "text": "儿科和成人部在不同大楼，导航容易走错，记得看清指示牌。",
+    "src": "docx-1023-brief.md#段[16]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r08.name": {
+    "text": "上海市第六人民医院",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r08.checkin": {
+    "text": "无需签到。线上挂号后按预约时间直接去诊室。",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r08.tests": {
+    "text": "骨科拍片需在放射科单独拿号，排队人很多。",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r08.tips": {
+    "text": "如果是看骨科，尽量早上去，下午拍片可能当天出不来结果。",
+    "src": "docx-1023-brief.md#段[17]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r09.name": {
+    "text": "复旦大学附属肿瘤医院",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r09.checkin": {
+    "text": "必须当场签到。需先在自助机上完成签到，才能进入候诊区。",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r09.tests": {
+    "text": "各项检查（抽血、影像）严格分开取号。",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r09.tips": {
+    "text": "专科医院流程极其严格，没签到绝对不给看，千万别忘。",
+    "src": "docx-1023-brief.md#段[18]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r10.name": {
+    "text": "上海市第十人民医院",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r10.checkin": {
+    "text": "可在手机端（小程序）直接点击“签到”，无需去机器排队。",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r10.tests": {
+    "text": "验血在 2 楼自助机取号。",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r10.tips": {
+    "text": "地下车库容易堵车，建议坐地铁前往。",
+    "src": "docx-1023-brief.md#段[19]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r11.name": {
+    "text": "上海中医药大学附属曙光医院",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r11.checkin": {
+    "text": "无需签到。线上挂号付费后，直接去对应诊室门口等。",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r11.tests": {
+    "text": "中药房取药需要先扫码登记，等待窗口叫名字。",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r11.tips": {
+    "text": "部分老专家的号在线上很难抢，需提前关注放号时间。",
+    "src": "docx-1023-brief.md#段[20]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r12.name": {
+    "text": "上海交通大学医学院附属瑞金医院（总院）",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r12.checkin": {
+    "text": "必须当场签到。线上挂号后，需在自助机或分诊台签到。",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r12.tests": {
+    "text": "抽血、心电图等均需二次取号。",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "elder.guide.r12.tips": {
+    "text": "总院非常大，楼与楼之间距离远，做多项检查时一定要规划好路线，避免来回跑。",
+    "src": "docx-1023-brief.md#段[21]",
+    "lang": "zh-Hans"
+  },
+  "music.intro.p1": {
+    "text": "所有热爱音乐的朋友，看过来！让我们做点事情——不管是创作新歌、现场演出，还是纯粹即兴合奏。",
+    "src": "docx-1023-brief.md#段[2]",
+    "lang": "zh-Hans"
+  },
+  "music.intro.p2": {
+    "text": "我会演奏 12 种不同的打击乐器（点开下面的图片就能看到是哪些），而且随时都愿意一起合作。",
+    "src": "docx-1023-brief.md#段[3]",
+    "lang": "zh-Hans"
+  },
+  "music.intro.p3": {
+    "text": "来找我吧，我们一起弄出点声音！",
+    "src": "docx-1023-brief.md#段[4]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.intro1": {
+    "text": "节奏把我带到了哪里？",
+    "src": "docx-1023-brief.md#段[5]",
+    "lang": "zh-Hans"
+  },
+  "music.resume.intro2": {
+    "text": "看看这些年我都在哪些地方演出过！",
+    "src": "docx-1023-brief.md#段[6]",
     "lang": "zh-Hans"
   }
 }
