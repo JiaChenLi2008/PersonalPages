@@ -217,7 +217,10 @@ const TEXT_ROLES = [
   { node: "t4Auv", selector: ".scholarly__k" },
   { node: "FgXhw", selector: ".scholarly__d" },
   { node: "xtokZ", selector: ".scholarly__cta" },
-  { node: "FeAqL", selector: ".scholarly__url" },
+  /* `FeAqL` (the board's URL text run, IBM Plex Mono 12px) has no implementing role any
+     more: the user ruled the anchor must show a sentence, not the URL. The key still backs
+     the href, so the copy check below still finds the board string; the type role is gone
+     by design, and the deviation list records it. */
   { node: "I6zyH", selector: ".scholarly__cap" },
   { node: "c87Vy", selector: ".scholarly__onum" },
   { node: "juo5I", selector: ".scholarly__qtext" },
@@ -765,6 +768,13 @@ const DEVIATIONS = [
     "section title case",
     "the board renders SCHOLARLY PURSUITS uppercased; text-transform does that, the dictionary " +
       "keeps the manuscript's sentence case (docs/CHROME.md, comparison rules)",
+  ],
+  [
+    "01.1 CTA type role",
+    "the board's FeAqL node sets the URL itself in IBM Plex Mono 12px; the user ruled that the " +
+      "anchor must show a sentence instead of the address, so the node has no text role and the " +
+      "anchor takes the body face at the enlarged CTA size. The URL string still covers the " +
+      "board node through the href key scholarly-igem.cta.url.",
   ],
 ];
 

@@ -136,11 +136,12 @@
 }
 
 /* docx-1021 item 3: the 2x2 pillar matrix, full width under both iGEM columns.
-   Reference site 2025.igem.wiki/subcat-shanghai renders the same four blocks as bare text
-   runs; the docx asks for "四个方块" (four squares), so each block becomes a card here: a
-   hairline box on paper, the title on its own rule, and the three bullets beneath. The
-   cards carry the pointer micro-motion (lift + scale on hover) that the rest of the site
-   already uses for interactive surfaces. */
+   The reference site (2025.igem.wiki/subcat-shanghai) draws the same four blocks as
+   borderless white cards on a tinted band, with a 24px/700 heading and 16px/24px items.
+   The docx asks for four squares. This section keeps its own paper palette and hairline
+   rules (no radius anywhere in the site, no new colour), and borrows the reference's
+   proportions instead: a solid white panel with no stroke, a heading at --fs-22/800 over
+   a hairline rule, and items at --fs-15 with a wide 8px rhythm. */
 .scholarly__pillars {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -161,59 +162,56 @@
   display: flex;
   flex: 1 1 auto;
   flex-direction: column;
-  gap: var(--sp-12);
-  padding: var(--sp-24);
-  border: var(--rule-h) solid var(--c-rule);
+  gap: var(--sp-16);
+  padding: var(--sp-28) var(--sp-24);
+  /* No stroke: the reference separates its cards by fill alone, and a second box outline
+     inside this section's ruled column would read as a table cell, not a card. */
   background: var(--c-white);
-  /* Transform and colour only — no width/height/margin, so the grid never reflows under
+  /* Transform and shadow only — no width/height/margin, so the grid never reflows under
      the pointer. The 1.02 scale is a constant: tokens.css carries no hover-scale token
      (--hover-scale is a retired name, see tools/verify-motion.mjs). */
   transition:
     transform var(--dur-1) var(--ease-out),
-    border-color var(--dur-1) var(--ease-out),
     box-shadow var(--dur-1) var(--ease-out);
 }
 
 @media (hover: hover) {
   .scholarly__pillarCard:hover {
     transform: translate3d(0, calc(-1 * var(--hover-shift)), 0) scale(1.02);
-    border-color: var(--c-ink);
-    box-shadow: 0 var(--sp-12) var(--sp-24) rgb(17 17 17 / 8%);
+    box-shadow: 0 var(--sp-12) var(--sp-24) rgb(17 17 17 / 10%);
   }
 }
 
-.scholarly__pillarCard:focus-within {
-  border-color: var(--c-ink);
-}
-
+/* The heading carries the card's only weight cue: at --fs-22/800 it matches the reference's
+   24px/700 heading and, in this section, the sub-block's own h3. */
 .scholarly__pillarTitle {
   margin: 0;
   padding-block-end: var(--sp-12);
   border-block-end: var(--rule-h) solid var(--c-rule);
   color: var(--c-ink);
   font-family: var(--ff-sans-cn);
-  font-size: var(--fs-15);
-  font-weight: var(--fw-key);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-cn-title);
 }
 
 .scholarly__pillarItems {
   display: flex;
   flex-direction: column;
-  gap: var(--sp-8);
+  gap: var(--sp-10);
   margin: 0;
   padding: 0;
-  /* The last bullet sits on the card's bottom padding, not on the border: without this the
-     three-item cards and the two-line ones end at visibly different heights. */
-  padding-block-end: var(--sp-8);
   list-style: none;
   color: var(--c-ink-body);
   font-family: var(--ff-sans-cn);
-  font-size: var(--fs-14);
+  /* --fs-15 is this site's body step; the reference's 16px would be a new size for no
+     visible gain at this column width. */
+  font-size: var(--fs-15);
   line-height: var(--lh-body);
 }
 
-/* The bullet is a drawn rule, not a list marker: the card's own border already frames the
-   text, and a second indent would push the three lines out of line with the title. */
+/* The bullet is a drawn rule, not a list marker: the card has no stroke, so the rule is the
+   only thing tying a line to its column, and a real list marker would indent unevenly. */
 .scholarly__pillarItems li {
   padding-inline-start: var(--sp-16);
   position: relative;
@@ -229,8 +227,7 @@
   background: var(--c-blue);
 }
 
-.scholarly__cta,
-.scholarly__ctaUrl {
+.scholarly__cta {
   margin: 0;
   color: var(--c-blue);
   font-family: var(--ff-sans-cn);
@@ -238,31 +235,33 @@
   line-height: var(--lh-body);
 }
 
-/* The iGEM URL is one 39-character run at 22px IBM Plex Mono (~515px), and Chrome breaks it
-   only after the hyphen: it overflows any column narrower than that — the 209px column at
-   320px by ~305px. Breaking inside the token fixes every narrow tier; at 1440px the URL
-   still fits on one line, so nothing changes there. */
-.scholarly__ctaUrl {
-  overflow-wrap: anywhere;
-}
-
+/* The anchor is the block's one action, so it carries the affordance the rest of the site
+   uses for links: the blue ink and a rule under the text that thickens on hover. No box, no
+   fill — the section has no button component and inventing one here would out-shout the
+   heading above it. */
 .scholarly__url {
   color: var(--c-blue);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-12);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
   letter-spacing: var(--ls-none);
+  text-decoration-line: underline;
+  text-decoration-thickness: var(--rule-h);
+  text-underline-offset: var(--sp-2);
+  transition: text-decoration-thickness var(--dur-1) var(--ease-out);
+}
+
+.scholarly__url:hover,
+.scholarly__url:focus-visible {
+  text-decoration-thickness: var(--rule-h-strong);
 }
 
 /* docx-1021 item 4, user ruling: the CTA that asks the reader to open the project site is
-   set at --fs-22 so it reads as a call, not as a footnote, and the URL follows it instead of
-   being the smallest type in the block. ui.pen still holds 14/12 for these three roles, and
-   tools/fidelity-scholarly.mjs holds the base declarations to those board values, so the
-   enlargement arrives as a modifier: `--fs-22` is the largest step tokens.css carries below
-   the display sizes, and no token was added for it. `overflow-wrap: anywhere` above is what
-   lets the 39-character run wrap into the column at 375px (~515px unwrapped) instead of
-   widening it. */
+   set at --fs-22 so it reads as a call, not as a footnote. ui.pen still holds 14/12 for
+   these roles, and tools/fidelity-scholarly.mjs holds the base declarations to those board
+   values, so the enlargement arrives as a modifier: `--fs-22` is the largest step tokens.css
+   carries below the display sizes, and no token was added for it. The anchor inherits it,
+   because here the sentence and the link are one element. */
 .scholarly__cta--lead,
-.scholarly__ctaUrl--lead,
 .scholarly__url--lead {
   font-size: var(--fs-22);
 }

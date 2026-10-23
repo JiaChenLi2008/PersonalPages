@@ -325,6 +325,22 @@ if (cta === undefined) {
   if (!rel.includes("noopener") || !rel.includes("noreferrer")) {
     fail(`iGEM CTA rel=${JSON.stringify(cta.rel)} lacks noopener/noreferrer for target="_blank"`);
   }
+  /* The user ruled the anchor must read as a sentence, not as the address: a raw URL in the
+     link text is the exact regression this catches. `tagsOf` keeps attributes only, so the
+     anchor is re-matched whole to read its text. */
+  const anchor = new RegExp(
+    `<a\\b[^>]*href="${IGEM_URL.replace(/[.*+?^${}()|[\\]\\]/g, "\\$&")}"[^>]*>([\\s\\S]*?)</a>`,
+  ).exec(html);
+  const label = (anchor?.[1] ?? "")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&#x27;/g, "'")
+    .replace(/&amp;/g, "&")
+    .trim();
+  if (label === "") {
+    fail("iGEM CTA has no visible text: the anchor must carry a sentence");
+  } else if (/^https?:\/\//i.test(label) || label.includes("igem.wiki")) {
+    fail(`iGEM CTA text ${JSON.stringify(label)} is the address itself; it must be a sentence`);
+  }
 }
 
 const pdf = links.find((attrs) => (attrs.href ?? "").endsWith("media/hir-essay.pdf"));

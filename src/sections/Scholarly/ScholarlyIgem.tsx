@@ -100,18 +100,21 @@ export function ScholarlyIgem() {
           <p className="scholarly__d" lang={langOf("scholarly-igem.para2")}>
             {text("scholarly-igem.para2")}
           </p>
+          {/* docx-1021 item 4 and the user's ruling: the CTA asks the reader to open the
+              project site and must read as a call, not as a footnote — but the anchor shows
+              the sentence, never the raw URL. The whole sentence is the anchor on purpose:
+              the copy says "Click here", so a separate link line below it would leave the
+              phrase "Click here" looking clickable while doing nothing. One element, one
+              action, no false affordance. */}
           <p className="scholarly__cta scholarly__cta--lead">
-            {zh ? text("scholarly-igem.cta.zh") : text("scholarly-igem.cta.en")}
-          </p>
-          <p className="scholarly__ctaUrl scholarly__ctaUrl--lead">
             <a
               className="scholarly__url scholarly__url--lead"
               href={text("scholarly-igem.cta.url")}
-              lang={langOf("scholarly-igem.cta.url")}
+              lang={zh ? langOf("scholarly-igem.cta.zh") : langOf("scholarly-igem.cta.en")}
               target="_blank"
               rel="noopener noreferrer"
             >
-              {text("scholarly-igem.cta.url")}
+              {zh ? text("scholarly-igem.cta.zh") : text("scholarly-igem.cta.en")}
             </a>
           </p>
         </div>
