@@ -133,6 +133,133 @@
   object-fit: cover;
 }
 
+/* ---- docx-1023 §10: the hospital guide ---- */
+/* The block starts a step below the body; the table is the content, so it only gets the
+   section's own type steps and a rule under every row. */
+.elder__guide {
+  margin-top: var(--sp-32);
+}
+
+/* Same step as the section's other secondary headings (--fs-22 / 800). tokens.css has no
+   --fw-bold; --fw-title (800) is the heading weight it does carry. */
+.elder__guideTitle {
+  margin: 0 0 var(--sp-8);
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-22);
+  font-weight: var(--fw-title);
+  line-height: var(--lh-cn-title);
+}
+
+.elder__guideLead {
+  margin: 0 0 var(--sp-18);
+  color: var(--c-ink-body);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-14);
+  line-height: var(--lh-body);
+}
+
+.elder__guideTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: var(--ff-sans-cn);
+}
+
+/* The design's figure caption step: 11px mono in caps over the columns. */
+.elder__guideTable th {
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+  text-align: left;
+  text-transform: uppercase;
+}
+
+.elder__guideTable th,
+.elder__guideTable td {
+  padding-block: var(--sp-8);
+  text-align: left;
+  vertical-align: top;
+}
+
+.elder__guideTable td {
+  color: var(--c-ink-body);
+  font-size: var(--fs-13);
+  line-height: var(--lh-body);
+}
+
+/* Rows are separated by the section's hairline; the last one needs none, and the header
+   carries the rule under it. */
+.elder__guideTable tbody tr + tr td {
+  border-block-start: var(--rule-h) solid var(--c-rule);
+}
+
+.elder__guideTable thead th {
+  border-block-end: var(--rule-h) solid var(--c-rule);
+}
+
+.elder__guideTable tr > :first-child {
+  width: 18%;
+}
+
+/* Cell breathing room inside a row, so two long paragraphs do not touch. */
+.elder__guideTable th + th,
+.elder__guideTable td + td {
+  padding-inline-start: var(--sp-18);
+}
+
+/* Two columns, text left and the download link right, over a hairline (scholarly__docCard's
+   shape, whose own card is a full box). */
+.elder__docCard {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-24);
+  margin-top: var(--sp-24);
+  padding-top: var(--sp-18);
+  border-block-start: var(--rule-h) solid var(--c-rule);
+}
+
+.elder__docL {
+  display: flex;
+  flex: 1 1 auto;
+  flex-direction: column;
+  gap: var(--sp-8);
+  min-width: 0;
+}
+
+.elder__docTitle {
+  margin: 0;
+  color: var(--c-ink);
+  font-family: var(--ff-sans-cn);
+  font-size: calc(var(--fs-22) - var(--sp-2) * 2); /* 18px, the pull quote's step */
+  font-weight: var(--fw-title);
+  line-height: var(--lh-cn-title);
+}
+
+.elder__meta {
+  margin: 0;
+  color: var(--c-muted);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-11);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.elder__link {
+  color: var(--c-blue);
+  font-family: var(--ff-mono);
+  font-size: var(--fs-12);
+  font-weight: var(--fw-normal);
+  letter-spacing: var(--ls-figcap);
+}
+
+.elder__link:focus-visible {
+  outline: var(--rule-h-strong) solid var(--c-blue);
+}
+
 @media (max-width: 1200px) {
   .elder {
     --head-pad-b: var(--sp-16);
@@ -158,6 +285,16 @@
 
   .elder__fig {
     width: auto;
+  }
+
+  /* Narrow: the four columns cannot fold without breaking the table's meaning, so the
+     region scrolls sideways. 640px is the narrowest width at which they still read. */
+  .elder__guideScroll {
+    overflow-x: auto;
+  }
+
+  .elder__guideTable {
+    min-width: calc(var(--sp-32) * 20); /* 640px */
   }
 }
 

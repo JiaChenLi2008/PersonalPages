@@ -82,6 +82,11 @@ jobs:
       - name: Verify music and sport DOM
         run: node tools/verify-music-sport-dom.mjs
 
+      # Renders Elder alone (en + zh-Hans) and holds the hospital guide to the dictionary:
+      # 12 rows × 4 cells cell by cell, the four column names, and the workbook download card.
+      - name: Verify elder guide DOM
+        run: node tools/verify-elder-guide.mjs
+
       # Runs its own two-mode (en / zh-Hans) SSR build, so it is the slowest gate
       # and needs node_modules, not dist/: last.
       - name: Verify language purity
