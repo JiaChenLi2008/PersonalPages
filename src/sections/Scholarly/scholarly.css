@@ -305,6 +305,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center;
 }
 
 /* The mask-sweep layer of a media slot (§4 device ②): `Reveal` puts `.is-in` on it

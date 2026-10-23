@@ -56,6 +56,10 @@ export function ScholarlyJhu() {
         {/* The board numbers each card 1/2/3; the dictionaries carry those three strings
             only as the Immunotherapy column numbers (docs/CHROME.md §1 registers no
             separate keys), so the same entries serve both blocks. */}
+        {/* The first two photos were shot sideways, so their derivatives are stored turned
+            90° clockwise (image2-400 → 301×400, image1-1600 → 1200×1600) and the
+            `width`/`height` on those two `<img>` are the turned pixels; the 4:3 slot covers
+            the file, so the surplus height crops top and bottom, centred. */}
         <ul className="scholarly__cards motion-reveal-group">
           <li className="scholarly__card">
             <button
@@ -70,8 +74,8 @@ export function ScholarlyJhu() {
                   className="scholarly__photo"
                   src="./media/image2-400.webp"
                   alt={text("scholarly-jhu.a2")}
-                  width={400}
-                  height={301}
+                  width={301}
+                  height={400}
                   loading="lazy"
                   decoding="async"
                 />
@@ -125,8 +129,8 @@ export function ScholarlyJhu() {
                   className="scholarly__photo"
                   src="./media/image1-1600.webp"
                   alt={text("scholarly-jhu.a1")}
-                  width={1600}
-                  height={1200}
+                  width={1200}
+                  height={1600}
                   loading="lazy"
                   decoding="async"
                 />

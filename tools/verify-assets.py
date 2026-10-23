@@ -134,9 +134,12 @@ def main():
         if got_fmt != EXT_FORMAT[ext]:
             errs.append(f"{key}: 实际格式 {got_fmt} != 期望 {EXT_FORMAT[ext]}（扩展名 {ext}）")
 
-        # ④ 禁放大：任一边长不得超过其 src 的对应边长
+        # ④ 禁放大：派生图的长短边都不得超过 src 的长短边。
+        # 90° 旋转派生图长短边互换，仍属 1:1 像素，不构成放大（docx-1023 第 2 条）
         s = srcs[e["src"]]
-        if e["w"] > s["w"] or e["h"] > s["h"]:
+        short, long = sorted((e["w"], e["h"]))
+        src_short, src_long = sorted((s["w"], s["h"]))
+        if short > src_short or long > src_long:
             errs.append(f"{key}: 放大违约 {e['w']}x{e['h']} > src {s['w']}x{s['h']}")
 
     # ⑧ 图位派生图：存在、像素尺寸精确匹配、单文件 <=上限、webp/jpg 成对、非空白
