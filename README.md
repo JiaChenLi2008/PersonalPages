@@ -37,14 +37,15 @@ node tools/verify-head.mjs         # index.html 文档头与字典 hero.* 逐字
 node tools/verify-responsive.mjs   # 蓝图 §3 的响应式数值逐条比对
 node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite SSR 构建）
 node tools/verify-music-sport-dom.mjs  # Music/Sport 的 SSR DOM 事实（照片墙张数、履历表、12 格打击乐图名配对、4:3 图）
+node tools/verify-elder-guide.mjs  # 助老节的医院指南表：12 行 × 4 格逐字对字典、下载卡指向 xlsx、滚动区可键盘可达
 node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一份 SSR 产物）
 ```
 
-便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-hospitals-xlsx` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的六条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` / `verify-music-sport-dom.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），`verify-lang-purity` 建两份（en / zh-Hans）故排最后。
+便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-hospitals-xlsx` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的七条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` / `verify-music-sport-dom.mjs` / `verify-elder-guide.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），`verify-lang-purity` 建两份（en / zh-Hans）故排最后。
 
 ### 只在本地跑（CI 不跑，因为不自足）
 
-上列十二条全自足：只读 checkout、无浏览器、无仓库外输入（`verify-assets.py` 需 `python3` 与 Pillow，故 workflow 里带一行守卫安装，见下；`verify-hospitals-xlsx.py` 只用 `python3` 标准库）。下面这些的输入或运行环境不在 CI 里，故留在本地：
+上列十三条全自足：只读 checkout、无浏览器、无仓库外输入（`verify-assets.py` 需 `python3` 与 Pillow，故 workflow 里带一行守卫安装，见下；`verify-hospitals-xlsx.py` 只用 `python3` 标准库）。下面这些的输入或运行环境不在 CI 里，故留在本地：
 
 | 命令 / 门禁 | 不进 CI 的原因 |
 |---|---|
@@ -56,10 +57,10 @@ node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一
 
 `verify-assets.py` 的非标准库依赖只有 Pillow：workflow 的该步骤先 `python3 -c "import PIL"`，缺了才 `python3 -m pip install --quiet pillow`（GitHub 的 ubuntu 镜像 `/etc/pip.conf` 已设 `break-system-packages`），镜像自带则一行也不装。
 
-本地跑全量（CI 十二条 + 上表）：
+本地跑全量（CI 十三条 + 上表）：
 
 ```bash
-node tools/verify-tokens.mjs && python3 tools/verify-assets.py && python3 tools/verify-hospitals-xlsx.py && node tools/verify-deploy.mjs && node tools/verify-motion.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && node tools/verify-music-sport-dom.mjs && node tools/verify-lang-purity.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
+node tools/verify-tokens.mjs && python3 tools/verify-assets.py && python3 tools/verify-hospitals-xlsx.py && node tools/verify-deploy.mjs && node tools/verify-motion.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && node tools/verify-music-sport-dom.mjs && node tools/verify-elder-guide.mjs && node tools/verify-lang-purity.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
 ```
 
 所有命令都以 rc=0 为准；rc=1 打印具体是哪一条断言不成立，rc=2 表示运行环境或仓外输入不可用（单行 `UNAVAILABLE:`，见下表）。
@@ -71,8 +72,8 @@ node tools/verify-tokens.mjs && python3 tools/verify-assets.py && python3 tools/
 1. 把仓库推到 GitHub，默认分支 `main`。
 2. 仓库网页端 **Settings → Pages → Build and deployment → Source** 选 **GitHub Actions**（不要选 "Deploy from a branch"）。
 3. 向 `main` 推送即触发 `.github/workflows/deploy.yml`：
-   `actions/checkout` → `actions/setup-node`（Node 22 + npm 缓存）→ `npm ci` → `node tools/verify-tokens.mjs` → `python3 tools/verify-assets.py` → `python3 tools/verify-hospitals-xlsx.py` → `node tools/verify-deploy.mjs` → `node tools/verify-motion.mjs` → `npm run build` → `node tools/verify-copy-wiring.mjs` → `node tools/verify-head.mjs` → `node tools/verify-responsive.mjs` → `node tools/verify-ssr-dom.mjs` → `node tools/verify-music-sport-dom.mjs` → `node tools/verify-lang-purity.mjs` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: ./dist`）→ `actions/deploy-pages`。
-   静态门禁先跑（fail fast），靠后的六条都排在 build 之后（`verify-copy-wiring` 要读 `dist/`）；任一脚本 rc≠0，job 即失败，不会发布半成品。进 CI 的只有自足脚本；依赖仓库外素材或宿主浏览器的门禁留在本地跑（见「验证套件」的 CI 边界表）。
+   `actions/checkout` → `actions/setup-node`（Node 22 + npm 缓存）→ `npm ci` → `node tools/verify-tokens.mjs` → `python3 tools/verify-assets.py` → `python3 tools/verify-hospitals-xlsx.py` → `node tools/verify-deploy.mjs` → `node tools/verify-motion.mjs` → `npm run build` → `node tools/verify-copy-wiring.mjs` → `node tools/verify-head.mjs` → `node tools/verify-responsive.mjs` → `node tools/verify-ssr-dom.mjs` → `node tools/verify-music-sport-dom.mjs` → `node tools/verify-elder-guide.mjs` → `node tools/verify-lang-purity.mjs` → `actions/configure-pages` → `actions/upload-pages-artifact`（`path: ./dist`）→ `actions/deploy-pages`。
+   静态门禁先跑（fail fast），靠后的七条都排在 build 之后（`verify-copy-wiring` 要读 `dist/`）；任一脚本 rc≠0，job 即失败，不会发布半成品。进 CI 的只有自足脚本；依赖仓库外素材或宿主浏览器的门禁留在本地跑（见「验证套件」的 CI 边界表）。
    手动重跑：**Actions → Deploy to GitHub Pages → Run workflow**。
 4. 在 **Actions** 面板看这次 run 的 `build` / `deploy` 两个 job 变绿；`deploy` 的 environment 链接即站点地址。
 5. 访问 `https://<user>.github.io/<repo>/`。（用户主页仓库 `<user>.github.io` 则是 `https://<user>.github.io/`。）

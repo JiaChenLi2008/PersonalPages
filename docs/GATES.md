@@ -61,13 +61,14 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | 门禁 | 能证什么 | 不能证什么 | 跑在哪 |
 |---|---|---|---|
 | `tools/verify-tokens.mjs` | `src/styles/tokens.css` 160 个 token 与设计简报 §9 + 实现补充表**逐字节同值** | 谁消费了哪个 token、某节档位取值、视觉结果 | CI |
-| `tools/verify-deploy.mjs` | Pages 发布链静态约定 66 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序、6 条必需门禁步骤逐条点名） | 运行结果、UI | CI |
+| `tools/verify-deploy.mjs` | Pages 发布链静态约定 68 项（vite 相对 base、npm scripts、README 提及、workflow 步骤依赖顺序、6 条必需门禁步骤逐条点名） | 运行结果、UI | CI |
 | `npm run build`（`tsc --noEmit` + vite） | 类型可编译、可打包 | 视觉、设计值、布局 | CI |
 | `tools/verify-copy-wiring.mjs` | 产物中的文案全部来自冻版字典（含未引用键下限） | 排版、位置、设计值 | CI（须在 build 后） |
 | `tools/verify-head.mjs` | `index.html` 静态 head 与字典逐字一致 6 项 | body 任何内容 | CI |
 | `tools/verify-responsive.mjs` | BLUEPRINT §3.1/§3.2 每个档位值由**该 token 自身的载体选择器**在对应 `@media (max-width: Npx)` 块内以 `var(--name)`/`var(--name-tNNNN)` 承接，属性属族且解析值含表值；§3.3 的 `` `--token` `` 锚同此 | §3.3 非 token 数字（色块/方图/`h`/gap/padding）不绑选择器（§2 B-残留）；token 表值本身由 verify-tokens 管，本门禁不比对设计稿 | CI |
 | `tools/verify-music-sport-dom.mjs` | Music(03)/Sport(04) SSR 后的 DOM 事实（T4 新增；T11 扩打击乐）：两座墙的照片**张数与契约顺序**（Music 9 `music-wall-1..9` / Sport 4 `sport-wall-1..4`，真轨与 clone 轨各数一遍，缺一张即红）、墙 `aria-hidden="true"` 且 `alt=""` `loading="lazy"` `decoding="async"`、墙位于该节 head 之后且 body 之前（docx 页面7「先放照片滚动墙」）、履历表 14 行 × 3 列 + 3 个 `<th scope="col">` 名为字典键 + **日期按行单调递减** + 每格恰为本行键文本 + 表有 `role="region"` 具名、Music 4:3 图仍是 `music-fig-720.webp` 且 alt 是 `music.fig.alt`、Sport 首段是 `sport.lead`、en 产物零 CJK；**T11 新增** 12 格打击乐逐格比对字典原文 + `lang` + `tabindex="0"` + 图片 `src`（`PERCUSSION_ART` 顺序对 `public/media/percussion/<slug>.svg`）+ `alt=""` + `width/height=56`，且 SVG 文件须在磁盘上；另读 `Music.css` / `Music.tsx` 断言交互形态（默认 `opacity: 0` 只显图、`:hover` / `:focus-visible` 显名、两者共 `grid-area: 1 / 1`、名字取自本页语言且不得出现 `dictionaries.*` 或 React 悬停 handler） | 只读 SSR markup：不证墙真在动、不证窄屏滚动手感；`aria-hidden` 为装饰策略的断言，不证「不该可感知」这一判断本身（裁决见 §4 T4 行）；不证 SVG 画面内容（只判文件存在） | CI（build 后，排 `verify-ssr-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` SSR 产物，实测 0.2s、无 CDP） |
 | `tools/verify-ssr-dom.mjs` | 学术成果节 SSR 后的 DOM 事实：标题层级、9 个揭晓区初始折叠且 panel id 可寻、图片 lazy、单语言（无 CJK、`lang` 只出现 `["en"]`）、三张 JHU 谜题图 alt **集合相等**于三条答案文本且逐 `src` 对应各自答案（F1 由计数收紧） | 只覆盖 scholarly 节；视觉 | CI |
+| `tools/verify-elder-guide.mjs` | Elder(02) 节尾医院指南（docx-1023 §10）SSR 后的 DOM 事实：`.elder__guide` 在 `.elder__body` 之后、四个 `<th scope="col">` 逐字等于 `elder.guide.head.*` 且顺序固定、`tbody` 恰 12 行 × 4 格且**逐格**为本行本列键 `elder.guide.rNN.{name,checkin,tests,tips}` 的 en 文本并带该条的 `lang`、下载卡 `<a>` 的 `href` 为 `./media/shanghai-hospitals.xlsx` 且 `target="_blank"` / `rel` 含 `noopener` / 文案为 `elder.guide.download` / 副行 `elder.guide.meta`、表容器 `role="region"` + `tabindex="0"` + `aria-labelledby` 指向存在的 id、zh-Hans 模式 12 行首列为 zh 侧院名（`DEFAULT_LANG` 建时改写，未生效即抛错） | 只读 SSR markup：不证真机横向滚动手感与焦点环观感、不证 xlsx 内容（归 `verify-hospitals-xlsx.py`）、不证 zh 侧除首列外的三列（en 侧 48 格已逐格对过）、不证单元格换行后的视觉排布 | CI（build 后，排 `verify-music-sport-dom` 之后、`verify-lang-purity` 之前；自建 `/tmp` 两份 SSR 产物，实测 0.3s、无 CDP） |
 | `docs/verify-copy.mjs` | 字典自身规则：键集合一致（当前 **188 键**）、字段类型、材料侧 `text` 逐字溯源（本轮 **213 条**）、译文侧「同一 `src` 槽位 + 原文侧逐字 + 两侧互异」（**79 条**）、材料混排 7 槽位按**覆盖率**下限（两侧折叠后各自命中比例之和 ≥0.75 且最长单片段 ≥8 字，**10 条**）、chrome/src 归属、※ 禁止；`src` 可定位的 brief 现在含 `docx-2026-10-brief.md`（同一 `段[N]` 语义） | 渲染、版式；译文**语义**正确性（机器无判据，由 `translation-policy.md` §验收 2 人工抽检）；覆盖率的**分母口径**（见 §5） | 本地 |
 | `tools/verify-lang-purity.mjs` | 两模式 SSR 产物纯度 3 类：EN 零 CJK（可见文本 + `title`/`alt`/`aria-label`/`placeholder`/`content` + 静态 head）、ZH 拉丁 token 逐 token 命中封闭白名单且整 token 元素带 `lang="en"`、两模式皆走同一渲染路径（`DEFAULT_LANG` 改写不生效即rc≠0） | `<noscript>`（JS-off 兜底，双语）与运行期由 JS 拼接的串（本页无）不在扫描范围；白名单本身不判语义 | CI |
 | `tools/verify-lang-toggle.mjs` | 语言切换逐条键（默认 `en`）、不重载、同值点击持久化 | 视觉 | 本地 |
@@ -78,8 +79,8 @@ T2/docx-2026-10 接线轮（Index + JHU）的判据变更与新增，逐条：
 | `tools/fidelity-scholarly.mjs`、`tools/fidelity-nav-hero-photoband.mjs`、`tools/fidelity-elder-music-sport.mjs`、`tools/fidelity-index-method-values-footer.mjs` | 各节 ui.pen 子树的设计数值/色彩/字族在对应节样式里有承接声明；索引四行三色、Values 四卡三属性另有逐节点配对；`fidelity-scholarly` 的两处文案豁免逐条登记在门禁内（标点折叠按 board 节点逐键比对、混排标题要求 src 已接线，F1 收口） | 除已配对项外按**节级池**匹配：节点级错值可被同节别的节点顶掉（§2 A2/A3/A4）；后三条本轮**未审**（§2 C）；豁免只覆盖已登记的那四个 board 节点/键 | 本地 |
 | `tools/verify-fonts.mjs` | 抽样 6 个节点的**实际选中**字体族（CDP `CSS.getPlatformFontsForNode`）：4 个声明 Inter / IBM Plex Mono 的节点确由该族绘制且 `isCustomFont=true`（自托管 woff2 已加载），2 个中文节点落在含 CJK 的系统字体上且 `isCustomFont=false` | 未抽样节点、字形覆盖度（latin 子集外的缺字回退）、字重细节、真机与其它浏览器 | 本地（需宿主 CDP `127.0.0.1:9222`，可 `CDP=` 覆盖）；端点不可达以 rc=2 单行 `UNAVAILABLE:` 退出，不进 CI |
 
-上表 12 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → **verify-hospitals-xlsx** → verify-deploy → verify-motion →
-build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-music-sport-dom → verify-lang-purity）。
+上表 13 条 CI 门禁 = `.github/workflows/deploy.yml` 的全部步骤（verify-tokens → verify-assets → **verify-hospitals-xlsx** → verify-deploy → verify-motion →
+build → verify-copy-wiring → verify-head → verify-responsive → verify-ssr-dom → verify-music-sport-dom → **verify-elder-guide** → verify-lang-purity）。
 `tools/verify-hospitals-xlsx.py` 是**唯一**只用 `python3` 标准库的门禁（zipfile + ElementTree），不吃 Pillow；它与生成器 `tools/build-hospitals-xlsx.py` 共用同一份行/字节口径（按路径加载生成器，不复制字典读法）。
 四条 fidelity、`docs/verify-copy.mjs`、lang-toggle、render、fonts **未接入 CI**，其假绿 CI 不会拦下。
 `tools/verify-deploy.mjs` 会检查「workflow/README 引用的每个 `node tools/*.mjs` 都在树上」与「门禁步骤全在发布步骤之前」，
@@ -380,3 +381,47 @@ Elder 的可见档仍是 720，本轮机箱只覆盖 music / sport / igem×2 四
 `python3` 调用，故删掉 `Verify hospitals workbook` 一步**不会**让它变红（它只经「README/workflow 引用的
 脚本须存在」这一条间接覆盖，且那条只匹配 `node … .mjs`）。本轮未改 `verify-deploy.mjs`（不在本 lane 的
 白名单内），留作下一轮的收紧点：把 `python3 tools/verify-*.py` 也纳入逐条点名的必需清单。
+
+## W3-E2 轮（Elder 节尾医院指南表 + xlsx 下载卡 + DOM 门禁）
+
+**新增门禁 `tools/verify-elder-guide.mjs`**（CI 步骤插在 `Verify music and sport DOM` 之后、
+`Verify language purity` 之前）。docx-1023 §10 给 Elder(02) 节尾加了一块 12 行 × 4 列的医院指南表 + xlsx 下载卡，
+文字全部取自字典 `elder.guide.*`。此前没有任何门禁看得见「哪一格读了哪条键」：`verify-copy-wiring` 只证明键被
+引用、文本进了 bundle，`verify-hospitals-xlsx.py` 只证明工作簿与字典一致，两者都不看页面上的格子。
+
+**判据 6 条**（en 与 zh-Hans 各建一份 SSR 产物，只渲染 Elder 一节）：
+
+1. `.elder__guide` 在 `.elder__body` 之后 —— 块收在节尾，头部 h2 区不动；
+2. 四个 `<th scope="col">` 逐字等于 `elder.guide.head.{hospital,checkin,tests,tips}` 的 en 文本，顺序固定；
+3. `tbody` 恰 12 行、每行恰 4 格，`elder.guide.rNN.{name,checkin,tests,tips}` 的 en 文本**逐格**相等，
+   且每格 `lang` 等于该条字典的 `lang`（失败点名 `row/col/key`）；
+4. 下载卡：某个 `<a>` 的 `href` 逐字 `./media/shanghai-hospitals.xlsx`、`target="_blank"`、`rel` 含
+   `noopener`、文案为 `elder.guide.download`、副行 `elder.guide.meta`；
+5. 表容器 `div.elder__guideScroll`：`role="region"`、`tabindex="0"`、`aria-labelledby` 指向渲染里存在的 id；
+6. zh-Hans 模式：12 行首列逐格等于 zh 侧院名。第二语言靠建时改写 `lang.ts` 的 `DEFAULT_LANG`（与
+   `verify-lang-purity` 同一手法），改写未命中即抛错，不会把 en 产物检查两遍。
+
+**正例（实跑）**：
+
+| 命令 | rc | 耗时 | 末行 |
+|---|---|---|---|
+| `node tools/verify-elder-guide.mjs` | 0 | 0.23 s | `PASS: elder guide after the body, 4 header cells and 12 rows × 4 cells (48 dictionary cells) match en cell by cell, zh-Hans carries the twelve Chinese names, download card → ./media/shanghai-hospitals.xlsx (new tab, noopener), scroll region labelled` |
+| `npm run build && node tools/verify-copy-wiring.mjs` | 1 | 0.04 s | `referenced=274 found_en=274 found_zh=274 via_literal_call=147 via_key_literal=127`，`unreferenced=6 of 280`：`elder.guide.*` 56 键**全部接线**，余下只有登记为死键的 `sport.body` 与另一 lane 在接的 `music.intro.p1..p3` / `music.resume.intro1..2` 五条 |
+| `node tools/verify-deploy.mjs` | 0 | 0.02 s | `checked=68 passed=68` |
+| `npx tsc --noEmit` | 0 | 0.4 s | — |
+
+**负例（实跑两次）**：把 `Elder.tsx` 的 `elder.guide.r05.tests` 临时换成 `elder.guide.r05.tips` → rc=1，
+点名到格：
+`FAIL row r05: 4 cells are elder.guide.r05.* in en: col tests (elder.guide.r05.tests) = "Dermatology is extremely busy; …" != "For blood draws, scan for a separate number …"`
+＋ `FAIL: 1 elder guide problem(s)`；复原 → rc=0（末行同上）。换的是 en 侧文本，故 zh 首列那 12 条仍绿——
+这是该门禁的边界（第 6 条只认首列），不是漏检。
+
+**边界**：只读 SSR markup，不证真机横向滚动手感与焦点环观感；不证 xlsx 内容（归 `verify-hospitals-xlsx.py`）；
+zh 侧只验首列（en 的 48 格已逐格对过）；不证单元格折行后的视觉排布。窄屏可横滚由样式静态承接（`.elder__guideScroll`
+在 `@media (max-width: 900px)` 内 `overflow-x: auto`，同档 `table` `min-width: 640px`），本门禁不断言 CSS。
+
+**连带改动**：`verify-deploy` 的 `checked` 66 → **68**（README 与 workflow 各新增一条
+「references existing script tools/verify-elder-guide.mjs」）；README 的「CI 十二条」→「十三条」，
+「build 之后的六条」→「七条」。`verify-deploy` 的必需清单（6 条）未动，故删掉 `Verify elder guide DOM`
+一步仍不会让 `verify-deploy` 变红——新步骤靠既有「workflow/README 引用的脚本须存在」与「门禁步骤全在发布之前」
+两条间接覆盖，收紧方式同 §T10 的留口。
