@@ -15,14 +15,11 @@ export function Elder() {
 
   return (
     <section id="elder" data-section="elder" className="elder" aria-labelledby="elder-title">
-      {/* The head's two texts arrive at the first stagger tier; the kicker carries the
-          section number, so it is the block that slides in (motion.css .motion-slide). */}
+      {/* docx-1023 item 8 (user ruling): drop the right-hand duplicate title, kicker 14px/--c-blue.
+          The kicker alone names the section; it stays the one block that slides in. */}
       <h2 id="elder-title" className="elder__head">
         <Reveal as="span" className="elder__kicker motion-slide">
           {text("elder.kicker")}
-        </Reveal>
-        <Reveal as="span" className="elder__title-en">
-          {text("elder.title.en")}
         </Reveal>
       </h2>
       <Rule variant="baseline" />

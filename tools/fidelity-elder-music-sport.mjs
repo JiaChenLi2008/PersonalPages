@@ -49,7 +49,6 @@ const SECTIONS = [
       s18X3i: ".elder",
       E8f3cu: ".elder__head",
       WIGFx: ".elder__kicker",
-      VtA4j: ".elder__title-en",
       lm0yZ: RULE_BASELINE,
       Y4SOF2: ".elder__body",
       uhNKE: ".elder__col",
@@ -63,6 +62,9 @@ const SECTIONS = [
       Uh3XX: ".elder__media",
     },
     annotations: {},
+    /* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue */
+    retired: { VtA4j: { selector: ".elder__title-en", why: "the right-hand duplicate title is removed from the head" } },
+    overrides: { WIGFx: { fontSize: 14, fill: "#1B4BC4" } },
   },
   {
     name: "music",
@@ -73,7 +75,6 @@ const SECTIONS = [
       Z79UYi: ".music",
       LwBYk: ".music__head",
       Q6MMlj: ".music__kicker",
-      G3NNMY: ".music__title-en",
       I4xF2w: RULE_BASELINE,
       edufv: ".music__body",
       HBLRk: ".music__col",
@@ -87,6 +88,9 @@ const SECTIONS = [
       vVdM9: ".music__media",
     },
     annotations: {},
+    /* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue */
+    retired: { G3NNMY: { selector: ".music__title-en", why: "the right-hand duplicate title is removed from the head" } },
+    overrides: { Q6MMlj: { fontSize: 14, fill: "#1B4BC4" } },
   },
   {
     name: "sport",
@@ -97,20 +101,25 @@ const SECTIONS = [
       wO1ZI: ".sport",
       EXcwO: ".sport__head",
       B63uxr: ".sport__kicker",
-      ZCort: ".sport__title-en",
       H3ZFf6: RULE_BASELINE,
       MGgqb: ".sport__body",
       LxXv0: ".sport__col",
       dUWkp: ".sport__pull",
       W6EmI: ".sport__pull-rule",
       nRD0G: ".sport__pull-text",
-      iHPvo: ".sport__kv",
-      wmLb1: ".sport__k",
-      m9FVq: ".sport__v",
       p1ZAro: ".sport__fig",
       rWg3m: ".sport__media",
     },
     annotations: {},
+    /* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue */
+    retired: {
+      ZCort: { selector: ".sport__title-en", why: "the right-hand duplicate title is removed from the head" },
+      /* docx-1023 item 9（用户裁决）：Sport KV 行删除；hero.key.sport / hero.val.sport 留在字典给 Hero 用 */
+      iHPvo: { selector: ".sport__kv", why: "the Sport KV row (with its K/V children) is removed from the section" },
+      wmLb1: { selector: ".sport__k", why: "the KV row's key column is removed with the row" },
+      m9FVq: { selector: ".sport__v", why: "the KV row's value column is removed with the row" },
+    },
+    overrides: { B63uxr: { fontSize: 14, fill: "#1B4BC4" } },
   },
 ];
 
@@ -514,6 +523,11 @@ function checkRatio(section, rules, node, selector, ratio, label) {
 /** One node: every numeric, colour and layout value the design carries. */
 function checkNode(context, node, parentNode) {
   const { section, rules, resolve } = context;
+  /* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue。
+     The board still draws the old kicker (12px, --c-ink); the ruling's value replaces it
+     for this node only, so every other board value keeps its 1:1 comparison. */
+  const ruling = section.overrides?.[node.id];
+  const design = ruling === undefined ? node : { ...node, ...ruling };
   const selector = section.selectors[node.id];
   if (selector === undefined) {
     fail(`${section.name} ${node.id} ${node.name}`, "no selector mapped in this script");
@@ -542,34 +556,34 @@ function checkNode(context, node, parentNode) {
   }
 
   const text = node.type === "text";
-  const hasSize = typeof node.width === "number" && typeof node.height === "number";
-  const fillsCell = node.width === "fill_container" && typeof parentNode?.width === "number";
+  const hasSize = typeof design.width === "number" && typeof design.height === "number";
+  const fillsCell = design.width === "fill_container" && typeof parentNode?.width === "number";
 
-  if (node.fontSize !== undefined) checkNumber(section, rules, resolve, node, selector, "fontSize", "font-size");
-  if (node.letterSpacing !== undefined)
-    checkNumber(section, rules, resolve, node, selector, "letterSpacing", "letter-spacing");
-  if (node.lineHeight !== undefined)
-    checkNumber(section, rules, resolve, node, selector, "lineHeight", "line-height");
-  if (node.gap !== undefined) checkNumber(section, rules, resolve, node, selector, "gap", "gap");
-  if (node.padding !== undefined) checkPadding(section, rules, resolve, node, selector);
-  if (node.strokeWidth !== undefined) {
-    const label = `${section.name} ${node.id} ${node.name} strokeWidth=${node.strokeWidth}`;
+  if (design.fontSize !== undefined) checkNumber(section, rules, resolve, design, selector, "fontSize", "font-size");
+  if (design.letterSpacing !== undefined)
+    checkNumber(section, rules, resolve, design, selector, "letterSpacing", "letter-spacing");
+  if (design.lineHeight !== undefined)
+    checkNumber(section, rules, resolve, design, selector, "lineHeight", "line-height");
+  if (design.gap !== undefined) checkNumber(section, rules, resolve, design, selector, "gap", "gap");
+  if (design.padding !== undefined) checkPadding(section, rules, resolve, design, selector);
+  if (design.strokeWidth !== undefined) {
+    const label = `${section.name} ${node.id} ${node.name} strokeWidth=${design.strokeWidth}`;
     const raw = declared(rules, selector, "border") ?? declared(rules, selector, "border-width");
     if (raw === undefined) {
       fail(label, `${selector} declares no border`);
     } else {
       const width = raw.split(/\s+/)[0];
       const actual = resolve.number(width);
-      if (Math.abs(actual - node.strokeWidth) > 1e-9) {
-        fail(label, `${selector} ${raw} starts with ${actual}, design says ${node.strokeWidth}`);
+      if (Math.abs(actual - design.strokeWidth) > 1e-9) {
+        fail(label, `${selector} ${raw} starts with ${actual}, design says ${design.strokeWidth}`);
       } else {
         checked.push(`${label} <- ${selector} { border: ${raw} }`);
       }
     }
   }
-  if (node.fontWeight !== undefined) {
-    const design = node.fontWeight === "normal" ? 400 : Number(node.fontWeight);
-    const label = `${section.name} ${node.id} ${node.name} fontWeight=${design}`;
+  if (design.fontWeight !== undefined) {
+    const designWeight = design.fontWeight === "normal" ? 400 : Number(design.fontWeight);
+    const label = `${section.name} ${node.id} ${node.name} fontWeight=${designWeight}`;
     const raw = declared(rules, selector, "font-weight");
     if (raw === undefined) {
       fail(label, `${selector} declares no font-weight`);
@@ -589,8 +603,8 @@ function checkNode(context, node, parentNode) {
       rules,
       node,
       selector,
-      [node.width, node.height],
-      `${section.name} ${node.id} ${node.name} ${node.width}×${node.height}`,
+      [design.width, design.height],
+      `${section.name} ${node.id} ${node.name} ${design.width}×${design.height}`,
     );
   } else if (fillsCell) {
     if (declared(rules, selector, "aspect-ratio") !== undefined) {
@@ -599,30 +613,30 @@ function checkNode(context, node, parentNode) {
         rules,
         node,
         selector,
-        [parentNode.width, node.height],
-        `${section.name} ${node.id} ${node.name} ${parentNode.width}×${node.height}`,
+        [parentNode.width, design.height],
+        `${section.name} ${node.id} ${node.name} ${parentNode.width}×${design.height}`,
       );
     } else {
-      checkNumber(section, rules, resolve, node, selector, "height", "height");
+      checkNumber(section, rules, resolve, design, selector, "height", "height");
     }
-  } else if (typeof node.width === "number") {
-    checkNumber(section, rules, resolve, node, selector, "width", "width");
+  } else if (typeof design.width === "number") {
+    checkNumber(section, rules, resolve, design, selector, "width", "width");
   }
 
-  const fillsBorder = node.stroke !== undefined;
+  const fillsBorder = design.stroke !== undefined;
   const colorProps = text
     ? ["color", "background", "background-"]
     : fillsBorder
       ? ["border", "outline"]
       : ["background", "color"];
-  if (typeof node.fill === "string") {
-    checkColor(section, rules, resolve, node, selector, "fill", colorProps);
-  } else if (node.fill !== undefined) {
+  if (typeof design.fill === "string") {
+    checkColor(section, rules, resolve, design, selector, "fill", colorProps);
+  } else if (design.fill !== undefined) {
     /* An image fill carries no colour: checkDom holds this node to the asset it became. */
-    if (node.fill.type !== "image") {
+    if (design.fill.type !== "image") {
       fail(
         `${section.name} ${node.id} ${node.name} fill`,
-        `unsupported fill ${JSON.stringify(node.fill)}`,
+        `unsupported fill ${JSON.stringify(design.fill)}`,
       );
     } else {
       checked.push(
@@ -630,11 +644,11 @@ function checkNode(context, node, parentNode) {
       );
     }
   }
-  if (node.stroke !== undefined) {
-    checkColor(section, rules, resolve, node, selector, "stroke", ["border", "outline"]);
+  if (design.stroke !== undefined) {
+    checkColor(section, rules, resolve, design, selector, "stroke", ["border", "outline"]);
   }
 
-  const enums = enumRequirements(node);
+  const enums = enumRequirements(design);
   for (const pair of enums) {
     const [prop, value] = pair.split(": ");
     if (!exists(rules, prop, value)) {
@@ -658,6 +672,24 @@ function enumRequirements(node) {
 }
 
 // ------------------------------------------------------------------ dom checks
+
+/** A retired node is gone by ruling, not by accident: the class that implemented it must
+    be absent from both the stylesheet and the JSX, so re-adding the element fails here
+    instead of passing unnoticed. */
+function checkRetired(section, node, css, tsx) {
+  const { selector, why } = section.retired[node.id];
+  const label = `${section.name} ${node.id} ${node.name} retired`;
+  /* Whole class names only: `.sport__k` must not match `.sport__kicker`. The stylesheet
+     spells the class with its dot; JSX carries the bare class token in className. */
+  const escape = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const inCss = new RegExp(`${escape(selector)}(?![\\w-])`).test(css);
+  const inTsx = new RegExp(`${escape(selector.slice(1))}(?![\\w-])`).test(tsx);
+  if (inCss || inTsx) {
+    fail(label, `${selector} is back in ${[inCss && section.css, inTsx && section.tsx].filter(Boolean).join(" + ")}: ${why}`);
+    return;
+  }
+  checked.push(`${label} <- ${selector} absent from ${section.css} + ${section.tsx} (${why})`);
+}
 
 function checkDom(section, tsx, css) {
   if (tsx.includes("※") || css.includes("※")) {
@@ -760,6 +792,8 @@ for (const section of SECTIONS) {
       console.log(
         `  skip ${section.name} ${current.id} ${current.name}: ${section.annotations[current.id]}`,
       );
+    } else if (section.retired?.[current.id] !== undefined) {
+      checkRetired(section, current, css, tsx);
     } else {
       checkNode(context, current, parent);
     }

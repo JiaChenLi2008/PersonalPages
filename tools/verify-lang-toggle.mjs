@@ -213,8 +213,12 @@ const PAIRS = [
   { pair: "index.row1.title", kind: "dual", where: "index", zh: "index.row1.title", en: "index.row1.titleEn" },
   { pair: "index.row2.title", kind: "dual", where: "index", zh: "index.row2.title", en: "index.row2.titleEn" },
   { pair: "index.row3.title", kind: "dual", where: "index", zh: "index.row3.title", en: "index.row3.titleEn" },
-  { pair: "scholarly.title", kind: "dual", where: "scholarly", zh: "scholarly.title.zh", en: "scholarly.title.en" },
-  { pair: "elder.title", kind: "dual", where: "elder", zh: "elder.title.zh", en: "elder.title.en" },
+  /* docx-1023 item 8（用户裁决）：右侧重复标题已删，节头判据改为 kicker 单侧。
+     The kicker key is the one entry that carries the section name in both dictionaries, so
+     it is the text the single-side check reads now; the title key pair stays wired through
+     the h2's aria-label (checked by verify-ssr-dom) and copy.ts's TITLE_PAIRS. */
+  { pair: "scholarly.title", kind: "single", where: "scholarly", zh: "scholarly.kicker", en: "scholarly.kicker" },
+  { pair: "elder.title", kind: "single", where: "elder", zh: "elder.kicker", en: "elder.kicker" },
   { pair: "music.title", kind: "dual", where: "music", zh: "music.title", en: "music.titleEn" },
   { pair: "sport.title", kind: "dual", where: "sport", zh: "sport.title", en: "sport.titleEn" },
   {
@@ -327,10 +331,10 @@ const NAV_LINKS = [
 ];
 
 /**
- * The two dual head pairs the browser section drives as well. Their zh side has no element
- * of its own: the design's `Section/Head` draws L (the zh kicker, a chrome key) beside R
- * (the English title) and no Chinese title variant — which is exactly why
- * scholarly.title.zh and elder.title.zh are the dead keys docs/CHROME.md §4 registers.
+ * The two section heads the browser section drives. docx-1023 item 8（用户裁决）：右侧重复标题已删，节头判据改为 kicker 单侧。
+ * The head is one h2 line — the kicker, carrying the section number and the page
+ * language's own name — and its clean section name rides along as the h2's aria-label,
+ * which is what keeps the title key pair wired (docs/CHROME.md §4).
  */
 const HEAD_PAIRS = [
   {
@@ -338,22 +342,21 @@ const HEAD_PAIRS = [
     zh: "scholarly.title.zh",
     en: "scholarly.title.en",
     kicker: "#scholarly .scholarly__kicker",
-    title: "#scholarly .scholarly__title",
+    kickerKey: "scholarly.kicker",
   },
   {
     pair: "elder.title",
     zh: "elder.title.zh",
     en: "elder.title.en",
     kicker: "#elder .elder__kicker",
-    title: "#elder .elder__title-en",
+    kickerKey: "elder.kicker",
   },
 ];
 
 /** The `heads` field of PROBE, built from the very selectors HEAD_PAIRS asserts against. */
 const HEAD_PROBE = `{${HEAD_PAIRS.map(
-  ({ pair, kicker, title }) =>
-    `${JSON.stringify(pair)}: { kicker: label(document.querySelector(${JSON.stringify(kicker)})), ` +
-    `title: label(document.querySelector(${JSON.stringify(title)})) }`,
+  ({ pair, kicker }) =>
+    `${JSON.stringify(pair)}: { kicker: label(document.querySelector(${JSON.stringify(kicker)})) }`,
 ).join(", ")}}`;
 
 /** Raw values of every surface the two scenarios compare, read in one round trip. */
@@ -527,7 +530,7 @@ function report(label, probe) {
     })
     .join(" ");
   const headsRaw = HEAD_PAIRS.map(
-    (pair) => `${pair.pair}=${probe.heads?.[pair.pair]?.title ?? "null"}`,
+    (pair) => `${pair.pair}=${probe.heads?.[pair.pair]?.kicker ?? "null"}`,
   ).join(" ");
   console.log(
     `${label}: url=${probe.url} query=${JSON.stringify(probe.query)} html.lang=${probe.htmlLang} ` +
@@ -575,26 +578,32 @@ function expectNavLinks(label, probe, lang) {
 }
 
 /**
- * The two dual head pairs: the zh side sits inside the L kicker (it has no element of its
- * own — docs/CHROME.md §4), the English title in R; both stay put in both modes.
+ * The two section heads, one h2 line each. docx-1023 item 8（用户裁决）：右侧重复标题已删，节头判据改为 kicker 单侧。
+ * The kicker now carries the section number and the page language's own name, so the whole
+ * line is compared (case and whitespace folded, the file's existing comparison rule): it
+ * must be the page language's kicker text and must not contain the other language's.
  */
 function expectHeadPairs(label, probe, pageLang) {
-  /* The head's L kicker carries the section title too, set in caps by the board, so that
-     one comparison folds case and whitespace (docs/CHROME.md comparison rule); the h2
-     title in R is compared verbatim. */
   const fold = (value) => value.toLowerCase().replace(/\s+/g, " ").trim();
+  const other = OTHER_MODE[pageLang];
   for (const pair of HEAD_PAIRS) {
     const head = probe.heads?.[pair.pair];
     if (head === undefined) {
       fail(`${label}: ${pair.pair} head is missing from the page`);
       continue;
     }
+    const ownKicker = text(pageLang, pair.kickerKey);
+    const foreignKicker = text(other, pair.kickerKey);
     expectEqual(
-      `${label}: ${pair.pair} kicker carries ${pair.zh}`,
-      fold(head.kicker ?? "").includes(fold(text(pageLang, pair.zh))),
-      true,
+      `${label}: ${pair.pair} kicker = ${pair.kickerKey}`,
+      fold(head.kicker ?? ""),
+      fold(ownKicker),
     );
-    expectEqual(`${label}: ${pair.pair} title = ${pair.en}`, head.title, text(pageLang, pair.en));
+    expectEqual(
+      `${label}: ${pair.pair} kicker has no ${other} text`,
+      fold(head.kicker ?? "").includes(fold(foreignKicker)),
+      false,
+    );
   }
 }
 

@@ -119,14 +119,11 @@ export function Music() {
 
   return (
     <section id="music" data-section="music" className="music" aria-labelledby="music-title">
-      {/* The head's two texts arrive at the first stagger tier; the kicker carries the
-          section number, so it is the block that slides in (motion.css .motion-slide). */}
+      {/* docx-1023 item 8 (user ruling): drop the right-hand duplicate title, kicker 14px/--c-blue.
+          The kicker alone names the section; it stays the one block that slides in. */}
       <h2 id="music-title" className="music__head">
         <Reveal as="span" className="music__kicker motion-slide">
           {text("music.kicker")}
-        </Reveal>
-        <Reveal as="span" className="music__title-en">
-          {text("music.titleEn")}
         </Reveal>
       </h2>
       <Rule variant="baseline" />

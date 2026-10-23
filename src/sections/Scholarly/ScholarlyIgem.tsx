@@ -47,10 +47,12 @@ const PILLARS = [
 /**
  * 01.1 iGEM (ui.pen `gE6yx`): Lab contribution and Paris Conference with the
  * project CTA in the left column, two 4:3 figure slots in the 360px right column.
- * The docx's two later additions sit inside this sub-block: the result copy (item 2)
- * between the lab paragraph and the Paris heading, and the 2x2 pillar matrix (item 3)
- * full width under the two columns — four bulleted blocks in a 700px column would be a
- * 250px-wide cell each, so the matrix takes the body's whole width instead.
+ * The docx's two later additions sit inside this left column, in reading order: the
+ * result copy (item 2) between the lab paragraph and the Paris heading, and the 2x2
+ * pillar matrix (item 3) in the seam between that result block and the Paris heading
+ * (docx-1023 item 1, the user's ruling: the cards move up to the seam rather than
+ * trailing the whole body). The column is 937px at the 1440 board, so each card keeps
+ * a ~450px cell and the 2x2 matrix stays a matrix.
  * `lang` always comes from the dictionary entry's own `lang` field (BLUEPRINT §6.4).
  * The board draws the CTA as one node holding both languages back to back; only the
  * page's own side reaches the DOM, so a page never carries the other one.
@@ -93,6 +95,36 @@ export function ScholarlyIgem() {
             <p className="scholarly__d" lang={langOf("scholarly-igem.result.body")}>
               {text("scholarly-igem.result.body")}
             </p>
+          </div>
+          {/* docx-1023 item 1 (user ruling): the 2x2 white cards move up into the seam
+              between the result block and the Paris Conference heading.
+              Each block is a card (`.scholarly__pillarCard`) that lifts and scales on hover;
+              the outer `Reveal` gives the four cards the same staggered entrance every other
+              block gets. The two live on separate elements on purpose: `.reveal` owns
+              `transition: opacity, transform` and a card that also owned the hover transition
+              would drop one of the two. */}
+          <div className="scholarly__pillars">
+            {PILLARS.map((pillar, index) => (
+              <Reveal
+                key={pillar.title}
+                as="div"
+                className="scholarly__pillar"
+                delay={(index % 2 === 0 ? 0 : 1) as 0 | 1}
+              >
+                <div className="scholarly__pillarCard">
+                  <p className="scholarly__pillarTitle" lang={langOf(pillar.title)}>
+                    {text(pillar.title)}
+                  </p>
+                  <ul className="scholarly__pillarItems">
+                    {pillar.items.map((item) => (
+                      <li key={item} lang={langOf(item)}>
+                        {text(item)}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </Reveal>
+            ))}
           </div>
           <h4 className="scholarly__k" lang={langOf("scholarly-igem.sub2")}>
             {text("scholarly-igem.sub2")}
@@ -160,36 +192,6 @@ export function ScholarlyIgem() {
         </div>
       </div>
 
-      {/* docx-1021 item 3: the 2x2 pillar matrix. It belongs to the sub-block but not
-          to one column — full width under both, so each cell holds a sentence-length Chinese
-          bullet on two or three lines instead of six. Each block is a card
-          (`.scholarly__pillarCard`) that lifts and scales on hover; the outer `Reveal` gives
-          the four cards the same staggered entrance every other block gets. The two live on
-          separate elements on purpose: `.reveal` owns `transition: opacity, transform` and
-          a card that also owned the hover transition would drop one of the two. */}
-      <div className="scholarly__pillars">
-        {PILLARS.map((pillar, index) => (
-          <Reveal
-            key={pillar.title}
-            as="div"
-            className="scholarly__pillar"
-            delay={(index % 2 === 0 ? 0 : 1) as 0 | 1}
-          >
-            <div className="scholarly__pillarCard">
-              <p className="scholarly__pillarTitle" lang={langOf(pillar.title)}>
-                {text(pillar.title)}
-              </p>
-              <ul className="scholarly__pillarItems">
-                {pillar.items.map((item) => (
-                  <li key={item} lang={langOf(item)}>
-                    {text(item)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </Reveal>
-        ))}
-      </div>
     </div>
   );
 }

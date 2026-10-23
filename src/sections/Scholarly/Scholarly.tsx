@@ -28,15 +28,17 @@ export function Scholarly() {
       aria-labelledby="scholarly-title"
     >
       <div className="scholarly__head">
-        <p className="scholarly__kicker" lang={langOf("scholarly.kicker")}>
-          {text("scholarly.kicker")}
-        </p>
+        {/* docx-1023 item 8 (user ruling): drop the right-hand duplicate title, kicker
+            14px/--c-blue. The kicker is the section's single h2 now; its aria-label keeps the
+            clean section name (the visible line carries the 01 / prefix) and keeps the title
+            key pair wired. */}
         <h2
-          className="scholarly__title"
+          className="scholarly__kicker"
           id="scholarly-title"
           lang={zh ? langOf("scholarly.title.zh") : langOf("scholarly.title.en")}
+          aria-label={zh ? text("scholarly.title.zh") : text("scholarly.title.en")}
         >
-          {zh ? text("scholarly.title.zh") : text("scholarly.title.en")}
+          {text("scholarly.kicker")}
         </h2>
       </div>
       <Rule variant="baseline" />

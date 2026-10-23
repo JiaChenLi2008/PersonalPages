@@ -190,7 +190,12 @@ export function ScholarlyHir() {
         <p className="scholarly__lead" lang={langOf("scholarly-hir.lead2")}>
           {text("scholarly-hir.lead2")}
         </p>
-        <p className="scholarly__lead" lang={langOf("scholarly-hir.lead3")}>
+        {/* docx-1023 item 2 (user ruling): the third lead takes the answer panel's green so
+            the three leads end on the same emphasis colour the panel's closing lines use. */}
+        <p
+          className="scholarly__lead scholarly__lead--green"
+          lang={langOf("scholarly-hir.lead3")}
+        >
           {text("scholarly-hir.lead3")}
         </p>
 

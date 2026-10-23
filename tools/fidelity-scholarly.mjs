@@ -210,8 +210,12 @@ function declaration(body, property) {
 /* ---------- 1. text roles: board node -> implementing class ---------- */
 
 const TEXT_ROLES = [
-  { node: "Mb1np", selector: ".scholarly__kicker" },
-  { node: "Af0af", selector: ".scholarly__title" },
+  /* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue。
+     `Af0af` (the board's right-hand English title) has no implementing role any more: the
+     user ruled the duplicate title out of the head. Its string still covers the board node
+     through the h2's aria-label (the copy check below only needs a referenced key), and the
+     retired-role list holds the removal to that. */
+  { node: "Mb1np", selector: ".scholarly__kicker", ruling: { fontSize: 14, fill: "#1B4BC4" } },
   { node: "Bwbci", selector: ".scholarly__num" },
   { node: "vPbTb", selector: ".scholarly__subtitle" },
   { node: "t4Auv", selector: ".scholarly__k" },
@@ -258,6 +262,7 @@ for (const role of TEXT_ROLES) {
   const penNode = pen(role.node);
   if (penNode === undefined) continue;
   checked += 1;
+  const ruling = role.ruling ?? {};
   const body = declarationsOf(role.selector);
   const label = `${role.node} <${penNode.name}> -> ${[role.selector].flat().join(" + ")}`;
 
@@ -273,10 +278,11 @@ for (const role of TEXT_ROLES) {
 
   if (penNode.fontSize !== undefined) {
     const size = declaration(body, "font-size");
+    const wanted = ruling.fontSize ?? penNode.fontSize;
     if (size === null) {
-      fail(`[role] ${label}: no font-size for board size ${penNode.fontSize}`);
+      fail(`[role] ${label}: no font-size for board size ${wanted}`);
     } else {
-      assertNumbers(`role ${label} font-size`, penNode.fontSize, size);
+      assertNumbers(`role ${label} font-size`, wanted, size);
     }
   }
 
@@ -310,10 +316,21 @@ for (const role of TEXT_ROLES) {
   }
 
   const color = declaration(body, "color");
+  const wantedFill = String(ruling.fill ?? penNode.fill).toUpperCase();
   if (color === null || !/var\(--c-[\w-]+\)/.test(color)) {
     fail(`[role] ${label}: colour ${JSON.stringify(color)} must come from a --c-* token`);
-  } else if (resolveValue(color).toUpperCase() !== String(penNode.fill).toUpperCase()) {
-    fail(`[role] ${label}: ${resolveValue(color)} != board fill ${penNode.fill}`);
+  } else if (resolveValue(color).toUpperCase() !== wantedFill) {
+    fail(`[role] ${label}: ${resolveValue(color)} != board fill ${wantedFill}`);
+  }
+}
+
+/* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue。The board still draws the
+   right-hand title; the ruling removes it, so its class must be gone from both the CSS and
+   the JSX. A re-introduced duplicate fails here instead of passing as an unused rule. */
+for (const selector of [".scholarly__title"]) {
+  checked += 1;
+  if (sectionCss.includes(selector) || sectionSource.includes(selector.slice(1))) {
+    fail(`[role] retired ${selector} is back in the section; docx-1023 item 8 removes the duplicate title`);
   }
 }
 

@@ -509,6 +509,35 @@ if (decode(sport).includes(en["sport.body"].text)) {
 if (sport.indexOf("data-strip=") > sport.indexOf("sport__body")) {
   fail("sport lead: the wall must come before the body (docx 页面7 先放照片滚动墙)");
 }
+/* docx-1023 item 9（用户裁决）：the Sport KV row is removed. The two dictionary keys stay
+   for Hero's own row, so the markup is the only place the deletion can be proven. */
+if (/class="sport__kv\b/.test(sport)) {
+  fail("sport KV: .sport__kv is still rendered; docx-1023 item 9 removes the whole row");
+}
+if (decode(sport).includes(en["hero.val.sport"].text)) {
+  fail(
+    `sport KV: the removed row's value (${JSON.stringify(en["hero.val.sport"].text)}) ` +
+      "is still rendered inside #sport; the keys stay for Hero only",
+  );
+}
+
+/* docx-1023 item 8（用户裁决）：去右侧重复标题、kicker 14px/--c-blue。The head's kicker
+   alone names the section: neither a duplicate English title class nor a second span may
+   survive in Music/Sport. */
+for (const [name, markup] of [
+  ["music", music],
+  ["sport", sport],
+]) {
+  if (new RegExp(`class="[^"]*\\b${name}__title-en\\b`).test(markup)) {
+    fail(`${name} head: .${name}__title-en is still rendered; docx-1023 item 8 removes the duplicate`);
+  }
+  const head = new RegExp(`<h2\\b[^>]*class="[^"]*\\b${name}__head\\b[^"]*"[^>]*>([\\s\\S]*?)</h2>`).exec(markup);
+  if (head === null) {
+    fail(`${name} head: no <h2 class="${name}__head"> to check`);
+  } else if ((head[1].match(/<span\b/g) ?? []).length !== 1) {
+    fail(`${name} head: ${(head[1].match(/<span\b/g) ?? []).length} span(s) inside the h2, expected the kicker alone`);
+  }
+}
 
 /* ---------- 6. one language ---------- */
 
