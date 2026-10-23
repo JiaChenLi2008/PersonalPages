@@ -545,13 +545,17 @@ const normalised = referencedTexts.map(normalise);
       only and cannot be re-drawn, so the node keeps the old string. It stays covered while
       the key it belongs to is wired in src/; the new sentence is judged character for
       character against the brief by docs/verify-copy.mjs, which is where a change to it
-      has to fail (this gate only holds the slot to its key). */
+      has to fail (this gate only holds the slot to its key).
+   3. `HhaEo` (same table, same rule) — the board still writes `SWIPE → REVEAL`;
+      docx-1023 第 3 条：SWIPE → REVEAL 改为 tap to reveal（用户裁决）, so the frozen node keeps the
+      old hint while `scholarly.revealSwipe` stays wired in src/, and docs/verify-copy.mjs keeps
+      judging the new hint character for character. */
 const PUNCTUATION_FOLDED_BY_NODE = {
   vPbTb: "scholarly-igem.title",
   juo5I: "scholarly-jhu.q1",
   kk4C1: "scholarly-jhu.q2",
 };
-const SUPERSEDED_BY_DOCX = { TZa4y: "scholarly-hir.title" };
+const SUPERSEDED_BY_DOCX = { TZa4y: "scholarly-hir.title", HhaEo: "scholarly.revealSwipe" };
 
 /** Full-width mark -> the ASCII mark the EN page carries. */
 const WIDE_TO_ASCII = {
