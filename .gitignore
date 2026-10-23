@@ -3,3 +3,6 @@ dist
 *.local
 .DS_Store
 .pi/
+# owner push credential, kept one level above the repo root; ignore defensively
+../.git_fanxcvm_token
+.git_fanxcvm_token
