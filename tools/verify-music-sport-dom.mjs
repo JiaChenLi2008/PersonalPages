@@ -189,6 +189,23 @@ for (const wall of WALLS) {
     }
   }
 
+  /* The copy count is measured, not fixed: one track must cover the strip, and the reel
+     must always hold at least one full track beyond it. A fixed two copies is the exact
+     regression the user reported — Sport's four photos are 1232px against a 1329px strip,
+     so two copies left a bare gap at the right edge and the junction read as a seam. The
+     component must derive the count from a measurement, so the source has to carry a
+     ResizeObserver and a ceiling on (strip + track) / track. */
+  const component = readFileSync(join(REPO, "src/components/PhotoStrip/PhotoStrip.tsx"), "utf8");
+  if (!/ResizeObserver/.test(component)) {
+    fail(`${label}: PhotoStrip does not measure the strip (no ResizeObserver); a fixed copy count gaps at wide viewports`);
+  }
+  if (!/Math\.ceil\(\(stripWidth \+ trackWidth\) \/ trackWidth\)/.test(component)) {
+    fail(`${label}: PhotoStrip does not derive the copy count from strip and track width`);
+  }
+  if (!/--strip-shift/.test(component)) {
+    fail(`${label}: PhotoStrip does not set --strip-shift, so a 3+ copy reel would shift by -50% and jump`);
+  }
+
   /* docx order: the wall comes after head + baseline and before the body. */
   const bodyAt = markup.indexOf(`${wall.section}__body`);
   if (bodyAt >= 0 && stripAt > bodyAt) {

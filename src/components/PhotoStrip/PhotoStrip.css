@@ -14,8 +14,10 @@
   background: var(--c-rule);
 }
 
-/* Seamless loop: the track is rendered twice and the reel travels exactly one track
-   width (-50%), so the second copy lands where the first began. 48s is one full cycle —
+/* Seamless loop: the reel renders the track N times and travels exactly one real track
+   width (`--strip-shift`, set from the measured track by PhotoStrip.tsx), so copy k lands
+   where copy k-1 began. A percentage would only be right for exactly two copies — Sport
+   needs more than two at 1440, and -50% would then jump mid-photo. 48s is one full cycle;
    Music's reel is ~5400px wide, so the drift is ~113px/s of ambient travel, not an
    entrance. It is the one animation on the site that outlives the 800ms ceiling, so it is
    registered by name in the AMBIENT_ANIMATIONS table of tools/verify-motion.mjs; the
@@ -49,7 +51,9 @@
   }
 
   to {
-    transform: translate3d(-50%, 0, 0);
+    /* Falls back to -50% before the first measurement (server render / JS off), which is
+       exactly right for the two copies that render in that state. */
+    transform: translate3d(var(--strip-shift, -50%), 0, 0);
   }
 }
 
