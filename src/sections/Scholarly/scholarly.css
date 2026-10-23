@@ -584,6 +584,10 @@
   .scholarly__cols {
     gap: var(--sp-16);
   }
+
+  .scholarly__pillarCard {
+    padding: var(--sp-16);
+  }
 }
 
 /* global.css zeroes every transition under reduced motion, which leaves the card's hover as
@@ -592,11 +596,5 @@
   .scholarly__pillarCard:hover {
     transform: none;
     box-shadow: none;
-  }
-}
-
-@media (max-width: 600px) {
-  .scholarly__pillarCard {
-    padding: var(--sp-16);
   }
 }
