@@ -1,3 +1,4 @@
+import { Lightbox } from "../../components/Lightbox/Lightbox";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy } from "../../i18n/copy";
@@ -55,19 +56,26 @@ export function ScholarlyHir() {
       <Rule variant="hairline" />
 
       <div className="scholarly__body scholarly__body--hir motion-reveal-group">
-        <div className="scholarly__media scholarly__media--hir">
-          <Reveal className="scholarly__clip motion-clip">
-            <img
-              className="scholarly__photo"
-              src="./media/hir-fig-2688.webp"
-              alt={text("scholarly-hir.fig.alt")}
-              width={2688}
-              height={840}
-              loading="lazy"
-              decoding="async"
-            />
-          </Reveal>
-        </div>
+        <Lightbox
+          full="./media/hir-fig-2688.webp"
+          alt={text("scholarly-hir.fig.alt")}
+          width={2688}
+          height={840}
+        >
+          <div className="scholarly__media scholarly__media--hir">
+            <Reveal className="scholarly__clip motion-clip">
+              <img
+                className="scholarly__photo"
+                src="./media/hir-fig-2688.webp"
+                alt={text("scholarly-hir.fig.alt")}
+                width={2688}
+                height={840}
+                loading="lazy"
+                decoding="async"
+              />
+            </Reveal>
+          </div>
+        </Lightbox>
 
         <p className="scholarly__hint" lang={langOf("scholarly.revealTap")}>
           {text("scholarly.revealTap")}

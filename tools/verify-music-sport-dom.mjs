@@ -482,6 +482,52 @@ if (percGrid === null) {
   }
 }
 
+/* ---------- 5b. the docx-1023 lead-ins (段[2]…[6]) ---------- */
+
+/* Two copy blocks the dictionaries already carried and the section did not render: the three
+   lines that introduce the twelve drawings and the two that introduce the résumé table. Their
+   text alone cannot show a missing placement — every key also stays reachable if it is moved —
+   so each key is located in the section's reading order: ahead of the grid it introduces, or
+   ahead of the table. Positions are read from the decoded markup, because the dictionary text
+   carries characters React escapes in the raw string. */
+const readableMusic = decode(music);
+const gridInReadable = readableMusic.indexOf('<ul class="music__perc">');
+const tableInReadable = readableMusic.indexOf("<table");
+const positionOf = (key) => {
+  const entry = en[key];
+  return entry === undefined ? -1 : readableMusic.indexOf(entry.text);
+};
+
+let introCursor = -1;
+for (const key of ["music.intro.p1", "music.intro.p2", "music.intro.p3"]) {
+  const position = positionOf(key);
+  if (position < 0) {
+    fail(`music intro: ${key} does not reach the markup, so the docx's 段[2]…[4] line is missing`);
+  } else if (gridInReadable < 0) {
+    fail(`music intro: ${key} has no twelve-icon list after it to introduce`);
+  } else if (position > gridInReadable) {
+    fail(`music intro: ${key} sits after the twelve-icon list; the docx puts it between the body and the drawings`);
+  } else if (position < introCursor) {
+    fail(`music intro: ${key} is out of the docx order 段[2] → 段[3] → 段[4]`);
+  }
+  introCursor = Math.max(introCursor, position);
+}
+
+let resumeIntroCursor = -1;
+for (const key of ["music.resume.intro1", "music.resume.intro2"]) {
+  const position = positionOf(key);
+  if (position < 0) {
+    fail(`music résumé intro: ${key} does not reach the markup, so the docx's 段[5]…[6] line is missing`);
+  } else if (tableInReadable < 0) {
+    fail(`music résumé intro: ${key} has no résumé table after it to introduce`);
+  } else if (position > tableInReadable) {
+    fail(`music résumé intro: ${key} sits after the table; the docx puts it between the drawings and the résumé`);
+  } else if (position < resumeIntroCursor) {
+    fail(`music résumé intro: ${key} is out of the docx order 段[5] → 段[6]`);
+  }
+  resumeIntroCursor = Math.max(resumeIntroCursor, position);
+}
+
 /* ---------- 6. the figure and the lead ---------- */
 
 const figure = /<img\b[^>]*src="(media\/music-fig-[^"]+)"[^>]*alt="([^"]*)"/.exec(music);

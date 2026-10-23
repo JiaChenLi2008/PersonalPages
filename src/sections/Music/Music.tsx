@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Lightbox } from "../../components/Lightbox/Lightbox";
 import { PhotoStrip, type StripPhoto } from "../../components/PhotoStrip/PhotoStrip";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
@@ -105,7 +106,12 @@ const RESUME_ROWS = [
  *
  * The wall sits between the head and the body: the reader meets the whole impression of the
  * section first and its detail after. The 4:3 photograph keeps its box and its alt key —
- * T1 replaced the file behind `music-fig-720`, not the slot.
+ * T1 replaced the file behind `music-fig-720`, not the slot — and it is the click-to-enlarge
+ * slot: its 1440-tier file opens in the shared `Lightbox`.
+ *
+ * docx-1023 段[2]…[6] add two pieces of copy this section did not render: three lines between
+ * the pull-quote body and the twelve drawings (“点开下面的图片就能看到是哪些” introduces
+ * them), and two lines between those drawings and the performance résumé.
  */
 export function Music() {
   const { text, langOf } = useCopy();
@@ -147,22 +153,37 @@ export function Music() {
         </Reveal>
         {/* The figure sweeps in under its clip-path mask one tier behind the text column.
             A clipped element has no visible area, so the 15% observer default could never
-            be met: threshold 0 is the trigger this hook needs. The box is decorative beside
-            the pull quote, so the photograph stays out of the accessibility tree
-            (BLUEPRINT §6.3) while its alt text is the dictionary's. */}
+            be met: threshold 0 is the trigger this hook needs. The box stays decorative
+            (BLUEPRINT §6.3) while its alt key becomes the lightbox trigger's accessible
+            name — the photograph is named once, by the control, never twice. */}
         <Reveal as="figure" className="music__fig motion-clip" delay={2} threshold={0}>
-          <div className="music__media" aria-hidden="true">
-            <img
-              className="music__photo"
-              src="media/music-fig-720.webp"
-              alt={text("music.fig.alt")}
-              width={720}
-              height={540}
-              loading="lazy"
-              decoding="async"
-            />
-          </div>
+          <Lightbox
+            full="media/music-fig-1440.webp"
+            alt={text("music.fig.alt")}
+            width={1440}
+            height={1080}
+          >
+            <div className="music__media" aria-hidden="true">
+              <img
+                className="music__photo"
+                src="media/music-fig-720.webp"
+                alt={text("music.fig.alt")}
+                width={720}
+                height={540}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
+          </Lightbox>
         </Reveal>
+      </div>
+      {/* docx-1023 段[2]…[4]: the three lines that introduce the twelve drawings below.
+          Same column rhythm as `.music__body` — 14px/1.90 in `--c-ink-body`, 18px apart —
+          so the intro reads as the body's continuation, not as a new text tier. */}
+      <div className="music__intro">
+        <p lang={langOf("music.intro.p1")}>{text("music.intro.p1")}</p>
+        <p lang={langOf("music.intro.p2")}>{text("music.intro.p2")}</p>
+        <p lang={langOf("music.intro.p3")}>{text("music.intro.p3")}</p>
       </div>
       {/* docx-1021 段[1]…[12]: a small, dense grid of cartoon instrument drawings — the docx
           asks for the drawing to turn into the instrument's English name on hover
@@ -202,6 +223,13 @@ export function Music() {
           is the dictionary's own text — the dictionaries carry no caption key, and inventing
           one is outside this lane. `tabIndex` is what lets a keyboard user reach the box and
           scroll it. */}
+      {/* docx-1023 段[5]…[6]: two lines that hand the reader to the table. The second one is
+          the muted tail of the pair, the same emphasis pairing `.music__k` / `.music__v`
+          uses below — no new size. */}
+      <div className="music__intro music__intro--resume">
+        <p lang={langOf("music.resume.intro1")}>{text("music.resume.intro1")}</p>
+        <p lang={langOf("music.resume.intro2")}>{text("music.resume.intro2")}</p>
+      </div>
       <div
         className="music__resume"
         role="region"
