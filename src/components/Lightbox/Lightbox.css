@@ -32,6 +32,14 @@
   padding: 0;
   border: 0;
   background: none;
+  /* The UA gives a dialog `overflow: auto`; the FLIP's first frame moves the box onto the
+     trigger, far outside where it settles, and that would raise both scrollbars. The
+     photograph is the whole box, so nothing here ever needs to scroll. */
+  overflow: visible;
+  /* The FLIP animates this box, so its origin is the top-left corner the trigger lands on. */
+  transform-origin: top left;
+  /* A scroll gesture over the open dialog must not chain to the page behind it. */
+  overscroll-behavior: contain;
 }
 
 /* One dark field, --c-ink at 92%, mixed rather than written as a literal so the colour stays
@@ -40,14 +48,13 @@
   background: color-mix(in srgb, var(--c-ink) 92%, transparent);
 }
 
-/* The animated box (Lightbox.tsx reads this rectangle and scales the photograph's own into
-   it). `transform-origin: top left` is what makes translate + scale land on the trigger: the
-   scaled corner stays the top-left corner. The wrapper is as large as the photograph — the
-   `figure` margins are the UA's only contribution here, and they are zero — so the dark
-   field is exactly the photo and every pixel outside it closes the dialog. */
+/* The animated box is the dialog itself (Lightbox.tsx reads its rectangle and scales it onto
+   the trigger; `transform-origin: top left` on `.lightbox` is what makes that land). The
+   wrapper is as large as the photograph — the `figure` margins are the UA's only contribution
+   here, and they are zero — so the dark field is exactly the photo and every pixel outside it
+   closes the dialog. */
 .lightbox__figure {
   margin: 0;
-  transform-origin: top left;
 }
 
 /* The same file, never enlarged past its own pixels: `contain` keeps its ratio inside the

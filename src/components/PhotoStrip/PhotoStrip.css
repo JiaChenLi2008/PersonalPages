@@ -47,18 +47,10 @@
   height: 100%;
 }
 
-/* The clone is the loop's scaffolding (docx-2026-10 页面6/页面7): the real track one track to
-   the left owns the dialog, so the copy is unclickable and — through `aria-hidden` +
-   `tabindex="-1"` in PhotoStrip.tsx — unreachable from the keyboard as well. */
-.photo-strip__clone {
-  flex: none;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  pointer-events: none;
-}
-
+/* The clone is the loop's scaffolding: the real track one track to the left owns the one
+   control, so the copy leaves the keyboard and the screen reader through `aria-hidden` +
+   `tabindex="-1"` in PhotoStrip.tsx. Its button is still a full Lightbox trigger: a visible
+   photo must answer a mouse click and show `cursor: zoom-in` like the real track's. */
 .photo-strip__img {
   display: block;
   flex: none;

@@ -23,10 +23,14 @@ import "./Lightbox.css";
  * ship): the enlarged box starts on the trigger photograph's own rectangle — read with
  * `getBoundingClientRect()`, applied as `translate + scale` from `transform-origin: top left`
  * — and travels to where the modal puts it, while the backdrop fades in through the
- * `data-animating` attribute. Closing is the same trip backwards, and `dialog.close()` runs
- * only when it lands. `prefers-reduced-motion: reduce` skips both legs. The attribute doubles
- * as the guard: while a leg runs, a stray click on the dark field and a second ESC are
- * ignored, so a fast double click cannot leave a half-animated dialog behind.
+ * `data-animating` attribute. The animated box is the dialog, not the figure: a transformed
+ * descendant still counts toward the dialog's scrollable overflow (`scrollHeight`), so
+ * animating the figure would leave a nonzero `scrollHeight - clientHeight` even under
+ * `overflow: visible`. The figure fills the dialog exactly (zero padding, border and margin),
+ * so animating the dialog is the same rectangle. Closing is the same trip backwards, and
+ * `dialog.close()` runs only when it lands. `prefers-reduced-motion: reduce` skips both legs.
+ * The attribute doubles as the guard: while a leg runs, a stray click on the dark field and a
+ * second ESC are ignored, so a fast double click cannot leave a half-animated dialog behind.
  *
  * The enlarged image is mounted only while the dialog is open: a closed dialog is
  * `display: none`, so a parked `<img>` there would never load and `tools/verify-render.mjs`
@@ -46,6 +50,12 @@ type LightboxProps = {
    * `aria-label` (which is what `tools/verify-render.mjs`'s placeholder criterion expects).
    */
   children: React.ReactNode;
+  /**
+   * True for a loop clone: the button keeps its mouse click (the visible photo must enlarge)
+   * but leaves the accessibility tree and the tab order, because the real track already
+   * carries this photo's one control.
+   */
+  decorativeTrigger?: boolean;
 };
 
 /** 220–280ms out, 180–240ms in (the lane's contract): short enough to feel like the click. */
@@ -69,10 +79,9 @@ function flipFrom(box: DOMRect, rect: DOMRect): string | null {
   return `translate(${x}px, ${y}px) scale(${rect.width / box.width}, ${rect.height / box.height})`;
 }
 
-export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
+export function Lightbox({ src, alt, width, height, children, decorativeTrigger = false }: LightboxProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
-  const figureRef = useRef<HTMLElement>(null);
   /** The trigger photograph's rectangle at click time, for the open leg. */
   const originRef = useRef<DOMRect | null>(null);
   const closingRef = useRef(false);
@@ -93,16 +102,15 @@ export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
   useLayoutEffect(() => {
     if (!expanded) return;
     const dialog = dialogRef.current;
-    const figure = figureRef.current;
-    if (dialog === null || figure === null) return;
+    if (dialog === null) return;
     if (!dialog.open) dialog.showModal();
     const origin = originRef.current;
     originRef.current = null;
     if (reduceMotion() || origin === null) return;
-    const from = flipFrom(figure.getBoundingClientRect(), origin);
+    const from = flipFrom(dialog.getBoundingClientRect(), origin);
     if (from === null) return;
     dialog.dataset.animating = "open";
-    const animation = figure.animate([{ transform: from }, { transform: "none" }], {
+    const animation = dialog.animate([{ transform: from }, { transform: "none" }], {
       duration: OPEN_MS,
       easing: "ease-out",
     });
@@ -113,7 +121,6 @@ export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
 
   const close = () => {
     const dialog = dialogRef.current;
-    const figure = figureRef.current;
     if (dialog === null || !dialog.open || closingRef.current) return;
     closingRef.current = true;
     const finish = () => {
@@ -122,14 +129,13 @@ export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
       dialog.close();
     };
     const origin = triggerRect();
-    const to =
-      figure !== null && origin !== null ? flipFrom(figure.getBoundingClientRect(), origin) : null;
-    if (reduceMotion() || to === null || figure === null) {
+    const to = origin !== null ? flipFrom(dialog.getBoundingClientRect(), origin) : null;
+    if (reduceMotion() || to === null) {
       finish();
       return;
     }
     dialog.dataset.animating = "close";
-    const animation = figure.animate([{ transform: "none" }, { transform: to }], {
+    const animation = dialog.animate([{ transform: "none" }, { transform: to }], {
       duration: CLOSE_MS,
       easing: "ease-in",
     });
@@ -146,7 +152,15 @@ export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
 
   return (
     <>
-      <button ref={triggerRef} type="button" className="lightbox__trigger" aria-label={alt} onClick={open}>
+      <button
+        ref={triggerRef}
+        type="button"
+        className="lightbox__trigger"
+        aria-label={alt}
+        aria-hidden={decorativeTrigger ? "true" : undefined}
+        tabIndex={decorativeTrigger ? -1 : undefined}
+        onClick={open}
+      >
         {children}
       </button>
       <dialog
@@ -169,7 +183,7 @@ export function Lightbox({ src, alt, width, height, children }: LightboxProps) {
         }}
       >
         {expanded ? (
-          <figure ref={figureRef} className="lightbox__figure">
+          <figure className="lightbox__figure">
             {/* alt="" on purpose: the dialog already carries this text as its label, so a
                 second copy would be announced twice. */}
             <img

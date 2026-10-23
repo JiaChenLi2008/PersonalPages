@@ -124,20 +124,19 @@ export function PhotoStrip({ name, photos }: { name: string; photos: readonly St
     >
       {photos.map((entry) =>
         clone ? (
-          /* The clone is the loop's scaffolding, not a second control: it repeats the same
-             photo one track to the right, so a focusable copy would put every photo in the
-             tab order twice and a clickable copy would open a dialog from a rectangle the
-             reader is not looking at. `pointer-events: none` in the stylesheet finishes the
-             job — the ghost never answers a click. */
-          <button
+          /* The clone is the loop's scaffolding: it keeps its mouse click (the visible photo
+             must enlarge) but is `decorativeTrigger` — `aria-hidden` + `tabIndex={-1}` — so
+             the accessibility tree and tab order still hold one control per photo. */
+          <Lightbox
             key={entry.src}
-            type="button"
-            className="photo-strip__clone"
-            aria-hidden="true"
-            tabIndex={-1}
+            src={entry.src}
+            alt={text("photo.zoom")}
+            width={entry.width}
+            height={entry.height}
+            decorativeTrigger
           >
             {photo(entry)}
-          </button>
+          </Lightbox>
         ) : (
           <Lightbox
             key={entry.src}

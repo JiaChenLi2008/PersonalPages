@@ -214,6 +214,21 @@ for (const wall of WALLS) {
           `aria-hidden="true" tabindex="-1" (the same photo must not be focusable twice)`,
       );
     }
+    /* A visible clone is still a mouse target: same trigger class and same photo.zoom name
+       as the real track, so it cannot regress to the old pointer-events:none ghost. */
+    const classes = String(button.class ?? "").split(/\s+/);
+    if (!classes.includes("lightbox__trigger") || classes.includes("photo-strip__clone")) {
+      fail(
+        `${label}: a clone button has class=${JSON.stringify(button.class)}, expected ` +
+          `lightbox__trigger (a clickable photo, not a pointer-events:none clone)`,
+      );
+    }
+    if (button["aria-label"] !== zoomLabel) {
+      fail(
+        `${label}: a clone button has aria-label=${JSON.stringify(button["aria-label"])}, ` +
+          `expected ${JSON.stringify(zoomLabel)} (photo.zoom)`,
+      );
+    }
   }
 
   if (realPhotos.length !== wall.count) {
