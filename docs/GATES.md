@@ -506,3 +506,6 @@ HIR 第三节 lead 改绿字、四节名条去右侧重复标题且 kicker 14px/
   `checked=152 missing=0`。
 - 未做「应拒负例」：负例须临时删 `src/sections/Scholarly/ScholarlyImmuno.tsx` 的 `text()` 调用，越本 lane 的改文件边界，
   故此处只报静态依据（该分支代码本轮未改，仅表项多一键）。
+## R11 轮（退役未使用的 1440 放大档）
+
+- **登记**：灯箱改「放大同一张图」后，`*-1440` 八张放大大档（`music-fig-1440` / `sport-fig-1440` / `igem-fig1-1440` / `igem-fig2-1440`，各 webp+jpg）已无代码引用，连同 `MANIFEST` 8 条目与 `verify-assets.py` 的 `DERIVED` 4 行一并退役；文件数 **72 → 64**。`DERIVED_MAX_BYTES` / `FULL_BLEED` / 其余判据未动，故拦截力不变。
