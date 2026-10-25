@@ -83,7 +83,7 @@
 
 复核方法：同 viewport 量 `document.documentElement.scrollHeight`，与稿面全高 7433 相减；面板贡献逐块点开 `[aria-expanded="false"]` 后重测增量。
 
-## 4. 死键登记（1 条：字典有，src 无字面量引用）
+## 4. 死键登记（2 条：字典有，src 无字面量引用）
 
 本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=5 of 188 dictionary keys`（字典 188 键、`referenced=183`、`via_literal_call=85`、`via_key_literal=98`）。其中 1 个是下表登记的 `sport.body`，另 4 个是 `docx-2026-10` 轮之后仍待 Index / Scholarly lane 接线的键（`index.head.title`、`scholarly-hir.lead1/2/3`）——它们是**待接线缺口，不是死键**，故不在本节登记，也不在 `UNREFERENCED` 白名单里（门禁仍会点名它们：该 4 条属其它 lane 的收口范围）。
 
@@ -95,6 +95,7 @@ D2 收口把本节清空，五个原死键逐条处置如下。
 | 2 | `scholarly.imagePending`（`image pending` / `配图待补`） | 删除（两字典一致） | 01 节三张图已接线（`scholarly-igem.fig1-720` / `scholarly-igem.fig2-720` / `scholarly-hir.fig-2688`，alt 走 `scholarly-igem.fig1/fig2.alt`、`scholarly-hir.fig.alt` chrome 键），图位占位文本无渲染者；§1 原第 13 行随之撤除 |
 | 3 | `elder.contentPending`（`Community volunteering` / `社区志愿服务`） | 删除（两字典一致） | `src/sections/Elder/**` 不消费该键；02 节内容由 `elder.pull` / `elder.kv.*` 承担，该键与 `elder.kv.v` 同文同 src、纯重复条目，不得接成渲染文案；§1 原第 24 行随之撤除 |
 | 4 | `sport.body`（`Football and badminton. …` / `足球与羽毛球。…`） | **保留键，不再渲染**（docx-2026-10 页面7 以 `sport.lead` 替换） | 用户裁决「新段替换旧句」：`sport.lead` 占据原 `sport.body` 在 pull 块的位置，旧句不上页面。键在两份字典里留着，将来改主意时一行即可恢复；`tools/verify-copy-wiring.mjs` 的 `UNREFERENCED` 已同步加入该键，否则 `unreferenced key is not registered as dead` 会 rc=1 |
+| 5 | `hero.btn1`（`VIEW CV ↗` / `查看简历 ↗`） | **保留键，不再渲染**（用户裁定去掉「查看简历」按钮） | 无 CV PDF，也就没有可打开的目标：`Hero.tsx` 的 `Btns` 行现在只承载实邮箱链接（`hero.btn2`），`.hero__btn--solid` 随之退役。键在两份字典里留着，将来有 CV 时一行即可恢复；`UNREFERENCED` 与 `MIN_LITERAL_CALLS`（77 → 76）同步改在本轮 |
 
 **docx-1023 的 board 串替换（非死键，不入上表）**：`music.body` 与 `sport.lead` 的 board 原串已被本轮整句取代——`music.body` 的 `src` 由 `uirpen#Index.03 音乐时光.Body.D` 改指 `docx-1023-brief.md#段[1]`，`sport.lead` 的由 `docx-2026-10-brief.md#段[26]` 改指 `docx-1023-brief.md#段[7]`；两键照旧渲染，故不在本节死键表内。`ui.pen` 音乐节正文仍留着 `music.body` 的旧 board 串（`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐，见 §1 差集说明）。
 

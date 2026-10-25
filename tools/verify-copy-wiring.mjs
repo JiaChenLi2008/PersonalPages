@@ -69,7 +69,7 @@ const MIN_REFERENCED = 127;
    keeps `referenced` whole whenever a sibling `langOf("k")` still spells the key, so
    the count of keys a text() call actually names is the one that moves. Same rule:
    raise it in the commit that drops a call on purpose. */
-const MIN_LITERAL_CALLS = 77;
+const MIN_LITERAL_CALLS = 76;
 
 /* Dictionary keys no literal under src/ reaches. Each is dead by design and carries
    its own justification in docs/CHROME.md §4; an unreferenced key that is not on
@@ -86,6 +86,10 @@ const UNREFERENCED = [
      the key stays in both dictionaries so the old sentence can be restored in one line,
      but nothing renders it. docs/CHROME.md §4 carries the same entry. */
   "sport.body",
+  /* The CV button was removed (user ruling): `Hero.tsx` now carries the mail link only. The
+     label stays in both dictionaries so the button can come back in one line once a CV exists;
+     nothing renders it. docs/CHROME.md §4 carries the same entry. */
+  "hero.btn1",
 ];
 
 /** A text("literal-key") call; the lookbehind keeps e.g. context("...") out. */

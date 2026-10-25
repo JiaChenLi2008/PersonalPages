@@ -64,17 +64,9 @@ export function Hero() {
         </div>
       </div>
       <div className="hero__btns">
-        {/* The CV PDF is not in the repo yet: the button reports itself unavailable and
-            stays out of the tab order until the file lands (see .agents/briefs/to-fill.md). */}
-        <button
-          type="button"
-          className="hero__btn hero__btn--solid motion-hover"
-          lang={copyLang("hero.btn1")}
-          aria-disabled="true"
-          tabIndex={-1}
-        >
-          {text("hero.btn1")}
-        </button>
+        {/* The CV button was removed by user ruling: there is no CV PDF and no page for it to
+            open, so the row now carries the one real control. The label key `hero.btn1` stays in
+            both dictionaries, registered as a dead key in docs/CHROME.md §4. */}
         {/* A real mail link: the address is the dictionary's mail slot — the same entry
             the page's JSON-LD carries (BLUEPRINT §5.1). */}
         <a

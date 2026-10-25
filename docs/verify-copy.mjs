@@ -318,8 +318,8 @@ function mixedCoverage(loc, texts) {
 const USER_IDENTITY = {
   'nav.brand.name': { 'copy-en.json': 'JiachenLi', 'copy-zh.json': '嘉宸' },
   'nav.brand.cn': { 'copy-en.json': 'JiachenLi', 'copy-zh.json': '嘉宸' },
-  'nav.mail': { 'copy-en.json': 'chen.jia@gmail.com', 'copy-zh.json': 'chen.jia@gmail.com' },
-  'footer.mail': { 'copy-en.json': 'chen.jia@gmail.com', 'copy-zh.json': 'chen.jia@gmail.com' },
+  'nav.mail': { 'copy-en.json': 'jay_20080924@sina.com', 'copy-zh.json': 'jay_20080924@sina.com' },
+  'footer.mail': { 'copy-en.json': 'jay_20080924@sina.com', 'copy-zh.json': 'jay_20080924@sina.com' },
   'footer.legal': {
     'copy-en.json': '© 2026 JiachenLi\nBIOLOGY / MEDICINE / MUSIC / SPORT',
     'copy-zh.json': '© 2026 嘉宸\n生物学 / 医学 / 音乐 / 体育',

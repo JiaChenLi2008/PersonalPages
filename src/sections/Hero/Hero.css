@@ -125,11 +125,6 @@
   cursor: pointer;
 }
 
-.hero__btn--solid {
-  background: var(--c-ink);
-  color: var(--c-white);
-}
-
 .hero__btn--ghost {
   border: var(--rule-h) solid var(--c-ink);
   background: none;
