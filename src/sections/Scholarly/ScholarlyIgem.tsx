@@ -1,4 +1,5 @@
 import { Lightbox } from "../../components/Lightbox/Lightbox";
+import { Photo } from "../../components/Photo/Photo";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy, type CopyKey } from "../../i18n/copy";
@@ -162,7 +163,7 @@ export function ScholarlyIgem() {
             >
               <div className="scholarly__media scholarly__media--4x3">
                 <Reveal className="scholarly__clip motion-clip">
-                  <img
+                  <Photo
                     className="scholarly__photo"
                     src="./media/igem-fig1-720.webp"
                     alt={text("scholarly-igem.fig1.alt")}
@@ -188,7 +189,7 @@ export function ScholarlyIgem() {
             >
               <div className="scholarly__media scholarly__media--4x3">
                 <Reveal className="scholarly__clip motion-clip">
-                  <img
+                  <Photo
                     className="scholarly__photo"
                     src="./media/igem-fig2-720.webp"
                     alt={text("scholarly-igem.fig2.alt")}

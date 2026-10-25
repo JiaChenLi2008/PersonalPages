@@ -1,4 +1,4 @@
-import { Lightbox } from "../../components/Lightbox/Lightbox";
+import { Photo } from "../../components/Photo/Photo";
 import { PhotoStrip, type StripPhoto } from "../../components/PhotoStrip/PhotoStrip";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
@@ -6,14 +6,16 @@ import { useCopy } from "../../i18n/copy";
 import "./Sport.css";
 
 /**
- * The four photographs of the wall the docx puts ahead of this section's text (页面7,
- * "先放照片滚动墙"). Same component, same decoration rule as Music's nine.
+ * The five photographs of the wall the docx puts ahead of this section's text (页面7,
+ * "先放照片滚动墙"), plus the zip master that belongs to the same afternoon on the pitch
+ * (sport-wall-5). Same component, same decoration rule as Music's eleven.
  */
 const SPORT_WALL = [
   { src: "media/sport-wall-1.webp", width: 360, height: 540 },
   { src: "media/sport-wall-2.webp", width: 360, height: 240 },
   { src: "media/sport-wall-3.webp", width: 360, height: 270 },
   { src: "media/sport-wall-4.webp", width: 360, height: 240 },
+  { src: "media/sport-wall-5.webp", width: 360, height: 240 },
 ] as const satisfies readonly StripPhoto[];
 
 /**
@@ -54,21 +56,20 @@ export function Sport() {
         {/* The figure sweeps in under its clip-path mask one tier behind the text column.
             A clipped element has no visible area, so the 15% observer default could never
             be met: threshold 0 is the trigger this hook needs. The box stays decorative
-            (BLUEPRINT §6.3) while its alt key becomes the lightbox trigger's accessible name. */}
+            (BLUEPRINT §6.3) and the slot does not open: this preview comes from ui.pen's own
+            asset and the zip holds no master for it, so there is nothing sharper to show. */}
         <Reveal as="figure" className="sport__fig motion-clip" delay={2} threshold={0}>
-          <Lightbox src="media/sport-fig-720.webp" alt={text("sport.fig.alt")} width={720} height={540}>
-            <div className="sport__media" aria-hidden="true">
-              <img
-                className="sport__photo"
-                src="media/sport-fig-720.webp"
-                alt={text("sport.fig.alt")}
-                width={720}
-                height={540}
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </Lightbox>
+          <div className="sport__media" aria-hidden="true">
+            <Photo
+              className="sport__photo"
+              src="media/sport-fig-720.webp"
+              alt={text("sport.fig.alt")}
+              width={720}
+              height={540}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
         </Reveal>
       </div>
     </section>

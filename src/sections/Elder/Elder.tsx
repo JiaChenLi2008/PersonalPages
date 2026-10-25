@@ -1,3 +1,4 @@
+import { Photo } from "../../components/Photo/Photo";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy } from "../../i18n/copy";
@@ -47,7 +48,7 @@ export function Elder() {
             (BLUEPRINT §6.3) while its alt text is the dictionary's. */}
         <Reveal as="figure" className="elder__fig motion-clip" delay={2} threshold={0}>
           <div className="elder__media" aria-hidden="true">
-            <img
+            <Photo
               className="elder__photo"
               src="media/elder-fig-720.webp"
               alt={text("elder.fig.alt")}

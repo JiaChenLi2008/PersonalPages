@@ -1,11 +1,11 @@
 {
   "nav.brand.name": {
-    "text": "CHEN JIA",
+    "text": "JiachenLi",
     "src": "design-system.md#Nav",
     "lang": "en"
   },
   "nav.brand.cn": {
-    "text": "CHEN JIA",
+    "text": "JiachenLi",
     "src": "design-system.md#Nav",
     "lang": "en"
   },
@@ -660,7 +660,7 @@
     "lang": "en"
   },
   "footer.legal": {
-    "text": "© 2026 CHEN JIA\nBIOLOGY / MEDICINE / MUSIC / SPORT",
+    "text": "© 2026 JiachenLi\nBIOLOGY / MEDICINE / MUSIC / SPORT",
     "src": "design-system.md#Footer",
     "lang": "en"
   },

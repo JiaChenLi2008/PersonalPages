@@ -316,12 +316,12 @@ function mixedCoverage(loc, texts) {
  * 逐字全等强于原「覆盖率 ≥ 0.75」判据：改动一字、或删除登记，都必须报错。
  */
 const USER_IDENTITY = {
-  'nav.brand.name': { 'copy-en.json': 'CHEN JIA', 'copy-zh.json': '嘉宸' },
-  'nav.brand.cn': { 'copy-en.json': 'CHEN JIA', 'copy-zh.json': '嘉宸' },
+  'nav.brand.name': { 'copy-en.json': 'JiachenLi', 'copy-zh.json': '嘉宸' },
+  'nav.brand.cn': { 'copy-en.json': 'JiachenLi', 'copy-zh.json': '嘉宸' },
   'nav.mail': { 'copy-en.json': 'chen.jia@gmail.com', 'copy-zh.json': 'chen.jia@gmail.com' },
   'footer.mail': { 'copy-en.json': 'chen.jia@gmail.com', 'copy-zh.json': 'chen.jia@gmail.com' },
   'footer.legal': {
-    'copy-en.json': '© 2026 CHEN JIA\nBIOLOGY / MEDICINE / MUSIC / SPORT',
+    'copy-en.json': '© 2026 JiachenLi\nBIOLOGY / MEDICINE / MUSIC / SPORT',
     'copy-zh.json': '© 2026 嘉宸\n生物学 / 医学 / 音乐 / 体育',
   },
 };

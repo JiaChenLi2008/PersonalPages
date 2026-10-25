@@ -48,6 +48,11 @@ jobs:
       - name: Verify hospitals workbook
         run: python3 tools/verify-hospitals-xlsx.py
 
+      # The lightbox tier in public/media/original against src/lib/originals.ts. Pillow is
+      # already present: the media-assets step above installs it when the image lacks it.
+      - name: Verify enlarged tier
+        run: python3 tools/verify-originals.py
+
       - name: Verify deploy configuration
         run: node tools/verify-deploy.mjs
 

@@ -1,12 +1,22 @@
 import { useLayoutEffect, useRef, useState } from "react";
+import { originalOf } from "../../lib/originals";
 import "./Lightbox.css";
 
 /**
- * Lightbox: click a photograph to see *that same file* enlarged in a native modal `<dialog>`.
+ * Lightbox: click a photograph to see it enlarged in a native modal `<dialog>`.
  *
- * There is no second, larger tier: the dialog loads the src the page already shows, so the
- * browser serves it from the cache the trigger warmed and the reader never sees a different
- * file than the one they clicked (`*-1440` derivatives are gone from the wiring).
+ * One tier where a master exists, none where it does not: `src/lib/originals.ts` pairs the
+ * preview the page shows with the same frame at full size, and the dialog loads that file —
+ * the sharpness the click asked for. A photograph with no master in that table enlarges the
+ * file the page already shows, exactly as before (the `*-1440` derivatives are still gone;
+ * this is the zip master, not a second hand-made tier).
+ *
+ * The enlarged file is several times the preview's bytes, so the wait is part of the design:
+ * the dialog takes its final rectangle before a byte arrives (its ratio comes from the
+ * enlarged file's own pixels, so `--lightbox-ratio` sizes the box up front), a ring turns in
+ * the middle of that empty box, and the photograph cross-fades in under the ring when it
+ * lands. Nothing jumps: the FLIP animation has a real target and the reader has somewhere to
+ * look.
  *
  * The element does the work, so no focus trap is written here: `showModal()` moves focus into
  * the dialog, ESC closes it, and closing hands focus back to the element that had it (the
@@ -37,7 +47,9 @@ import "./Lightbox.css";
  * fails an `<img>` left at naturalWidth 0.
  */
 type LightboxProps = {
-  /** The file the trigger already shows, e.g. `media/music-fig-720.webp`. Same string, same file. */
+  /** The preview the trigger shows, e.g. `media/music-fig-720.webp`. It is also the key the
+      enlarged file is looked up by (`src/lib/originals.ts`); with no entry, the dialog shows
+      this same file. */
   src: string;
   /** The photograph's alt text: the trigger's accessible name and the dialog's label. */
   alt: string;
@@ -82,10 +94,16 @@ function flipFrom(box: DOMRect, rect: DOMRect): string | null {
 export function Lightbox({ src, alt, width, height, children, decorativeTrigger = false }: LightboxProps) {
   const dialogRef = useRef<HTMLDialogElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
+  const enlargedRef = useRef<HTMLImageElement>(null);
   /** The trigger photograph's rectangle at click time, for the open leg. */
   const originRef = useRef<DOMRect | null>(null);
   const closingRef = useRef(false);
   const [expanded, setExpanded] = useState(false);
+  /** False until the enlarged file has painted, or failed to. Reset on every opening. */
+  const [loaded, setLoaded] = useState(false);
+  /* The enlarged file, or the preview when the table has no row for it. Resolved per render
+     so a lightbox is never a stale copy of the table. */
+  const enlarged = originalOf(src) ?? { src, width, height };
 
   /** The photograph the reader clicked: the trigger's own `<img>`, not the button's box. */
   const triggerRect = () =>
@@ -94,6 +112,7 @@ export function Lightbox({ src, alt, width, height, children, decorativeTrigger 
   const open = () => {
     if (expanded || dialogRef.current === null) return;
     originRef.current = triggerRect();
+    setLoaded(false);
     setExpanded(true);
   };
 
@@ -104,6 +123,10 @@ export function Lightbox({ src, alt, width, height, children, decorativeTrigger 
     const dialog = dialogRef.current;
     if (dialog === null) return;
     if (!dialog.open) dialog.showModal();
+    /* A file the browser already holds (a second opening, or a 2 KB wall photo) is complete
+       on mount and fires no `load`; the ring must not outlive it. */
+    const image = enlargedRef.current;
+    if (image?.complete === true && image.naturalWidth > 0) setLoaded(true);
     const origin = originRef.current;
     originRef.current = null;
     if (reduceMotion() || origin === null) return;
@@ -183,17 +206,30 @@ export function Lightbox({ src, alt, width, height, children, decorativeTrigger 
         }}
       >
         {expanded ? (
-          <figure className="lightbox__figure">
+          <figure
+            className="lightbox__figure"
+            data-image={loaded ? "ready" : "loading"}
+            /* The box's own ratio, from the enlarged file's pixels: the dialog is the
+               photograph's size before the photograph is here, so the FLIP has a target and
+               the ring has a middle. */
+            style={{ "--lightbox-ratio": enlarged.width / enlarged.height } as React.CSSProperties}
+          >
             {/* alt="" on purpose: the dialog already carries this text as its label, so a
                 second copy would be announced twice. */}
             <img
+              ref={enlargedRef}
               className="lightbox__img"
-              src={src}
+              src={enlarged.src}
               alt=""
-              width={width}
-              height={height}
+              width={enlarged.width}
+              height={enlarged.height}
               decoding="async"
+              onLoad={() => setLoaded(true)}
+              /* A file that will never arrive must not leave a ring turning on a dark field
+                 for as long as the dialog is open. */
+              onError={() => setLoaded(true)}
             />
+            <span className="lightbox__loader" aria-hidden="true" />
           </figure>
         ) : null}
       </dialog>

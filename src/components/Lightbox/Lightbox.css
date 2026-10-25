@@ -52,21 +52,75 @@
    the trigger; `transform-origin: top left` on `.lightbox` is what makes that land). The
    wrapper is as large as the photograph — the `figure` margins are the UA's only contribution
    here, and they are zero — so the dark field is exactly the photo and every pixel outside it
-   closes the dialog. */
+   closes the dialog.
+
+   Its size is written from the enlarged file's own ratio (--lightbox-ratio, set inline), not
+   from the file that has arrived: the box the click has to travel to, and the box the wait
+   happens in, are the same rectangle whether the bytes are here yet or not. The three terms
+   of the `width` are the dialog's ceiling (96vw), the page measure, and the tallest the box
+   may be (92vh, turned back into a width through the ratio) — the same fit `contain` would
+   compute, made early. */
 .lightbox__figure {
   margin: 0;
+  position: relative;
+  width: min(96vw, var(--page-w), calc(92vh * var(--lightbox-ratio)));
+  aspect-ratio: var(--lightbox-ratio);
+  /* The slot reads as a photograph-sized plate on the dark field instead of as a hole. */
+  background: color-mix(in srgb, var(--c-rule) 14%, transparent);
 }
 
-/* The same file, never enlarged past its own pixels: `contain` keeps its ratio inside the
-   96vw × 92vh box instead of cropping it the way the section's `cover` photographs do.
-   `width`/`height: auto` let the file's own ratio (its two attributes) set the box. */
+/* The enlarged file, never distorted: the box above already carries its ratio, so `cover`
+   and `contain` agree here — `contain` is the one that cannot silently crop a photograph
+   whose framing differs from the preview's. */
 .lightbox__img {
   display: block;
-  width: auto;
-  height: auto;
-  max-width: min(96vw, var(--page-w));
-  max-height: 92vh;
+  width: 100%;
+  height: 100%;
   object-fit: contain;
+}
+
+/* The wait. Every enlarged file is several times the preview's bytes, so the ring is what the
+   reader watches: it turns in the middle of the empty plate, above the dark field, and is
+   never a click target — a reader who changed their mind closes on the field beside it. */
+.lightbox__loader {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+
+.lightbox__loader::after {
+  content: "";
+  /* 40px: the plate is up to 92vh tall, so a 28px ring read as a speck in the middle of it. */
+  width: var(--sp-40);
+  height: var(--sp-40);
+  border: var(--rule-h-strong) solid color-mix(in srgb, var(--c-white) 28%, transparent);
+  border-top-color: var(--c-white);
+  border-radius: 50%;
+  animation: lightbox-spin var(--dur-3) linear infinite;
+}
+
+/* Landed: the photograph fades up and the ring goes on the same frame. `display: none` rather
+   than opacity, so a finished ring cannot sit invisible over the photograph. */
+.lightbox__figure[data-image="ready"] .lightbox__img {
+  animation: lightbox-photo-in var(--dur-2) var(--ease-out) both;
+}
+
+.lightbox__figure[data-image="ready"] .lightbox__loader {
+  display: none;
+}
+
+@keyframes lightbox-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@keyframes lightbox-photo-in {
+  from {
+    opacity: 0;
+  }
 }
 
 /* The two legs of the open/close animation, keyed off the `data-animating` attribute that
@@ -94,5 +148,14 @@
 @keyframes lightbox-backdrop-out {
   to {
     opacity: 0;
+  }
+}
+
+/* The ring and the photograph's fade end where the page's other motion ends: a reader who
+   asked for reduced motion gets a plain plate, then the photograph. */
+@media (prefers-reduced-motion: reduce) {
+  .lightbox__loader::after,
+  .lightbox__figure[data-image="ready"] .lightbox__img {
+    animation: none;
   }
 }

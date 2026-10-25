@@ -7,9 +7,11 @@
  * This check renders both sections through the same in-repo SSR path the other DOM gates
  * use (Vite JS API, virtual entry, `vite build --ssr`) and asserts what only markup shows:
  *
- *   1. each wall carries exactly its contract photo count — Music 9 (`music-wall-1..9`),
- *      Sport 4 (`sport-wall-1..4`) — in contract order, in the real track and again in the
- *      seamless loop's clone, so a photo cannot disappear behind the duplicate;
+ *   1. each wall carries exactly its contract photo count — Music 11 (`music-wall-1..11`),
+ *      Sport 5 (`sport-wall-1..5`: the docx's own counts plus the zip masters behind
+ *      `2025-06-07 121709` / `2026-10-03 151450` / `2026-05-29 171151`) — in contract order,
+ *      in the real track and again in the seamless loop's clone, so a photo cannot disappear
+ *      behind the duplicate;
  *   2. both walls' photographs are decoration — `alt=""`, `loading="lazy"`,
  *      `decoding="async"` (BLUEPRINT §6.3 / §2.11) — while every photo in the real track is a
  *      lightbox trigger named by the chrome key `photo.zoom`, and the loop's clone track is
@@ -131,8 +133,8 @@ function tagsOf(markup, name) {
 /* ---------- 1./2./3. the two walls ---------- */
 
 const WALLS = [
-  { section: "music", name: "music-wall", count: 9, stem: "media/music-wall-" },
-  { section: "sport", name: "sport-wall", count: 4, stem: "media/sport-wall-" },
+  { section: "music", name: "music-wall", count: 11, stem: "media/music-wall-" },
+  { section: "sport", name: "sport-wall", count: 5, stem: "media/sport-wall-" },
 ];
 
 for (const wall of WALLS) {
@@ -256,8 +258,8 @@ for (const wall of WALLS) {
 
   /* The copy count is measured, not fixed: one track must cover the strip, and the reel
      must always hold at least one full track beyond it. A fixed two copies is the exact
-     regression the user reported — Sport's four photos are 1232px against a 1329px strip,
-     so two copies left a bare gap at the right edge and the junction read as a seam. The
+     regression the user reported — a wall's photos do not fill a wide strip at 1440, so two
+     copies left a bare gap at the right edge and the junction read as a seam. The
      component must derive the count from a measurement, so the source has to carry a
      ResizeObserver and a ceiling on (strip + track) / track. */
   const component = readFileSync(join(REPO, "src/components/PhotoStrip/PhotoStrip.tsx"), "utf8");
@@ -686,7 +688,7 @@ if (failures.length > 0) {
   process.exit(1);
 }
 console.log(
-  `PASS: music wall 9 + sport wall 4 photos (track + clone, photo.zoom triggers, clone aria-hidden/tabindex=-1, lazy/async), ` +
+  `PASS: ${WALLS.map((w) => `${w.section} wall ${w.count}`).join(" + ")} photos (track + clone, photo.zoom triggers, clone aria-hidden/tabindex=-1, lazy/async), ` +
     "walls ahead of their bodies, résumé table 14 rows × 3 columns date-descending, " +
     "cells are their own dictionary entries, percussion 12 tiles in contract order with drawing + lang + tabindex, " +
     "sport.body replaced, en only",

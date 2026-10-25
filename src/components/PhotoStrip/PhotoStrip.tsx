@@ -1,18 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import { Lightbox } from "../Lightbox/Lightbox";
+import { Photo } from "../Photo/Photo";
 import { useCopy } from "../../i18n/copy";
 import "./PhotoStrip.css";
 
 /**
  * PhotoStrip: the drifting wall of photographs the docx adds to two sections —
- * Music (页面6, "依次滚动播放" over nine photos) and Sport (页面7, "先放照片滚动墙",
- * four photos). Both walls are this one component; the task forbids a second copy, and
+ * Music (页面6, "依次滚动播放" over eleven photos) and Sport (页面7, "先放照片滚动墙",
+ * five photos). Both walls are this one component; the task forbids a second copy, and
  * the geometry, the seamless loop and the reduced-motion fallback are identical.
  *
  * Every photo in the real track is a lightbox trigger (docx-1023 item 5: "照片可点开放大"),
- * so a wall photo enlarges that same file exactly the way the section figures do. The
- * photographs stay decorative (`alt=""`); the control carries the name, and the one chrome
- * key `photo.zoom` is that name for all thirteen of them.
+ * so a wall photo opens onto its own master (`src/lib/originals.ts`) instead of the 360px
+ * preview. The photographs stay decorative (`alt=""`); the control carries the name, and the
+ * one chrome key `photo.zoom` is that name for all sixteen of them.
  *
  * The reel holds still while a reader is looking at one photo and runs again when they leave
  * it: `pointerenter` / `pointerleave` for the mouse and a keyboard focus inside the wall (see
@@ -20,13 +21,13 @@ import "./PhotoStrip.css";
  * already exists.
  *
  * `data-strip` names each wall in the DOM; tools/verify-music-sport-dom.mjs holds
- * Music to nine photos and Sport to four, and counts the loop's second copy separately
+ * Music to eleven photos and Sport to five, and counts the loop's second copy separately
  * so a missing photo cannot hide behind the clone.
  *
  * The reel repeats the track as many times as the viewport needs. A single copy is only
- * ~1200px on Sport's four photos while the strip is 1329px wide at 1440, so one clone
- * left a bare gap at the right edge and the junction read as a seam; the copy count is
- * therefore derived from the measured track width and the strip width, never fixed.
+ * ~1200px on a wall while the strip is 1329px wide at 1440, so one clone left a bare gap at
+ * the right edge and the junction read as a seam; the copy count is therefore derived from
+ * the measured track width and the strip width, never fixed.
  */
 export type StripPhoto = {
   /** Path as the section figure writes it, e.g. `media/music-wall-1.webp`. */
@@ -103,7 +104,7 @@ export function PhotoStrip({ name, photos }: { name: string; photos: readonly St
   }, [photos]);
 
   const photo = (entry: StripPhoto) => (
-    <img
+    <Photo
       className="photo-strip__img"
       src={entry.src}
       alt=""

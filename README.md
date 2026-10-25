@@ -29,6 +29,7 @@ npm run typecheck               # src + vite.config.ts
 node tools/verify-tokens.mjs       # 设计 token 逐条比对设计稿数值
 python3 tools/verify-assets.py     # public/media 与 MANIFEST.json 逐条比对（表用 Pillow）
 python3 tools/verify-hospitals-xlsx.py  # 医院指南 xlsx：sheet / 表头 / 12 行逐字对齐字典 + 与生成器重算一致（纯标准库）
+python3 tools/verify-originals.py  # 灯箱放大档 public/media/original/ 与 src/lib/originals.ts 逐行一致（表用 Pillow）
 node tools/verify-deploy.mjs       # 部署配置门禁（GitHub Pages 单路径）
 node tools/verify-motion.mjs       # 动效层（冻结 token / 钩子 / 揭晓契约 / 禁用项 / 时长预算）
 npm run build                      # 类型检查 + 产出 dist/
@@ -41,11 +42,11 @@ node tools/verify-elder-guide.mjs  # 助老节的医院指南表：12 行 × 4 �
 node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一份 SSR 产物）
 ```
 
-便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-hospitals-xlsx` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的七条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` / `verify-music-sport-dom.mjs` / `verify-elder-guide.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），`verify-lang-purity` 建两份（en / zh-Hans）故排最后。
+便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-hospitals-xlsx` / `verify-originals` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的七条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` / `verify-music-sport-dom.mjs` / `verify-elder-guide.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），`verify-lang-purity` 建两份（en / zh-Hans）故排最后。
 
 ### 只在本地跑（CI 不跑，因为不自足）
 
-上列十三条全自足：只读 checkout、无浏览器、无仓库外输入（`verify-assets.py` 需 `python3` 与 Pillow，故 workflow 里带一行守卫安装，见下；`verify-hospitals-xlsx.py` 只用 `python3` 标准库）。下面这些的输入或运行环境不在 CI 里，故留在本地：
+上列十四条全自足：只读 checkout、无浏览器、无仓库外输入（`verify-assets.py` 与 `verify-originals.py` 需 `python3` 与 Pillow，故 workflow 里带一行守卫安装，见下；`verify-hospitals-xlsx.py` 只用 `python3` 标准库）。下面这些的输入或运行环境不在 CI 里，故留在本地：
 
 | 命令 / 门禁 | 不进 CI 的原因 |
 |---|---|

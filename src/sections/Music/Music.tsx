@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lightbox } from "../../components/Lightbox/Lightbox";
+import { Photo } from "../../components/Photo/Photo";
 import { PhotoStrip, type StripPhoto } from "../../components/PhotoStrip/PhotoStrip";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
@@ -7,7 +7,8 @@ import { useCopy, type CopyKey } from "../../i18n/copy";
 import "./Music.css";
 
 /**
- * The nine photographs of the wall the docx adds to this section (页面6, "依次滚动播放").
+ * The eleven photographs of the wall the docx adds to this section (页面6, "依次滚动播放"),
+ * plus the two frames of the same session the zip masters hold (music-wall-10/11).
  * Names and intrinsic sizes are the contract's own: docs/copy-*.json carry no alt key for
  * these slots, so the wall is decoration and the photographs say nothing (see PhotoStrip).
  */
@@ -21,6 +22,8 @@ const MUSIC_WALL = [
   { src: "media/music-wall-7.webp", width: 360, height: 240 },
   { src: "media/music-wall-8.webp", width: 360, height: 240 },
   { src: "media/music-wall-9.webp", width: 360, height: 240 },
+  { src: "media/music-wall-10.webp", width: 360, height: 540 },
+  { src: "media/music-wall-11.webp", width: 360, height: 540 },
 ] as const satisfies readonly StripPhoto[];
 
 /**
@@ -106,8 +109,9 @@ const RESUME_ROWS = [
  *
  * The wall sits between the head and the body: the reader meets the whole impression of the
  * section first and its detail after. The 4:3 photograph keeps its box and its alt key —
- * T1 replaced the file behind `music-fig-720`, not the slot — and it is the click-to-enlarge
- * slot: the shared `Lightbox` enlarges that same 720 file, not a second tier of it.
+ * T1 replaced the file behind `music-fig-720`, not the slot — and it is not a control: that
+ * preview is a docx screenshot with no master in the zip, so it does not open. The eleven wall
+ * photographs do open, each onto its own master (`src/lib/originals.ts`).
  *
  * docx-1023 段[2]…[6] add two pieces of copy this section did not render: three lines between
  * the pull-quote body and the twelve drawings (“点开下面的图片就能看到是哪些” introduces
@@ -154,27 +158,20 @@ export function Music() {
         {/* The figure sweeps in under its clip-path mask one tier behind the text column.
             A clipped element has no visible area, so the 15% observer default could never
             be met: threshold 0 is the trigger this hook needs. The box stays decorative
-            (BLUEPRINT §6.3) while its alt key becomes the lightbox trigger's accessible
-            name — the photograph is named once, by the control, never twice. */}
+            (BLUEPRINT §6.3) and the slot does not open: this preview is a docx screenshot and
+            the zip holds no master for it, so there is nothing sharper to show. */}
         <Reveal as="figure" className="music__fig motion-clip" delay={2} threshold={0}>
-          <Lightbox
-            src="media/music-fig-720.webp"
-            alt={text("music.fig.alt")}
-            width={720}
-            height={540}
-          >
-            <div className="music__media" aria-hidden="true">
-              <img
-                className="music__photo"
-                src="media/music-fig-720.webp"
-                alt={text("music.fig.alt")}
-                width={720}
-                height={540}
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-          </Lightbox>
+          <div className="music__media" aria-hidden="true">
+            <Photo
+              className="music__photo"
+              src="media/music-fig-720.webp"
+              alt={text("music.fig.alt")}
+              width={720}
+              height={540}
+              loading="lazy"
+              decoding="async"
+            />
+          </div>
         </Reveal>
       </div>
       {/* docx-1023 段[2]…[4]: the three lines that introduce the twelve drawings below.

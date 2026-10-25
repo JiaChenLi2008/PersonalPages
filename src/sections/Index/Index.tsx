@@ -1,4 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, type ReactNode, type RefObject } from "react";
+import { Photo } from "../../components/Photo/Photo";
 import { Reveal } from "../../components/primitives/Reveal";
 import { Rule } from "../../components/primitives/Rule";
 import { useLocale, type Locale } from "../../i18n";
@@ -215,7 +216,7 @@ export function Index() {
 
               <picture className="index__media">
                 <source type="image/webp" srcSet={row.image.srcSet} />
-                <img
+                <Photo
                   src={row.image.src}
                   alt=""
                   width={296}

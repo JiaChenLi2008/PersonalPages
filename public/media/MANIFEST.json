@@ -1,5 +1,23 @@
 {
   "_sources": {
+    "2025-06-07 121709.jpg": {
+      "bytes": 2199682,
+      "format": "JPEG",
+      "h": 4500,
+      "w": 3000
+    },
+    "2026-05-29 171151.jpg": {
+      "bytes": 4728389,
+      "format": "JPEG",
+      "h": 2258,
+      "w": 3386
+    },
+    "2026-10-03 151450.jpg": {
+      "bytes": 6073538,
+      "format": "JPEG",
+      "h": 4500,
+      "w": 3000
+    },
     "B8NpB.jpg": {
       "bytes": 1068585,
       "format": "JPEG",
@@ -589,6 +607,50 @@
     "src": "docx-image19.jpeg",
     "w": 360
   },
+  "music-wall-10.jpg": {
+    "aspect": 0.6667,
+    "bytes": 45255,
+    "crop": null,
+    "format": "jpg",
+    "h": 540,
+    "note": "Music 照片墙第 10 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "2025-06-07 121709.jpg",
+    "w": 360
+  },
+  "music-wall-10.webp": {
+    "aspect": 0.6667,
+    "bytes": 21838,
+    "crop": null,
+    "format": "webp",
+    "h": 540,
+    "note": "Music 照片墙第 10 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "2025-06-07 121709.jpg",
+    "w": 360
+  },
+  "music-wall-11.jpg": {
+    "aspect": 0.6667,
+    "bytes": 43133,
+    "crop": null,
+    "format": "jpg",
+    "h": 540,
+    "note": "Music 照片墙第 11 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "2026-10-03 151450.jpg",
+    "w": 360
+  },
+  "music-wall-11.webp": {
+    "aspect": 0.6667,
+    "bytes": 19748,
+    "crop": null,
+    "format": "webp",
+    "h": 540,
+    "note": "Music 照片墙第 11 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "2026-10-03 151450.jpg",
+    "w": 360
+  },
   "music-wall-2.jpg": {
     "aspect": 0.6667,
     "bytes": 25231,
@@ -895,6 +957,28 @@
     "note": "Sport 滚动墙第 4 张；360 宽等比，不裁不放大",
     "quality": 82,
     "src": "docx-image32.jpeg",
+    "w": 360
+  },
+  "sport-wall-5.jpg": {
+    "aspect": 1.5,
+    "bytes": 33671,
+    "crop": null,
+    "format": "jpg",
+    "h": 240,
+    "note": "Sport 滚动墙第 5 张；360 宽等比，不裁不放大",
+    "quality": 85,
+    "src": "2026-05-29 171151.jpg",
+    "w": 360
+  },
+  "sport-wall-5.webp": {
+    "aspect": 1.5,
+    "bytes": 22258,
+    "crop": null,
+    "format": "webp",
+    "h": 240,
+    "note": "Sport 滚动墙第 5 张；360 宽等比，不裁不放大",
+    "quality": 82,
+    "src": "2026-05-29 171151.jpg",
     "w": 360
   }
 }

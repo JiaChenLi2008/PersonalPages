@@ -1,3 +1,4 @@
+import { Photo } from "../../components/Photo/Photo";
 import { Rule } from "../../components/primitives/Rule";
 import { Reveal } from "../../components/primitives/Reveal";
 import { useCopy } from "../../i18n/copy";
@@ -70,7 +71,7 @@ export function ScholarlyJhu() {
               {...card2.triggerProps}
             >
               <Reveal as="span" className="scholarly__clip motion-clip">
-                <img
+                <Photo
                   className="scholarly__photo"
                   src="./media/image2-400.webp"
                   alt={text("scholarly-jhu.a2")}
@@ -125,7 +126,7 @@ export function ScholarlyJhu() {
               {...card1.triggerProps}
             >
               <Reveal as="span" className="scholarly__clip motion-clip">
-                <img
+                <Photo
                   className="scholarly__photo"
                   src="./media/image1-1600.webp"
                   alt={text("scholarly-jhu.a1")}
@@ -180,7 +181,7 @@ export function ScholarlyJhu() {
               {...card3.triggerProps}
             >
               <Reveal as="span" className="scholarly__clip motion-clip">
-                <img
+                <Photo
                   className="scholarly__photo"
                   src="./media/image3-600.webp"
                   alt={text("scholarly-jhu.a3")}

@@ -1,0 +1,53 @@
+/* Photo (src/components/Photo/Photo.tsx) — the loading affordance every photograph carries.
+   Only raster photographs take it: the twelve percussion drawings are 700-byte SVGs that
+   are already there when the grid is, so a placeholder over them would be a lie. */
+
+/* The box a photograph will fill, while its file is still in flight: a rule-to-paper sheen
+   travelling across the element's own background. The element has no pixels of its own yet,
+   so this is exactly what the reader sees. 600ms a sweep (--dur-3, the frozen longest
+   duration) keeps it inside the single-animation ceiling of tools/verify-motion.mjs. */
+img[data-photo-state="loading"] {
+  background-image: linear-gradient(
+    100deg,
+    var(--c-rule) 20%,
+    var(--c-paper) 50%,
+    var(--c-rule) 80%
+  );
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  animation: photo-sheen var(--dur-3) linear infinite;
+}
+
+/* The photograph arrives: the sheen leaves and the pixels fade up over the tinted slot the
+   section already paints behind its media box (Elder/Music/Sport/PhotoBand all set
+   `background: var(--c-rule)` there), so the two read as one cross-fade. */
+img[data-photo-state="ready"] {
+  background-image: none;
+  animation: photo-fade var(--dur-2) var(--ease-out) both;
+}
+
+@keyframes photo-sheen {
+  from {
+    background-position: 150% 0;
+  }
+
+  to {
+    background-position: -150% 0;
+  }
+}
+
+@keyframes photo-fade {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The terminal state, written here as well as in global.css: the photograph is there, the
+   sheen and the fade are not. */
+@media (prefers-reduced-motion: reduce) {
+  img[data-photo-state="loading"],
+  img[data-photo-state="ready"] {
+    animation: none;
+    background-image: none;
+  }
+}
