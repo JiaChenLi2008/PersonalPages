@@ -38,6 +38,10 @@
  *   8. every aria-label whose text is a dictionary entry declares that entry's own
  *      language: a screen reader must not read the English JHU riddles as Chinese
  *      (BLUEPRINT §6.4)
+ *   9. the docx-1027 deletions stay deleted: the two iGEM captions and the HIR card's
+ *      meta line are gone — no `.scholarly__cap` / `.scholarly__meta` shell in the
+ *      markup, and their keys back in the dictionary fail the run through the same
+ *      removal table the fidelity gates use (tools/fidelity-docx-removal.mjs)
  *
  * Usage: node tools/verify-ssr-dom.mjs   (exit 0 = pass, 1 = any failed assertion)
  *
@@ -50,6 +54,8 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { build } from "vite";
+
+import { judgeRemovedByDocx } from "./fidelity-docx-removal.mjs";
 
 const REPO = fileURLToPath(new URL("..", import.meta.url));
 const OUT_DIR = "/tmp/scholarly-ssr-out";
@@ -128,6 +134,28 @@ const withHook = (hook) =>
 
 const en = JSON.parse(readFileSync(join(REPO, "docs", "copy-en.json"), "utf8"));
 const zh = JSON.parse(readFileSync(join(REPO, "docs", "copy-zh.json"), "utf8"));
+
+/* docx-1027 第 3 条 removes the two iGEM figure captions and the HIR card's mono meta line. The
+   frozen board still draws those slots, so this check stops asking for their copy and holds the
+   deletion instead: the class shell must not come back, and the keys are judged by the same
+   `{ keys, docx }` table the three fidelity gates use (tools/fidelity-docx-removal.mjs) — a key
+   back in the dictionaries, or named again under src/, fails here and names the node to revoke,
+   so the registration cannot become a permanent hole in the gate. */
+const REMOVED_BY_DOCX = {
+  I6zyH: { keys: ["scholarly.figcap2"], docx: "docx-1027 第 3 条", shell: "scholarly__cap" },
+  m7Y31D: { keys: ["scholarly.figcap3"], docx: "docx-1027 第 3 条", shell: "scholarly__cap" },
+  K5Gug: { keys: ["scholarly.meta"], docx: "docx-1027 第 3 条", shell: "scholarly__meta" },
+};
+const { active: removedNodes, stale: staleRegistrations } = judgeRemovedByDocx(REMOVED_BY_DOCX, REPO);
+for (const message of staleRegistrations) {
+  fail(`[docx] ${message}`);
+}
+for (const node of removedNodes) {
+  const { docx, shell } = REMOVED_BY_DOCX[node];
+  if (new RegExp(`\\b${shell}\\b`).test(html)) {
+    fail(`[docx] ${docx} removed the .${shell} slot, but the markup still carries the class`);
+  }
+}
 
 /* ---------- 1. heading ladder ---------- */
 
@@ -637,9 +665,15 @@ for (const id of ["scholarly-jhu-q1", "scholarly-jhu-q2", "scholarly-jhu-q3"]) {
 
 /* ---------- chrome texts and sub-block order ---------- */
 
-const texts = ["scholarly.revealTap", "scholarly.revealSwipe", "scholarly.meta", "scholarly.linkPdf"];
+const texts = ["scholarly.revealTap", "scholarly.revealSwipe", "scholarly.linkPdf"];
 for (const key of texts) {
-  if (!html.includes(en[key].text)) {
+  /* A key this table names but the dictionary no longer has must be reported, not thrown out
+     of the gate: docx-1027 removed the HIR meta line from this list, and a bare `en[key].text`
+     crashed the whole check on a stack trace instead of naming the missing key. */
+  const entry = en[key];
+  if (entry === undefined) {
+    fail(`docs/copy-en.json has no ${key}, and this check still asserts its copy`);
+  } else if (!html.includes(entry.text)) {
     fail(`chrome text missing from the markup: ${key}`);
   }
 }

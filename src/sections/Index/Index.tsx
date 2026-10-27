@@ -171,19 +171,10 @@ export function Index() {
     <section id="index" data-section="index" aria-labelledby="index-title" className="index">
       <Reveal className="index__head">
         {/* docx page 1, segment [5]: the section's own big title. It is the h2 the section is
-            labelled by — the accessible name should be the user's words for the section,
-            not the mono eyebrow — which leaves the eyebrow as a plain line of the same
-            style (`[data-role="L"]` is attribute-keyed, so demoting it changes nothing
-            visually) and keeps exactly one h2 above the h3 rows. */}
+            labelled by — the accessible name should be the user's words for the section. */}
         <h2 id="index-title" className="index__works">
           {t("index.head.title")}
         </h2>
-        <p className="index__eyebrow" data-role="L">
-          {t("index.head.eyebrow")}
-        </p>
-        <p className="index__range" data-role="R">
-          {t("index.head.range")}
-        </p>
       </Reveal>
 
       <Rule variant="baseline" />

@@ -3,7 +3,10 @@
    first frame and releases it, so `--dur-1` / `--ease-out` (declared in Nav.css) carries each
    element home. One group at a time; under `prefers-reduced-motion: reduce` the switch is
    instant and no FLIP runs. No inline transition is ever written — only the per-element
-   transform, which is what the measured deltas are. */
+   transform, which is what the measured deltas are.
+
+   切换器已按 docx-1027 第 6 条撤下；这套 FLIP 机械保留至中文版恢复，现仅 `?lang=` 与 popstate
+   可触发。 */
 
 import { flushSync } from "react-dom";
 

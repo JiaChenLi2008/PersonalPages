@@ -21,15 +21,6 @@
   gap: var(--sp-18);
 }
 
-.hero__eyebrow {
-  margin: 0;
-  font-family: var(--ff-mono);
-  font-size: var(--fs-12);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-eyebrow);
-  color: var(--c-blue);
-}
-
 .hero__title {
   display: flex;
   flex-direction: column;
@@ -123,6 +114,11 @@
   font-weight: var(--fw-normal);
   letter-spacing: var(--ls-label);
   cursor: pointer;
+}
+
+.hero__btn--solid {
+  background: var(--c-ink);
+  color: var(--c-white);
 }
 
 .hero__btn--ghost {

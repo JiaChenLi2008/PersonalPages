@@ -24,6 +24,17 @@
  * SUPPLEMENTS with the section that justifies each value; 0 is allowed everywhere
  * as a reset.
  *
+ * docx-1027 deletes slots instead of re-wording them: 第 3 条 the photo band's caption bar
+ * (V3Yy1's Cap a6tTUe, keys photoband.figcap / photoband.altnote) and the hero's mono
+ * eyebrow (Rkenm, the 第 7 条 blue line, key hero.eyebrow), 第 6 条 the ZH/EN switcher
+ * (F2SSib, keys nav.lang.zh / nav.lang.en). The frozen artboard still draws all three
+ * subtrees, so they are named in REMOVED_BY_DOCX and their design values are no longer
+ * asserted; the run reports how many it withheld as `removed=`. The registration is judged
+ * on every run (tools/fidelity-docx-removal.mjs): a key back in the dictionaries, or named
+ * again under src/, fails this gate and prints the node to revoke, so a deletion can never
+ * become a permanent exemption. The nav's motion assertion counts the links that are left
+ * (device ④ still applies to them) instead of the language buttons this docx removed.
+ *
  * Usage: node tools/fidelity-nav-hero-photoband.mjs
  *        (exit 0 = aligned; exit 1 = missing / out-of-range / structure problem,
  *         each printed with its file and line)
@@ -34,6 +45,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { judgeRemovedByDocx } from "./fidelity-docx-removal.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PEN_SHA =
@@ -71,12 +84,20 @@ const SUPPLEMENTS = {
     width: { values: [304], why: "§3.3 --col-hero-right at ≤1200px" },
   },
   photoband: {
-    padding: { values: [40, 32, 16, 8], why: "§3.1 --pad-cap tiers" },
     height: { values: [464, 352, 232, 150], why: "§3.3 band height tiers; 150% is the photo's parallax overhang" },
-    gap: { values: [8], why: "§3.3 stacked caption gap at ≤900px" },
     color: { values: ["#D8D4CC"], why: "§5 photo background while it loads" },
     width: { values: [100], why: "§5 the photo fills the slot's width; its overhang is vertical" },
   },
+};
+
+/* docx-1027 的删除登记：node 仍在冻版板上，槽位与它的键一并从站点删除。键按子树归属：一支登记
+   盖住该节点及其子节点的全部设计值，因为这些值只为那块 DOM 而存在。登记由
+   tools/fidelity-docx-removal.mjs 双向判据把关：键回到字典或 src/ 又指名它，本条登记即失效，
+   门禁红并点名要撤销登记的那个节点。 */
+const REMOVED_BY_DOCX = {
+  F2SSib: { keys: ["nav.lang.zh", "nav.lang.en"], docx: "docx-1027 第 6 条" },
+  Rkenm: { keys: ["hero.eyebrow"], docx: "docx-1027 第 3 / 7 条" },
+  a6tTUe: { keys: ["photoband.figcap", "photoband.altnote"], docx: "docx-1027 第 3 条" },
 };
 
 /** Design field -> assertion group. */
@@ -146,27 +167,32 @@ function numbersOf(value, out) {
   }
 }
 
-function designOf(node, design) {
+/** Design values of one subtree. A registered node's subtree — and every node under it — is
+    collected into `removed` instead of `design`: those values are no longer asserted, and the
+    count is reported as `removed=` rather than vanishing from the gate. */
+function designOf(node, design, removed, skip, pruned = false) {
+  const dropped = pruned || skip.has(node.id);
+  const target = dropped ? removed : design;
   for (const field of DESIGN_FIELDS) {
     const value = node[field];
     if (typeof value === "string" && field === "fontWeight" && WEIGHT_NAMES[value] !== undefined) {
-      addValue(design, field, WEIGHT_NAMES[value]);
+      addValue(target, field, WEIGHT_NAMES[value]);
       continue;
     }
     const found = [];
     numbersOf(value, found);
-    for (const number of found) addValue(design, field, number);
+    for (const number of found) addValue(target, field, number);
   }
   const padding = [];
   numbersOf(node.padding, padding);
-  for (const number of padding) addValue(design, "padding", number);
+  for (const number of padding) addValue(target, "padding", number);
   for (const field of ["fill", "stroke"]) {
     const value = node[field];
     if (typeof value === "string" && /^#[0-9a-fA-F]{3,8}$/.test(value)) {
-      addValue(design, "color", value.toUpperCase());
+      addValue(target, "color", value.toUpperCase());
     }
   }
-  for (const child of node.children ?? []) designOf(child, design);
+  for (const child of node.children ?? []) designOf(child, design, removed, skip, dropped);
 }
 
 function readTokens() {
@@ -259,8 +285,14 @@ if (!digest.startsWith(PEN_SHA)) {
 const pen = JSON.parse(penBytes.toString("utf8"));
 const page = pen.children[0];
 const tokens = readTokens();
-const problems = [];
+
+/* docx-1027 的删除登记先过一遍双向判据：只有「键已离开两份字典、src/ 也不再指名」的登记才生效；
+   失效的登记直接进 problems，门禁红。 */
+const { active: removedNodes, stale: staleRegistrations } = judgeRemovedByDocx(REMOVED_BY_DOCX, ROOT);
+
+const problems = [...staleRegistrations];
 let checked = 0;
+let removedTotal = 0;
 
 console.log(`pen=${penFile} bytes=${penBytes.length} sha256=${digest.slice(0, 16)}`);
 
@@ -272,7 +304,8 @@ for (const section of SECTIONS) {
   }
 
   const design = {};
-  designOf(node, design);
+  const removedDesign = {};
+  designOf(node, design, removedDesign, removedNodes);
   const { declared, unresolved } = declaredOf(section.dir, tokens);
 
   let missing = 0;
@@ -311,8 +344,10 @@ for (const section of SECTIONS) {
   }
 
   const designCount = Object.values(design).reduce((total, values) => total + values.size, 0);
+  const removedCount = Object.values(removedDesign).reduce((total, values) => total + values.size, 0);
+  removedTotal += removedCount;
   console.log(
-    `${section.name}: node=${section.node} design=${designCount} missing=${missing} out_of_range=${outOfRange}`,
+    `${section.name}: node=${section.node} design=${designCount} removed=${removedCount} missing=${missing} out_of_range=${outOfRange}`,
   );
 }
 
@@ -422,8 +457,18 @@ if (bandSource.includes("imagePending") || bandCss.includes("photo-band__pending
 if (navCss.includes("--dur-3")) {
   structureProblem("Nav.css declares a --dur-3 transition; the nav's colour feedback is --dur-1");
 }
-if (count(navSource, "motion-hover") < 2) {
-  structureProblem("the nav links and the language buttons both carry .motion-hover (spec §2 nav, device ④)");
+/* docx-1027 第 6 条 removed the ZH/EN switcher, so the hook has one carrier fewer: the
+   assertion now counts the link elements that are left and requires every one of them to carry
+   it. A `> 0` floor would pass a nav whose links lost the hook, and the old `>= 2` was itself
+   satisfied by the removed language buttons. */
+const navLinksBlock = between(navSource, '<div className="nav__links">', "</div>");
+const navLinks = count(navLinksBlock, "<a");
+const hoveredLinks = count(navLinksBlock, 'className="nav__link motion-hover"');
+if (navLinks === 0 || hoveredLinks !== navLinks) {
+  structureProblem(
+    `${hoveredLinks} of the nav's ${navLinks} link element(s) carry .motion-hover; every one of ` +
+      "them does (spec §2 nav, device ④)",
+  );
 }
 const hoverRule = /\.motion-hover\s*\{([^}]*)\}/.exec(motionCss)?.[1] ?? "";
 if (!hoverRule.includes("color var(--dur-1)") || !hoverRule.includes("transform var(--dur-1)")) {
@@ -448,8 +493,11 @@ const outOfRangeTotal = problems.filter((line) => line.startsWith("out-of-range"
 const structureTotal = problems.filter((line) => line.startsWith("structure:")).length;
 
 for (const problem of problems) console.error(problem);
+/* `superseded` is fidelity-scholarly's table (re-worded slots); this gate has none, and prints
+   the count it does not trade so all three summaries carry both numbers. */
 console.log(
-  `checked=${checked} missing=${missingTotal} out_of_range=${outOfRangeTotal} structure=${structureTotal}`,
+  `checked=${checked} missing=${missingTotal} out_of_range=${outOfRangeTotal} structure=${structureTotal} ` +
+    `removed=${removedTotal} superseded=0`,
 );
 
 process.exit(problems.length > 0 ? 1 : 0);

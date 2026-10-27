@@ -10,12 +10,6 @@
   background: var(--c-ink);
 }
 
-.footer__top {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-}
-
 .footer__contact {
   display: flex;
   flex-direction: column;
@@ -39,18 +33,6 @@
   color: var(--c-sand);
 }
 
-.footer [data-role="R"] {
-  margin: 0;
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  line-height: var(--lh-running);
-  text-align: right;
-  color: var(--c-muted-on-dark);
-  /* the dictionary text carries the design's hard line break */
-  white-space: pre-line;
-}
-
 @media (max-width: 1200px) {
   .footer {
     padding: var(--pad-footer-t1200);
@@ -66,12 +48,6 @@
     padding: var(--pad-footer-t900);
   }
 
-  .footer__top {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-16);
-  }
-
   .footer [data-role="T"] {
     font-size: var(--fs-48-t900);
   }
@@ -84,9 +60,5 @@
 
   .footer [data-role="T"] {
     font-size: var(--fs-48-t600);
-  }
-
-  .footer [data-role="R"] {
-    text-align: left;
   }
 }

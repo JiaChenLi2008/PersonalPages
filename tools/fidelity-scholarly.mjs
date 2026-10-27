@@ -21,6 +21,16 @@
  *     (motion spec §3, which replaced the old `useReveal` hidden-attribute pair);
  *   - hygiene: no hex colour, no Chinese literal and no h1 inside the section.
  *
+ * docx-1027 第 3 条 (user ruling: every mono micro-label goes) deletes three slots this gate
+ * used to assert: the two figure captions I6zyH / m7Y31D and the HIR meta line K5Gug. The
+ * frozen frame still draws all three nodes, so they are named in REMOVED_BY_DOCX; their text
+ * role and their board string are skipped and counted as `removed` in the report instead of
+ * being read as covered. The registration is judged on every run
+ * (tools/fidelity-docx-removal.mjs): a key back in the dictionaries, or named again under
+ * src/, fails this gate and prints the node to revoke, so a deletion can never become a
+ * permanent exemption. This is not SUPERSEDED_BY_DOCX: that table keeps a slot whose text the
+ * docx replaced, this one deletes the slot.
+ *
  * Values the design itself leaves inconsistent are listed as DEVIATIONS below and
  * reported, not hidden: they are the only places where the section does not copy
  * the board 1:1.
@@ -32,6 +42,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { judgeRemovedByDocx } from "./fidelity-docx-removal.mjs";
 
 /* The section is named for its frame id and its English title only: the section
    directory must stay free of hex colours and of Chinese literals (copy belongs to
@@ -51,6 +63,9 @@ const problems = [];
 const fail = (message) => problems.push(message);
 /** Values this run actually compared; reported next to the failures (see the report). */
 let checked = 0;
+/** Checks a docx-1027 registration withheld (role + copy of a deleted slot), same unit as
+    `checked`: the two add up to what this gate would cover without the deletions. */
+let removed = 0;
 
 /* ---------- board: localise, verify the pin, index the frame ---------- */
 
@@ -207,6 +222,21 @@ function declaration(body, property) {
   return matches.length === 0 ? null : matches[matches.length - 1][1].trim();
 }
 
+/* ---------- docx-1027 第 3 条: the deleted slots ---------- */
+
+/* 三个 board 节点仍在冻版 frame 上，页面上已无对应槽位。登记由
+   tools/fidelity-docx-removal.mjs 双向判据把关：键回到字典或 src/ 又指名它，本条登记即失效，
+   门禁红并点名要撤销登记的那个节点。 */
+const REMOVED_BY_DOCX = {
+  I6zyH: { keys: ["scholarly.figcap2"], docx: "docx-1027 第 3 条" },
+  m7Y31D: { keys: ["scholarly.figcap3"], docx: "docx-1027 第 3 条" },
+  K5Gug: { keys: ["scholarly.meta"], docx: "docx-1027 第 3 条" },
+};
+const { active: removedNodes, stale: staleRegistrations } = judgeRemovedByDocx(REMOVED_BY_DOCX, REPO);
+for (const message of staleRegistrations) {
+  fail(`[docx] ${message}`);
+}
+
 /* ---------- 1. text roles: board node -> implementing class ---------- */
 
 const TEXT_ROLES = [
@@ -261,6 +291,11 @@ function roleValue(penNode, weightOf) {
 for (const role of TEXT_ROLES) {
   const penNode = pen(role.node);
   if (penNode === undefined) continue;
+  /* docx-1027 deleted this slot: no class implements it any more, so no declaration to check. */
+  if (removedNodes.has(role.node)) {
+    removed += 1;
+    continue;
+  }
   checked += 1;
   const ruling = role.ruling ?? {};
   const body = declarationsOf(role.selector);
@@ -605,6 +640,11 @@ const boardTexts = [];
 
 for (const boardText of boardTexts) {
   if (boardText.text.startsWith("※")) continue;
+  /* docx-1027 第 3 条 deleted this slot: the frame keeps the string, the page keeps nothing. */
+  if (removedNodes.has(boardText.id)) {
+    removed += 1;
+    continue;
+  }
   checked += 1;
   const wanted = normalise(boardText.text);
   if (normalised.includes(wanted)) continue;
@@ -888,12 +928,14 @@ if (problems.length > 0) {
   process.exit(1);
 }
 
-console.log(`checked=${checked} missing=${problems.length}`);
+console.log(`checked=${checked} missing=${problems.length} removed=${removed} superseded=${superseded}`);
 console.log(
-  `PASS: ui.pen ${PEN_SHA256.slice(0, 16)}… ${PEN_BYTES} B — ${TEXT_ROLES.length} text roles, ` +
+  `PASS: ui.pen ${PEN_SHA256.slice(0, 16)}… ${PEN_BYTES} B — ` +
+    `${TEXT_ROLES.filter((role) => !removedNodes.has(role.node)).length} text roles, ` +
     `${GEOMETRY.length} geometry values, ${RATIOS.length + 1} media boxes, ${boardTexts.length} board strings ` +
     `(${concatenated} joined, ${punctuationFolded} punctuation-folded, ${superseded} docx-superseded, ` +
-    `${insideNode} split across board nodes), ${PHOTOS.length} photos + PDF byte-identical`,
+    `${removed} docx-removed, ${insideNode} split across board nodes), ` +
+    `${PHOTOS.length} photos + PDF byte-identical`,
 );
 for (const [what, why] of DEVIATIONS) {
   console.log(`deviation — ${what}: ${why}`);

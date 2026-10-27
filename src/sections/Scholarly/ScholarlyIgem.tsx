@@ -175,9 +175,6 @@ export function ScholarlyIgem() {
                 </Reveal>
               </div>
             </Lightbox>
-            <figcaption className="scholarly__cap" lang={langOf("scholarly.figcap2")}>
-              {text("scholarly.figcap2")}
-            </figcaption>
           </figure>
 
           <figure className="scholarly__fig">
@@ -201,9 +198,6 @@ export function ScholarlyIgem() {
                 </Reveal>
               </div>
             </Lightbox>
-            <figcaption className="scholarly__cap" lang={langOf("scholarly.figcap3")}>
-              {text("scholarly.figcap3")}
-            </figcaption>
           </figure>
         </div>
       </div>

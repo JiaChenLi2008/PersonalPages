@@ -17,6 +17,18 @@
  * design has a single 1440 artboard, so those numbers are the blueprint's
  * implementation supplement and are asserted against the section's media blocks.
  *
+ * docx-1027 deletes slots instead of re-wording them: 第 3 条 the three mono micro-labels
+ * (index.head.eyebrow nT4lK, index.head.range IaPWv, method.eyebrow tMY8f), 第 10 条 the
+ * footer's copyright block (footer.legal Q6Bqn). The frozen artboard still draws all four
+ * nodes, so they are named in REMOVED_BY_DOCX and their values — plus the two footer tiers
+ * that only existed for that block's two-column shell — are no longer asserted; the run
+ * reports how many checks that withheld as `removed=`. The registration is judged on every
+ * run (tools/fidelity-docx-removal.mjs): the key back in the dictionaries, or named again
+ * under src/, fails this gate and prints the node to revoke, so a deletion can never
+ * become a permanent exemption. 第 8 条 re-words `values.label` into `values.label1..4` but
+ * keeps both the keys and the slot, so nothing is registered for it: this table is only for
+ * slots that are gone.
+ *
  * Usage: node tools/fidelity-index-method-values-footer.mjs
  *        ui.pen is looked up beside the repo root or in its ancestors; UI_PEN overrides.
  * exit 0 = faithful (prints checked=<n> missing=0), 1 = a value is missing.
@@ -26,6 +38,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { judgeRemovedByDocx } from "./fidelity-docx-removal.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PEN_SHA256_PREFIX = "41dd7140223515c2";
@@ -85,6 +99,28 @@ const WEIGHT_WORDS = { normal: 400, bold: 700 };
    declaration to pair with, and are named here instead of being asserted; its fill still pairs,
    through the per-row --en-ink declaration, in the row report below. */
 const UNRENDERED_EN_NODES = new Set(["Mdb3y", "kd6AZ", "SbfN8"]);
+
+/* docx-1027 的删除登记：node 仍在冻版板上，槽位与它的键一并从站点删除。`keys` 是那一位
+   曾经承载的字典键，`tiers` 是只为了这块 DOM 才写的响应式条目（[breakpoint, prop, want]）。
+   登记由 tools/fidelity-docx-removal.mjs 双向判据把关：键回到字典或 src/ 又指名它，本条登记
+   即失效，门禁红并点名要撤销登记的那个节点。 */
+const REMOVED_BY_DOCX = {
+  nT4lK: { keys: ["index.head.eyebrow"], docx: "docx-1027 第 3 条" },
+  IaPWv: { keys: ["index.head.range"], docx: "docx-1027 第 3 条" },
+  tMY8f: { keys: ["method.eyebrow"], docx: "docx-1027 第 3 条" },
+  Q6Bqn: {
+    keys: ["footer.legal"],
+    docx: "docx-1027 第 10 条",
+    /* 只为了 footer__legal 的两栏壳才写的响应式条目，按 section 名分桶：[breakpoint, prop, want]。 */
+    tiers: {
+      footer: [
+        [900, "gap", 16],
+        [900, "flex-direction", "column"],
+        [600, "text-align", "left"],
+      ],
+    },
+  },
+};
 
 /* BLUEPRINT §3 tiers; [prop, expected] where a number matches numerically and a
    string matches as a substring of the resolved declaration. */
@@ -443,9 +479,14 @@ for (const [name, value] of tokens) {
   }
 }
 
-const failures = [];
+/* docx-1027 的删除登记先过一遍双向判据：只有「键已离开两份字典、src/ 也不再指名」的登记才生效；
+   失效的登记直接进 failures，门禁红。 */
+const { active: removedNodes, stale: staleRegistrations } = judgeRemovedByDocx(REMOVED_BY_DOCX, ROOT);
+
+const failures = [...staleRegistrations];
 const notes = [];
 let checked = 0;
+let removed = 0;
 
 notes.push(
   "index: the design's EN label nodes of rows 1–3 are out of the DOM under the single-side rule, " +
@@ -490,6 +531,11 @@ for (const section of SECTIONS) {
 
   for (const requirement of requirementsOf(subtree, section.name, notes)) {
     if (UNRENDERED_EN_NODES.has(requirement.node)) {
+      continue;
+    }
+    /* docx-1027 deleted this slot: its values are reported as `removed=`, not asserted. */
+    if (removedNodes.has(requirement.node)) {
+      removed += 1;
       continue;
     }
     checked += 1;
@@ -795,13 +841,20 @@ if (indexReduce === null || !indexReduce[1].includes(".index__body")) {
   failures.push("index: .index__body (the FLIP target) has no prefers-reduced-motion branch in Index.css");
 }
 
-/* BLUEPRINT §3 tiers. */
+/* BLUEPRINT §3 tiers. The tiers of a deleted block lapse with it: the footer's @900/@600
+   rows only wrote the footer__legal two-column shell, so they are registered with footer.legal
+   rather than left as a `missing` no stylesheet can answer. */
 for (const section of RESPONSIVE) {
   const css = readdirSync(join(ROOT, "src/sections", section.name[0].toUpperCase() + section.name.slice(1)))
     .filter((name) => name.endsWith(".css"))
     .map((name) => readFileSync(join(ROOT, "src/sections", section.name[0].toUpperCase() + section.name.slice(1), name), "utf8"))
     .join("\n");
   const sheet = parseSheet(css);
+  /* Only a registration that still holds withholds its tiers: if footer.legal comes back, this
+     gate's three footer rows come back with it. */
+  const deletedTiers = Object.entries(REMOVED_BY_DOCX)
+    .filter(([node]) => removedNodes.has(node))
+    .flatMap(([, entry]) => entry.tiers?.[section.name] ?? []);
   for (const tier of section.tiers) {
     const body = sheet.tiers.get(tier.breakpoint);
     if (body === undefined) {
@@ -812,6 +865,15 @@ for (const section of RESPONSIVE) {
       block.declarations.map((declaration) => ({ ...declaration, block: block.declarations })),
     );
     for (const [prop, want] of tier.wants) {
+      if (
+        deletedTiers.some(
+          ([breakpoint, deletedProp, deletedWant]) =>
+            breakpoint === tier.breakpoint && deletedProp === prop && deletedWant === want,
+        )
+      ) {
+        removed += 1;
+        continue;
+      }
       checked += 1;
       const hit = declarations.some((declaration) => {
         if (typeof want === "number") {
@@ -835,5 +897,7 @@ for (const failure of failures) {
 for (const note of notes) {
   console.log(`note: ${note}`);
 }
-console.log(`checked=${checked} missing=${failures.length}`);
+/* `superseded` is fidelity-scholarly's table (re-worded slots); this gate has none, and prints
+   the count it does not trade so all three summaries carry both numbers. */
+console.log(`checked=${checked} missing=${failures.length} removed=${removed} superseded=0`);
 process.exit(failures.length === 0 ? 0 : 1);

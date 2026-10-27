@@ -49,9 +49,11 @@ html {
 }
 
 /* The brand in Chinese is the same element as the brand in English (single-side rendering,
-   BLUEPRINT §6.4): it keeps the name's metrics and swaps in the CJK face only. */
+   BLUEPRINT §6.4): it keeps the name's metrics and swaps in the CJK face only. The board's
+   VltbO node paints it --c-muted, not the name's --c-ink. */
 .nav__name--cn {
   font-family: var(--ff-sans-cn);
+  color: var(--c-muted);
 }
 
 .nav__links {
@@ -99,46 +101,9 @@ html {
   color: var(--c-ink);
 }
 
-/* Right group (ui.pen ydp5M): Lang, then Mail in its original place, 24 apart. */
-.nav__right {
-  display: flex;
-  gap: var(--sp-24);
-  align-items: center;
-}
-
-/* Language toggle (ui.pen F2SSib): 中 ｜ EN behind a 1×12 hairline, 8 apart. */
-.nav__lang {
-  display: flex;
-  gap: var(--sp-8);
-  align-items: center;
-}
-
-.nav__lang-btn {
-  padding: 0;
-  border: 0;
-  background: none;
+.nav__mail {
   font-size: var(--fs-12);
-  font-weight: var(--fw-normal);
-  color: var(--c-muted);
-  cursor: pointer;
-}
-
-.nav__lang-btn--zh {
-  font-family: var(--ff-sans-cn);
-}
-
-.nav__lang-btn--en {
-  font-family: var(--ff-mono);
-}
-
-.nav__lang-btn[aria-pressed="true"] {
   color: var(--c-ink);
-}
-
-.nav__lang-div {
-  width: var(--rule-h);
-  height: var(--lang-div-h);
-  background: var(--c-rule);
 }
 
 .nav__rule {

@@ -20,7 +20,7 @@
 //
 // src 指针文法（见 docs/BLUEPRINT.md §2.10）：
 //   content-brief.md#段[N] / layout-brief.md#段[N] / docx-2026-10-brief.md#段[N]
-//   docx-1021-brief.md#段[N] / docx-1023-brief.md#段[N]  → 段区间原文
+//   docx-1021-brief.md#段[N] / docx-1023-brief.md#段[N] / docx-1027-brief.md#段[N]  → 段区间原文
 //   design-system.md#<Anchor>                        → 该小节标题至下一标题之间
 //   hir-essay.md#pN                                  → 第 N 页区间（p0 = 文首导言区）
 //   uirpen#<A.B.C>                                   → ui.pen 中按节点名逐段定位的子树文本
@@ -146,7 +146,7 @@ function uiPenSubtreeTexts(pointer) {
 function locate(src) {
   const [file, frag = ''] = src.split('#');
   if (file === 'content-brief.md' || file === 'layout-brief.md' || file === 'docx-2026-10-brief.md' ||
-      file === 'docx-1021-brief.md' || file === 'docx-1023-brief.md') {
+      file === 'docx-1021-brief.md' || file === 'docx-1023-brief.md' || file === 'docx-1027-brief.md') {
     const m = /^段\[(\d+)\]$/.exec(frag);
     if (!m) return { error: `src 片段不可解析：${src}` };
     const blocks = paraBlocks(linesOf(path.join(BRIEFS, file)), m[1]);
@@ -229,13 +229,10 @@ const ALLOWED = new Set(['text', 'src', 'lang', 'chrome']);
    §5「不得中英混排同句、标点随语言」，两侧各写本语言文本后都不可能逐字等于原文。逐条登记，
    并用「覆盖率」作为溯源下限；未登记的新槽位一律按逐字规则失败。 */
 const MIXED_MATERIAL = new Set([
-  'photoband.figcap',      // 原文：FIG. 01 — 实验台 / 21:9 plate
-  'photoband.altnote',     // 原文：alt: 实验室研究场景 · WebP · lazy · 固定宽高比
   'scholarly-igem.title',  // 原文：iGEM Project；probotic therapy for Parkinson's treatment
   'scholarly-jhu.q1',      // 原文：Hello，I look like a three, guess what am I?
   'scholarly-jhu.q2',      // 原文：Hello, I may look like a bone-in lamp leg huh？…
   'scholarly-hir.title',   // 原文：HIR writing contest-哈佛国际评论学术写作竞赛
-  'footer.legal',          // 原文：© 2026 林知远 · 占位\nBIOLOGY / MEDICINE / MUSIC / SPORT
 ]);
 
 /* 材料原文中英并列的槽位（docx 一行两语，如「手碟 - Handpan」）：两侧都是原文，没有译文侧可退。
@@ -316,14 +313,10 @@ function mixedCoverage(loc, texts) {
  * 逐字全等强于原「覆盖率 ≥ 0.75」判据：改动一字、或删除登记，都必须报错。
  */
 const USER_IDENTITY = {
-  'nav.brand.name': { 'copy-en.json': 'JiachenLi', 'copy-zh.json': '嘉宸' },
-  'nav.brand.cn': { 'copy-en.json': 'JiachenLi', 'copy-zh.json': '嘉宸' },
+  'nav.brand.name': { 'copy-en.json': '(Jay) Li Jiachen', 'copy-zh.json': '(Jay) Li Jiachen' },
+  'nav.brand.cn': { 'copy-en.json': '(Jay) Li Jiachen', 'copy-zh.json': '(Jay) Li Jiachen' },
   'nav.mail': { 'copy-en.json': 'jay_20080924@sina.com', 'copy-zh.json': 'jay_20080924@sina.com' },
   'footer.mail': { 'copy-en.json': 'jay_20080924@sina.com', 'copy-zh.json': 'jay_20080924@sina.com' },
-  'footer.legal': {
-    'copy-en.json': '© 2026 JiachenLi\nBIOLOGY / MEDICINE / MUSIC / SPORT',
-    'copy-zh.json': '© 2026 嘉宸\n生物学 / 医学 / 音乐 / 体育',
-  },
 };
 
 /** checked = 本侧 text 就是 src 原文；translated = 原文侧逐字相符而本侧是其译文。 */
@@ -331,7 +324,7 @@ let checked = 0;
 let translated = 0;
 let mixed = 0;
 let identity = 0;
-/** k -> 覆盖率读数；汇报行里逐条贴出，便于复核七个登记槽位离阈值多远。 */
+/** k -> 覆盖率读数；汇报行里逐条贴出，便于复核已登记槽位离阈值多远。 */
 const mixedUsed = new Map();
 const identityUsed = new Set();
 for (const [file, dict] of [['copy-en.json', en], ['copy-zh.json', zh]]) {

@@ -1,23 +1,13 @@
-import { useLocale } from "../../i18n";
-import { useCopy, type CopyKey } from "../../i18n/copy";
 import { Photo } from "../../components/Photo/Photo";
 import { Reveal } from "../../components/primitives/Reveal";
 import "./PhotoBand.css";
 
 /**
- * PhotoBand: the full-bleed 18:7 media slot plus its caption bar (ui.pen V3Yy1).
- * The slot carries the design's own photo — public/media/photoband-2880.webp, cut to the
- * node's 2880×1120 source — so it is a decorative image (`alt=""`, BLUEPRINT §5) and the
- * caption bar below it carries the words.
+ * PhotoBand: the full-bleed 18:7 media slot (ui.pen V3Yy1). The slot carries the design's
+ * own photo — public/media/photoband-2880.webp, cut to the node's 2880×1120 source — so it
+ * is a decorative image (`alt=""`, BLUEPRINT §5) and the band carries no words.
  */
 export function PhotoBand() {
-  const { text, langOf } = useCopy();
-  const { locale } = useLocale();
-
-  /* BLUEPRINT §6.4: a text carries `lang` only when its own language differs from the page's. */
-  const page = locale === "zh" ? "zh-Hans" : "en";
-  const copyLang = (key: CopyKey) => (langOf(key) === page ? undefined : langOf(key));
-
   return (
     <section id="photoband" data-section="photo-band" className="photo-band">
       <Reveal once as="figure" className="photo-band__figure">
@@ -34,14 +24,6 @@ export function PhotoBand() {
             decoding="async"
           />
         </Reveal>
-        <figcaption className="photo-band__cap">
-          <span className="photo-band__figcap" lang={copyLang("photoband.figcap")}>
-            {text("photoband.figcap")}
-          </span>
-          <span className="photo-band__altnote" lang={copyLang("photoband.altnote")}>
-            {text("photoband.altnote")}
-          </span>
-        </figcaption>
       </Reveal>
     </section>
   );

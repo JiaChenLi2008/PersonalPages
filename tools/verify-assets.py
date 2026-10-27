@@ -43,6 +43,7 @@ BLANK_STDDEV_SUM = 5  # RGB 三通道标准差之和 <= 此值即为空白/占�
 SOURCE_ORIGINALS = {"image1.jpeg", "image2.jpeg", "image3.jpeg"}
 NON_DERIVED = {
     "hir-essay.pdf",  # 原样搬运的附件（非派生位图），不参与位图清单：无像素尺寸，且由 ScholarlyHir 直接 href 使用
+    "cv.pdf",  # 简历 PDF 原件（docx-1027 第 7 条恢复 VIEW CV 钮），由 Hero 直接 href 使用
     "shanghai-hospitals.xlsx",  # 医院指南工作簿：zip 容器不是位图，由 tools/verify-hospitals-xlsx.py 单独校验
 }
 

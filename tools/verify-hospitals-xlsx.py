@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""校验 public/media/shanghai-hospitals.xlsx：结构可解析、sheet 名与顺序、表头与 12 行 × 5 列
-逐字等于字典、行列数无多余或缺失、且与生成器重算逐字节一致。纯标准库。
+"""校验 public/media/shanghai-hospitals.xlsx：结构可解析、sheet 名与顺序、表头等于生成器字面量、
+12 行 × 5 列逐字等于字典、行列数无多余或缺失、且与生成器重算逐字节一致。纯标准库。
 
 门禁：timeout 300 python3 tools/verify-hospitals-xlsx.py ；rc=0 通过，rc=1 失败（逐条打印
 sheet / 行 / 列 / 字典键）。页面链接与样式版式不在本门禁的判据内（前者归 Elder 的 DOM 门禁）。
@@ -84,16 +84,23 @@ def read_grid(archive, sheet_path, shared, errs, sheet_name):
 
 
 def expected_grid(locale):
-    """({行号: {列字母: 文本}}, 同形状的标签)；标签是失败信息里点名的字典键。"""
+    """({行号: {列字母: 文本}}, 同形状的标签)；行标签点名字典键，表头标签点名字面量出处。"""
     header, rows = GENERATOR.sheet_table(locale)
-    head_keys = [key for _, key, _ in GENERATOR.COLUMNS]
     grid = {1: dict(zip(COLUMNS, header))}
-    labels = {1: dict(zip(COLUMNS, ["序号列表头（字典无此键，字面量）"] + head_keys))}
+    labels = {
+        1: dict(
+            zip(
+                COLUMNS,
+                ["序号列表头（字面量）"]
+                + [f"表头 {suffix}（{GENERATOR_PATH.name} 字面量）" for suffix, _ in GENERATOR.COLUMNS],
+            )
+        )
+    }
     for offset, row_id in enumerate(GENERATOR.ROW_IDS, start=1):
         row_index = offset + 1
         grid[row_index] = dict(zip(COLUMNS, [str(offset)] + list(rows[offset - 1][1:])))
         labels[row_index] = dict(
-            zip(COLUMNS, [f"序号 {offset}"] + [f"elder.guide.{row_id}.{suffix}" for suffix, _, _ in GENERATOR.COLUMNS])
+            zip(COLUMNS, [f"序号 {offset}"] + [f"elder.guide.{row_id}.{suffix}" for suffix, _ in GENERATOR.COLUMNS])
         )
     return grid, labels
 
@@ -178,7 +185,7 @@ def main():
         return 1
     print(
         f"OK {WORKBOOK.relative_to(ROOT)}: sheet {got_names}，各 1 行表头 + "
-        f"{len(GENERATOR.ROW_IDS)} 行 × {len(GENERATOR.COLUMNS) + 1} 列逐字等于字典，"
+        f"{len(GENERATOR.ROW_IDS)} 行 × {len(GENERATOR.COLUMNS) + 1} 列（行值逐字等于字典、表头等于生成器字面量），"
         f"与生成器重算一致（{len(rebuilt)} B）"
     )
     return 0

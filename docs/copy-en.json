@@ -1,12 +1,12 @@
 {
   "nav.brand.name": {
-    "text": "JiachenLi",
-    "src": "design-system.md#Nav",
+    "text": "(Jay) Li Jiachen",
+    "src": "docx-1027-brief.md#段[13]",
     "lang": "en"
   },
   "nav.brand.cn": {
-    "text": "JiachenLi",
-    "src": "design-system.md#Nav",
+    "text": "(Jay) Li Jiachen",
+    "src": "docx-1027-brief.md#段[13]",
     "lang": "en"
   },
   "nav.mail": {
@@ -74,21 +74,6 @@
     "chrome": true,
     "lang": "en"
   },
-  "nav.lang.zh": {
-    "text": "ZH",
-    "chrome": true,
-    "lang": "en"
-  },
-  "nav.lang.en": {
-    "text": "EN",
-    "chrome": true,
-    "lang": "en"
-  },
-  "hero.eyebrow": {
-    "text": "APPLICANT / 2027 FALL / 01",
-    "src": "design-system.md#Hero",
-    "lang": "en"
-  },
   "hero.h1": {
     "text": "LIFE,\nIN FOCUS.",
     "src": "design-system.md#Hero",
@@ -142,26 +127,6 @@
   "hero.btn2": {
     "text": "EMAIL ↗",
     "src": "design-system.md#Hero",
-    "lang": "en"
-  },
-  "photoband.figcap": {
-    "text": "FIG. 01 — Lab bench / 21:9 plate",
-    "src": "design-system.md#PhotoBand",
-    "lang": "en"
-  },
-  "photoband.altnote": {
-    "text": "alt: laboratory research scene · WebP · lazy · fixed aspect ratio",
-    "src": "design-system.md#PhotoBand",
-    "lang": "en"
-  },
-  "index.head.eyebrow": {
-    "text": "INDEX / FOUR SECTIONS",
-    "chrome": true,
-    "lang": "en"
-  },
-  "index.head.range": {
-    "text": "01 — 04 · 2024–2026",
-    "chrome": true,
     "lang": "en"
   },
   "index.row1.title": {
@@ -302,16 +267,6 @@
   "scholarly-igem.cta.url": {
     "text": "https://2025.igem.wiki/subcat-shanghai/",
     "src": "content-brief.md#段[41]",
-    "lang": "en"
-  },
-  "scholarly.figcap2": {
-    "text": "FIG. 02 — iGEM",
-    "chrome": true,
-    "lang": "en"
-  },
-  "scholarly.figcap3": {
-    "text": "FIG. 03 — HIR",
-    "chrome": true,
     "lang": "en"
   },
   "scholarly-jhu.title": {
@@ -504,11 +459,6 @@
     "src": "hir-essay.md#p1",
     "lang": "en"
   },
-  "scholarly.meta": {
-    "text": "HIR · Harvard International Review",
-    "chrome": true,
-    "lang": "en"
-  },
   "scholarly.linkPdf": {
     "text": "READ FULL PDF ↗",
     "chrome": true,
@@ -584,49 +534,59 @@
     "src": "uirpen#Index.04 律动时刻.Body.D",
     "lang": "en"
   },
-  "method.eyebrow": {
-    "text": "METHOD",
-    "src": "design-system.md#Columns",
-    "lang": "en"
-  },
   "method.title": {
-    "text": "OBSERVE. REPEAT.\nCOLLABORATE.",
-    "src": "design-system.md#Columns",
+    "text": "INVESTIGATE.\nEXPRESS.\nSERVE.",
+    "src": "docx-1027-brief.md#段[6]",
     "lang": "en"
   },
   "method.col1.title": {
-    "text": "Observe",
-    "src": "design-system.md#Columns",
+    "text": "Investigate",
+    "src": "docx-1027-brief.md#段[7]",
     "lang": "en"
   },
   "method.col1.body": {
-    "text": "Under the microscope and on the pitch: see clearly first, then conclude.",
-    "src": "uirpen#Columns.Cols.观察.D",
+    "text": "I explore the unknown—because science isn't just about results; it's about asking the right questions first.",
+    "src": "docx-1027-brief.md#段[8]",
     "lang": "en"
   },
   "method.col2.title": {
-    "text": "Repeat",
-    "src": "design-system.md#Columns",
+    "text": "Express",
+    "src": "docx-1027-brief.md#段[9]",
     "lang": "en"
   },
   "method.col2.body": {
-    "text": "Both rhythm and experiment rest on repetition: take one small thing and make it reproducible.",
-    "src": "uirpen#Columns.Cols.重复.D",
+    "text": "Whether behind a drum kit or in a research lab, I create and express to make an impact. Ultimately, I believe our contribution is defined by the influence we create.",
+    "src": "docx-1027-brief.md#段[10]",
     "lang": "en"
   },
   "method.col3.title": {
-    "text": "Collaborate",
-    "src": "design-system.md#Columns",
+    "text": "Serve",
+    "src": "docx-1027-brief.md#段[11]",
     "lang": "en"
   },
   "method.col3.body": {
-    "text": "A team is my second laboratory: trust is harder to practise than technique.",
-    "src": "uirpen#Columns.Cols.协作.D",
+    "text": "To serve is to turn knowledge into purpose. Whether in research or community care, my ultimate goal is to create lasting value for others.",
+    "src": "docx-1027-brief.md#段[12]",
     "lang": "en"
   },
-  "values.label": {
-    "text": "VALUE",
-    "src": "design-system.md#Values",
+  "values.label1": {
+    "text": "Unravel",
+    "src": "docx-1027-brief.md#段[2]",
+    "lang": "en"
+  },
+  "values.label2": {
+    "text": "Craft",
+    "src": "docx-1027-brief.md#段[3]",
+    "lang": "en"
+  },
+  "values.label3": {
+    "text": "Innovate",
+    "src": "docx-1027-brief.md#段[4]",
+    "lang": "en"
+  },
+  "values.label4": {
+    "text": "Connect",
+    "src": "docx-1027-brief.md#段[5]",
     "lang": "en"
   },
   "values.card1": {
@@ -656,11 +616,6 @@
   },
   "footer.mail": {
     "text": "jay_20080924@sina.com",
-    "src": "design-system.md#Footer",
-    "lang": "en"
-  },
-  "footer.legal": {
-    "text": "© 2026 JiachenLi\nBIOLOGY / MEDICINE / MUSIC / SPORT",
     "src": "design-system.md#Footer",
     "lang": "en"
   },
@@ -1104,34 +1059,9 @@
     "chrome": true,
     "lang": "en"
   },
-  "elder.guide.head.hospital": {
-    "text": "Hospital",
-    "chrome": true,
-    "lang": "en"
-  },
-  "elder.guide.head.checkin": {
-    "text": "Check-in",
-    "chrome": true,
-    "lang": "en"
-  },
-  "elder.guide.head.tests": {
-    "text": "Other tests",
-    "chrome": true,
-    "lang": "en"
-  },
-  "elder.guide.head.tips": {
-    "text": "Tips",
-    "chrome": true,
-    "lang": "en"
-  },
   "elder.guide.title": {
-    "text": "Navigating Shanghai's Hospitals",
-    "src": "docx-1023-brief.md#段[8]",
-    "lang": "en"
-  },
-  "elder.guide.body": {
-    "text": "Here's our guide to the local medical process—no more getting lost in the hospital maze. Check it out and share your own tips with us!",
-    "src": "docx-1023-brief.md#段[9]",
+    "text": "Shanghai Hospital Visit Guide: A Practical Walkthrough",
+    "src": "docx-1027-brief.md#段[1]",
     "lang": "en"
   },
   "elder.guide.r01.name": {

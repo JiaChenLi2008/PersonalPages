@@ -30,7 +30,17 @@
  * Tiers are matched as `@media (max-width: Npx)` blocks, the form §3 and the
  * section stylesheets both use.
  *
- * Output: breakpoints=<n> values_checked=<n> missing=<n>
+ * docx-1027 deletes slots the frozen board still draws, and the values §3 asks of
+ * them go with the slot: the photo band's caption bar (gap and its --pad-cap token)
+ * and the footer's legal block (the 900 gap of its two-column shell). Those entries
+ * are registered in REMOVED_BY_DOCX and judged by the same table the fidelity gates
+ * use (tools/fidelity-docx-removal.mjs) — a key back in the dictionaries, or named
+ * again under src/, fails this gate and names the node. A registration withholds a
+ * value only when §3 still asks for exactly that number at that tier and anchor; an
+ * entry that withholds nothing — a value §3 dropped, a token whose row no longer
+ * matters — is reported too, so the table cannot turn into a hole.
+ *
+ * Output: breakpoints=<n> values_checked=<n> missing=<n> removed=<n>
  *   followed by one line per missing expectation: section / tier / value / files.
  * A §3 table the parser cannot read in full is an error: numbers left unread
  * inside a parsed table are reported and fail, so the gate never passes on a
@@ -42,6 +52,8 @@
 import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+
+import { judgeRemovedByDocx } from "./fidelity-docx-removal.mjs";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
 const BLUEPRINT = join(ROOT, "docs", "BLUEPRINT.md");
@@ -60,6 +72,23 @@ const BLOCK_DIRS = {
   method: "Method",
   values: "Values",
   footer: "Footer",
+};
+
+/* docx-1027 删掉的槽位，键与三支 fidelity 同源（tools/fidelity-docx-removal.mjs 的 `{ keys, docx }`）。
+   本门禁另记它扣下的条目：`tokens` 是只为那块 DOM 才被消费的 §3.1 token，`values` 是逐块、逐档、
+   逐锚文的数字（`any` 即表里的「保持」；锚文就是 §3.3 那句话被读到的原文，如 `gap 24`）。 */
+const REMOVED_BY_DOCX = {
+  a6tTUe: {
+    keys: ["photoband.figcap", "photoband.altnote"],
+    docx: "docx-1027 第 3 条",
+    tokens: ["--pad-cap"],
+    values: { photoband: [["any", "gap 24"], [900, "gap 8"], [600, "gap 8"]] },
+  },
+  Q6Bqn: {
+    keys: ["footer.legal"],
+    docx: "docx-1027 第 10 条",
+    values: { footer: [[900, "gap 16"]] },
+  },
 };
 
 /** §3.1 / §3.2 token family -> the properties allowed to carry its value. */
@@ -202,6 +231,34 @@ const unread = [];
 const problems = [];
 let checked = 0;
 let breakpoints = 0;
+let removed = 0;
+
+/* The registrations that still hold, and the entries each one withholds. A stale one fails
+   here, so a key the docx deleted cannot quietly come back under a withheld value. */
+const { active: removedNodes, stale: staleRegistrations } = judgeRemovedByDocx(REMOVED_BY_DOCX, ROOT);
+problems.push(...staleRegistrations);
+const withheldTokens = new Map();
+const withheldValues = new Map();
+for (const node of removedNodes) {
+  for (const token of REMOVED_BY_DOCX[node].tokens ?? []) withheldTokens.set(token, node);
+  for (const [block, entries] of Object.entries(REMOVED_BY_DOCX[node].values ?? {})) {
+    const known = withheldValues.get(block) ?? [];
+    known.push(...entries.map(([tier, anchor]) => ({ node, tier, anchor, used: false })));
+    withheldValues.set(block, known);
+  }
+}
+
+/** Withholds one §3.3 number when a registration covers its block, tier and anchor text;
+    returns true when it did, so the caller skips the expectation instead of the loop. */
+function withheldNumber(block, tier, anchors) {
+  for (const entry of withheldValues.get(block) ?? []) {
+    if (entry.used || entry.tier !== tier || !anchors.has(entry.anchor)) continue;
+    entry.used = true;
+    removed += 1;
+    return true;
+  }
+  return false;
+}
 
 /** The four values of one row, desktop first: null = "does not shrink". */
 function rowValues(cells) {
@@ -325,6 +382,12 @@ for (const [heading, label] of [
       }
       const scoped = consumers(name);
       if (scoped.length === 0) {
+        const node = withheldTokens.get(name);
+        if (node !== undefined) {
+          removed += 1;
+          withheldTokens.delete(name);
+          continue;
+        }
         problems.push(
           `${label} ${name}: no section stylesheet consumes this token (var(${name})), so its tier values cannot be checked`,
         );
@@ -385,7 +448,7 @@ for (const cells of tableRows(sectionLines("### 3.3"))) {
       /* A statement that a size does not change ("11px 不缩") sets no tier value. */
       if (/不缩|不折|不变/.test(clause)) continue;
       const blank = [...clause];
-      const wanted = new Set();
+      const wanted = new Map();
       const tokenWanted = [];
       /* `--token N` names the token that must carry the number at this tier. */
       for (const match of clause.matchAll(ANCHORS[0])) {
@@ -395,14 +458,19 @@ for (const cells of tableRows(sectionLines("### 3.3"))) {
       for (const anchor of ANCHORS.slice(1)) {
         for (const match of blank.join("").matchAll(anchor)) {
           for (const group of match.slice(1)) {
-            if (group !== undefined && Number.isFinite(Number(group))) wanted.add(Number(group));
+            if (group === undefined || !Number.isFinite(Number(group))) continue;
+            const number = Number(group);
+            const anchors = wanted.get(number) ?? new Set();
+            anchors.add(match[0].replace(/\s+/g, " ").trim());
+            wanted.set(number, anchors);
           }
           for (let at = match.index; at < match.index + match[0].length; at += 1) blank[at] = " ";
         }
       }
       /* "…保持" / "同 …" restates the desktop value, so any tier proves it. */
       const scope = /保持|同/.test(clause) ? "any" : tier;
-      for (const number of wanted) {
+      for (const [number, anchors] of wanted) {
+        if (withheldNumber(block, scope, anchors)) continue;
         expect(`BLUEPRINT §3.3 ${block}`, scope, [number], section, null);
       }
       /* A `--token` number is held to that token's own carriers in this block. */
@@ -425,7 +493,24 @@ for (const cells of tableRows(sectionLines("### 3.3"))) {
 
 /* ---------------------------------------------------------------- report --- */
 
-console.log(`breakpoints=${breakpoints} values_checked=${checked} missing=${problems.length}`);
+/* An entry that withheld nothing means §3 no longer asks the deleted slot for that value:
+   the registration outlived its expectation, and it is reported rather than left as a
+   standing hole in the table. */
+for (const [token, node] of withheldTokens) {
+  problems.push(`REMOVED_BY_DOCX ${node}: ${token} is registered as removed, but its §3.1 row no longer needs a consumer`);
+}
+for (const [block, entries] of withheldValues) {
+  for (const entry of entries) {
+    if (!entry.used) {
+      problems.push(
+        `REMOVED_BY_DOCX ${entry.node}: "${entry.anchor}" ${block} @${entry.tier} is registered as removed, ` +
+          "but §3.3 no longer asks for it; revoke the entry",
+      );
+    }
+  }
+}
+
+console.log(`breakpoints=${breakpoints} values_checked=${checked} missing=${problems.length} removed=${removed}`);
 for (const line of problems) {
   console.error(`missing: ${line}`);
 }

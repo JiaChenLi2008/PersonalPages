@@ -13,6 +13,7 @@ import "./Values.css";
 const PAGE_LANG: Record<Locale, string> = { en: "en", zh: "zh-Hans" };
 
 type ValueCard = {
+  label: CopyKey;
   title: CopyKey;
   delay: 0 | 1 | 2 | 3;
 };
@@ -20,13 +21,13 @@ type ValueCard = {
 /** The four cards of ui.pen `Values`, in page order; each card's fill and ink pair comes from
     its design node through the nth-child block of Values.css. */
 const CARDS: ValueCard[] = [
-  { title: "values.card1", delay: 0 },
-  { title: "values.card2", delay: 1 },
-  { title: "values.card3", delay: 2 },
-  { title: "values.card4", delay: 3 },
+  { label: "values.label1", title: "values.card1", delay: 0 },
+  { label: "values.label2", title: "values.card2", delay: 1 },
+  { label: "values.label3", title: "values.card3", delay: 2 },
+  { label: "values.label4", title: "values.card4", delay: 3 },
 ];
 
-/** Values: four full-bleed cards, each a heading over the shared VALUE label. */
+/** Values: four full-bleed cards, each a heading over its own label. */
 export function Values() {
   const copy = useCopy();
   const { locale } = useLocale();
@@ -44,10 +45,10 @@ export function Values() {
         {CARDS.map((card) => (
           <Reveal as="li" key={card.title} delay={card.delay} className="values__card">
             <div className="values__card-inner motion-hover">
-              {/* The card's mark, the shared VALUE label, slides in (③), so the Reveal is
+              {/* The card's mark, its own label, slides in (③), so the Reveal is
                   the label's own element and the data-role marker moves inside it. */}
               <Reveal as="p" className="values__label motion-slide">
-                <span data-role="K">{t("values.label")}</span>
+                <span data-role="K">{t(card.label)}</span>
               </Reveal>
               <h2 className="values__title" data-role="T">
                 {t(card.title)}

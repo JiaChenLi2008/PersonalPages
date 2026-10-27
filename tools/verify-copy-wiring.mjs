@@ -20,7 +20,9 @@
  *      (dist/assets/*.js), i.e. the wiring survives bundling, and
  *   3. src/ still reaches at least MIN_REFERENCED keys, at least MIN_LITERAL_CALLS of
  *      them through a literal text("...") call, and every dictionary key src/ reaches
- *      nowhere is one of the dead keys docs/CHROME.md §4 registers.
+ *      nowhere is either one of the dead keys docs/CHROME.md §4 registers or one of the
+ *      data-source keys DATA_SOURCE exempts. Every other key still has to be reached by
+ *      src/.
  *
  * What 2 proves is narrower than its label suggests. src/i18n/copy.ts does
  * `import en from "../../docs/copy-en.json"`, so the whole dictionary is in the
@@ -35,14 +37,15 @@
  *   via_literal_call counts the keys shape 1 reaches; via_key_literal counts the
  *   keys only shape 2 reaches, i.e. the blind spot this check used to miss; the
  *   two add up to referenced.
- *   A second line `unreferenced=<n> of <total> dictionary keys ...` lists the keys no
- *   literal reaches, marking each one not registered in docs/CHROME.md §4 as
- *   [NOT REGISTERED]; a registered dead key is reported, an unregistered one fails.
+ *   A second line `unreferenced=<n> of <total> dictionary keys (data_source=<n>)` lists
+ *   the keys no literal reaches, marking each one that is neither registered in
+ *   docs/CHROME.md §4 nor exempt as a workbook data source as [NOT REGISTERED]; a
+ *   registered or exempt key is reported, an unregistered one fails.
  *
  * Usage: npm run build && node tools/verify-copy-wiring.mjs
  *        (exit 0 = wired, exit 1 = a key is missing, was never bundled, fell out of
- *         src/ without a docs/CHROME.md §4 entry, or a reached-key/text-call count
- *         dropped below its floor)
+ *         src/ without a docs/CHROME.md §4 entry or a workbook data-source exemption, or
+ *         a reached-key/text-call count dropped below its floor)
  * The script never builds for you: a missing dist/ is reported as a failure.
  */
 
@@ -91,6 +94,16 @@ const UNREFERENCED = [
      nothing renders it. docs/CHROME.md §4 carries the same entry. */
   "hero.btn1",
 ];
+
+/* Keys that are a data source rather than page copy: src/ renders none of them, but
+   tools/build-hospitals-xlsx.py writes them into public/media/shanghai-hospitals.xlsx and
+   tools/verify-hospitals-xlsx.py compares the workbook back against them (docx-1027 brief
+   §6, 第 4 条: the page keeps the download card only). The pattern names the twelve rows'
+   four cells one by one — no wildcard — and the exemption holds only while the reader
+   still reads that key shape; any other unreferenced key still fails. */
+const DATA_SOURCE_READER = join(ROOT, "tools", "build-hospitals-xlsx.py");
+const DATA_SOURCE = /^elder\.guide\.r(?:0[1-9]|1[0-2])\.(?:name|checkin|tests|tips)$/;
+const DATA_SOURCE_READ = "elder.guide.{row_id}.{suffix}";
 
 /** A text("literal-key") call; the lookbehind keeps e.g. context("...") out. */
 const TEXT_CALL = /(?<![\w$.])text\(\s*"([^"]+)"\s*\)/g;
@@ -164,7 +177,20 @@ const known = (key) => key in en && key in zh;
 const missing = keys.filter((key) => !known(key));
 const wired = keys.filter(known);
 const unreferenced = Object.keys(en).filter((key) => !keys.includes(key));
-const unregistered = unreferenced.filter((key) => !UNREFERENCED.includes(key));
+const dataSource = unreferenced.filter((key) => DATA_SOURCE.test(key));
+const unregistered = unreferenced.filter(
+  (key) => !UNREFERENCED.includes(key) && !DATA_SOURCE.test(key),
+);
+
+/* The exemption is only as good as its reader: if the workbook generator stops reading
+   that key shape, the keys are dead copy again and fall back into `unregistered`. */
+const dataSourceStale =
+  dataSource.length > 0 &&
+  !(existsSync(DATA_SOURCE_READER) &&
+    readFileSync(DATA_SOURCE_READER, "utf8").includes(DATA_SOURCE_READ));
+if (dataSourceStale) {
+  unregistered.push(...dataSource);
+}
 const belowFloor = keys.length < MIN_REFERENCED;
 const belowCallFloor = call.size < MIN_LITERAL_CALLS;
 
@@ -183,13 +209,26 @@ console.log(
     `via_literal_call=${call.size} via_key_literal=${shaped.size}`,
 );
 console.log(
-  `unreferenced=${unreferenced.length} of ${Object.keys(en).length} dictionary keys` +
+  `unreferenced=${unreferenced.length} of ${Object.keys(en).length} dictionary keys ` +
+    `(data_source=${dataSource.length})` +
     (unreferenced.length === 0
       ? ""
       : `: ${unreferenced
-          .map((key) => (UNREFERENCED.includes(key) ? key : `${key} [NOT REGISTERED]`))
+          .map((key) =>
+            UNREFERENCED.includes(key) || (DATA_SOURCE.test(key) && !dataSourceStale)
+              ? key
+              : `${key} [NOT REGISTERED]`,
+          )
           .join(", ")}`),
 );
+
+if (dataSourceStale) {
+  console.error(
+    `${dataSource.length} key(s) are exempt as a workbook data source, but ` +
+      `${relative(ROOT, DATA_SOURCE_READER)} no longer reads ${JSON.stringify(DATA_SOURCE_READ)}: ` +
+      "they are dead copy again — wire them up in src/, or retire them",
+  );
+}
 
 for (const key of unregistered) {
   console.error(

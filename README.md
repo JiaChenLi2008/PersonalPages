@@ -2,7 +2,7 @@
 
 Vite + React + TypeScript 静态站点。构建命令 `npm run build`（= `tsc --noEmit && vite build`），产物是 `dist/`——一份纯静态的 HTML / CSS / JS，可直接托管在任意静态主机上。部署路径**只有一条：GitHub Pages**。
 
-十一节（`nav` / `hero` / `photo-band` / `index` / `scholarly` / `elder` / `music` / `sport` / `method` / `values` / `footer`）的视觉与文案已全部实现，页面结构、设计 token、双语运行时与共享动效层均已就位：设计值由四条 `tools/fidelity-*.mjs` 对设计稿 `ui.pen` 逐条比对（本仓 `missing=0`），产物可直接部署。
+十一节（`nav` / `hero` / `photo-band` / `index` / `scholarly` / `elder` / `music` / `sport` / `method` / `values` / `footer`）的视觉与文案已全部实现，页面结构、设计 token、文案运行时与共享动效层均已就位：设计值由四条 `tools/fidelity-*.mjs` 对设计稿 `ui.pen` 逐条比对（本仓 `missing=0`），产物可直接部署。
 
 ## 环境
 
@@ -28,7 +28,7 @@ npm run typecheck               # src + vite.config.ts
 ```bash
 node tools/verify-tokens.mjs       # 设计 token 逐条比对设计稿数值
 python3 tools/verify-assets.py     # public/media 与 MANIFEST.json 逐条比对（表用 Pillow）
-python3 tools/verify-hospitals-xlsx.py  # 医院指南 xlsx：sheet / 表头 / 12 行逐字对齐字典 + 与生成器重算一致（纯标准库）
+python3 tools/verify-hospitals-xlsx.py  # 医院指南 xlsx：sheet / 表头（生成器字面量）/ 12 行逐字对齐字典 + 与生成器重算一致（纯标准库）
 python3 tools/verify-originals.py  # 灯箱放大档 public/media/original/ 与 src/lib/originals.ts 逐行一致（表用 Pillow）
 node tools/verify-deploy.mjs       # 部署配置门禁（GitHub Pages 单路径）
 node tools/verify-motion.mjs       # 动效层（冻结 token / 钩子 / 揭晓契约 / 禁用项 / 时长预算）
@@ -38,11 +38,11 @@ node tools/verify-head.mjs         # index.html 文档头与字典 hero.* 逐字
 node tools/verify-responsive.mjs   # 蓝图 §3 的响应式数值逐条比对
 node tools/verify-ssr-dom.mjs      # SSR 结构与无障碍属性（自跑 vite SSR 构建）
 node tools/verify-music-sport-dom.mjs  # Music/Sport 的 SSR DOM 事实（照片墙张数、履历表、12 格打击乐图名配对、4:3 图）
-node tools/verify-elder-guide.mjs  # 助老节的医院指南表：12 行 × 4 格逐字对字典、下载卡指向 xlsx、滚动区可键盘可达
-node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一份 SSR 产物）
+node tools/verify-elder-guide.mjs  # 助老节尾只留下载卡：节头在、xlsx 链接与字典标题对、无 table / role=region 壳 / guideTable 残留
+node tools/verify-lang-purity.mjs  # 英文纯度：EN 渲染（可见文本 + 可读属性）与静态 head 零 CJK（自建一份 SSR 产物）
 ```
 
-便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-hospitals-xlsx` / `verify-originals` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的七条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` / `verify-music-sport-dom.mjs` / `verify-elder-guide.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），`verify-lang-purity` 建两份（en / zh-Hans）故排最后。
+便宜的静态门禁先跑（fail fast）：`verify-tokens` / `verify-assets` / `verify-hospitals-xlsx` / `verify-originals` / `verify-deploy` / `verify-motion` 都只读 checkout。`npm run build` 之后的七条：`verify-copy-wiring.mjs` 读 `dist/assets`；`verify-head.mjs` / `verify-responsive.mjs` 只读 checkout 里的文件；`verify-ssr-dom.mjs` / `verify-music-sport-dom.mjs` / `verify-elder-guide.mjs` 与 `verify-lang-purity.mjs` 都用 Vite JS API 自建 SSR 产物到 `/tmp`（不读 `dist/`），`verify-lang-purity` 自建一份（en）SSR 产物，故排最后。
 
 ### 只在本地跑（CI 不跑，因为不自足）
 
@@ -54,14 +54,13 @@ node tools/verify-lang-purity.mjs  # 单语纯度（EN/ ZH 两模式各自建一
 | 四条 `tools/fidelity-*.mjs`（`nav-hero-photoband` / `index-method-values-footer` / `elder-music-sport` / `scholarly`） | 同上，另需仓库上级目录的 HIR 竞赛文书 PDF；缺输入时同样以 rc=2 单行报 `UNAVAILABLE:` 退出 |
 | `node tools/verify-render.mjs` | 连宿主浏览器 CDP 端点（默认 `127.0.0.1:9222`，可用 `CDP=` 覆盖）；CI 容器内没有浏览器，端点不可用时以 rc=2 明确退出而非静默通过 |
 | `node tools/verify-fonts.mjs` | 同上：靠 CDP `CSS.getPlatformFontsForNode` 读**实际选中**的字体族，端点不可用时以 rc=2 单行 `UNAVAILABLE:` 退出 |
-| `node tools/verify-lang-toggle.mjs` | 同上：其浏览器节同样依赖宿主 CDP 端点 |
 
 `verify-assets.py` 的非标准库依赖只有 Pillow：workflow 的该步骤先 `python3 -c "import PIL"`，缺了才 `python3 -m pip install --quiet pillow`（GitHub 的 ubuntu 镜像 `/etc/pip.conf` 已设 `break-system-packages`），镜像自带则一行也不装。
 
 本地跑全量（CI 十三条 + 上表）：
 
 ```bash
-node tools/verify-tokens.mjs && python3 tools/verify-assets.py && python3 tools/verify-hospitals-xlsx.py && node tools/verify-deploy.mjs && node tools/verify-motion.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && node tools/verify-music-sport-dom.mjs && node tools/verify-elder-guide.mjs && node tools/verify-lang-purity.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs && node tools/verify-lang-toggle.mjs
+node tools/verify-tokens.mjs && python3 tools/verify-assets.py && python3 tools/verify-hospitals-xlsx.py && node tools/verify-deploy.mjs && node tools/verify-motion.mjs && npm run build && node tools/verify-copy-wiring.mjs && node tools/verify-head.mjs && node tools/verify-responsive.mjs && node tools/verify-ssr-dom.mjs && node tools/verify-music-sport-dom.mjs && node tools/verify-elder-guide.mjs && node tools/verify-lang-purity.mjs && npx tsc --noEmit && node docs/verify-copy.mjs && for f in tools/fidelity-*.mjs; do node "$f"; done && node tools/verify-fonts.mjs && node tools/verify-render.mjs
 ```
 
 所有命令都以 rc=0 为准；rc=1 打印具体是哪一条断言不成立，rc=2 表示运行环境或仓外输入不可用（单行 `UNAVAILABLE:`，见下表）。
@@ -111,8 +110,8 @@ node tools/verify-tokens.mjs && python3 tools/verify-assets.py && python3 tools/
 ```
 src/
   styles/                tokens.css / global.css / motion.css / fonts.css（自托管 @font-face）
-  i18n/index.tsx         双语运行时（Locale 类型、LocaleProvider、useLocale）
-  i18n/lang.ts           语言状态（Lang、默认 zh-Hans；?lang= → localStorage → 默认 的解析与 <html lang> 同步）
+  i18n/index.tsx         文案运行时（Locale 类型、LocaleProvider、useLocale）
+  i18n/lang.ts           语言状态（Lang、默认 en；?lang= → localStorage → 默认 的解析与 <html lang> 同步；切换器已撤）
   i18n/copy.ts           文案访问（useCopy() → text() / langOf()，只读中心字典，不持有文案）
   lib/useInView.ts       IntersectionObserver 观察 + reduced-motion / SSR 降级
   components/primitives/ Section / Rule / TextRole / Reveal + primitives.css
@@ -124,8 +123,8 @@ docs/                    verify-copy.mjs / copy-en.json / copy-zh.json
 ```
 
 - 区块与 `data-section` 名一一对应（ui.pen 的十一节顺序）：`nav` / `hero` / `photo-band` / `index` / `scholarly` / `elder` / `music` / `sport` / `method` / `values` / `footer`。
-- 双语文案约定：全站文案在中心字典 `docs/copy-en.json` / `docs/copy-zh.json`（各 134 键），由组件经 `useCopy()`（`src/i18n/copy.ts`）以 `text("key")` / `langOf("key")` 消费；`src/i18n` 内不放任何文案。
-- locale 持久化用 localStorage 键 `jc-lang`（`src/i18n/lang.ts`），默认 `zh-Hans`，解析序 `?lang=` → localStorage → 默认；切换时同步 `<html lang>`（en / zh-Hans）。
+- 双语文案约定：全站文案在中心字典 `docs/copy-en.json` / `docs/copy-zh.json`（各 267 键），由组件经 `useCopy()`（`src/i18n/copy.ts`）以 `text("key")` / `langOf("key")` 消费；`src/i18n` 内不放任何文案。
+- locale 持久化用 localStorage 键 `jc-lang`（`src/i18n/lang.ts`），默认 `en`，解析序 `?lang=` → localStorage → 默认；站点锁英文（ZH/EN 切换器已撤，`?lang=` 仍可解析 zh-Hans，但不再是产品模式），解析时仍同步 `<html lang>`（en / zh-Hans）。
 
 ## 已知事项
 

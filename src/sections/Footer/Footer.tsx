@@ -12,7 +12,7 @@ import "./Footer.css";
 
 const PAGE_LANG: Record<Locale, string> = { en: "en", zh: "zh-Hans" };
 
-/** Footer: ink panel with the mail call to action and the rights line. */
+/** Footer: ink panel with the mail call to action. */
 export function Footer() {
   const copy = useCopy();
   const { locale } = useLocale();
@@ -27,7 +27,7 @@ export function Footer() {
   return (
     <footer id="footer" data-section="footer" aria-labelledby="footer-title" className="footer">
       {/* The footer closes the page's entrance chain, so it takes the last stagger tier. */}
-      <Reveal delay={3} className="footer__top">
+      <Reveal delay={3}>
         <div className="footer__contact">
           <h2 id="footer-title" className="footer__cta" data-role="T">
             {t("footer.cta")}
@@ -36,9 +36,6 @@ export function Footer() {
             {t("footer.mail")}
           </p>
         </div>
-        <p className="footer__legal" data-role="R">
-          {t("footer.legal")}
-        </p>
       </Reveal>
     </footer>
   );

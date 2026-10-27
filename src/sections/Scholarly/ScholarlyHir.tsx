@@ -207,9 +207,6 @@ export function ScholarlyHir() {
             <p className="scholarly__docTitle" lang={langOf("scholarly-hir.card.title")}>
               {text("scholarly-hir.card.title")}
             </p>
-            <p className="scholarly__meta" lang={langOf("scholarly.meta")}>
-              {text("scholarly.meta")}
-            </p>
           </div>
           <a
             className="scholarly__link"

@@ -1,8 +1,7 @@
-import { Fragment, useEffect, useRef, useState } from "react";
-import { useLang, type Lang } from "../../i18n/lang";
+import { useEffect, useRef, useState } from "react";
+import { useLang } from "../../i18n/lang";
 import { useCopy, type CopyKey } from "../../i18n/copy";
 import { Reveal } from "../../components/primitives/Reveal";
-import { swapLanguage } from "./langSwap";
 import "./Nav.css";
 
 /** Frozen nav order and its anchor targets (BLUEPRINT §2.2): no fifth item, no `values` entry. */
@@ -13,12 +12,6 @@ const ITEMS = [
   { id: "sport", no: "nav.item4.no", zh: "nav.item4.zh", en: "nav.item4.en" },
 ] as const satisfies readonly { id: string; no: CopyKey; zh: CopyKey; en: CopyKey }[];
 
-/** ui.pen `Lang` (F2SSib) holds both options at once: 中 (left) | EN (right). */
-const LANGS = [
-  { lang: "zh-Hans", label: "nav.lang.zh" },
-  { lang: "en", label: "nav.lang.en" },
-] as const satisfies readonly { lang: Lang; label: CopyKey }[];
-
 /** Clearance between the bar's bottom edge and a jumped-to heading (Nav.css adds the same 8px). */
 const ANCHOR_GAP = 8;
 
@@ -26,10 +19,10 @@ const ANCHOR_GAP = 8;
     but wraps below 900px, so the design token `--nav-h` only fixes the no-JS fallback. */
 const NAV_H_VAR = "--nav-h-measured";
 
-/** Site header: brand, the four numbered section links, the language toggle and the mail slot. */
+/** Site header: brand, the four numbered section links and the mail slot. */
 export function Nav() {
   const { text, langOf } = useCopy();
-  const { lang, setLang } = useLang();
+  const { lang } = useLang();
   const [current, setCurrent] = useState<string | null>(null);
   const [navHeight, setNavHeight] = useState(0);
   const header = useRef<HTMLElement>(null);
@@ -40,7 +33,7 @@ export function Nav() {
   /* One source for both offsets: the bar's measured height feeds Nav.css's
      `scroll-padding-top` (so an anchor jump lands below the wrapped bar) and the
      scroll-spy band below. Re-measured whenever the bar changes height — a viewport
-     resize, or the language switch rewrapping the labels. */
+     resize, or a page language the bar did not start in. */
   useEffect(() => {
     const element = header.current;
     if (element === null) {
@@ -124,27 +117,9 @@ export function Nav() {
             );
           })}
         </div>
-        <div className="nav__right">
-          <div className="nav__lang">
-            {LANGS.map((option) => (
-              <Fragment key={option.lang}>
-                {option.lang === "en" && <span className="nav__lang-div" aria-hidden="true" />}
-                <button
-                  type="button"
-                  className={`nav__lang-btn nav__lang-btn--${option.lang === "zh-Hans" ? "zh" : "en"} motion-hover`}
-                  aria-pressed={option.lang === lang}
-                  lang={copyLang(option.label)}
-                  onClick={() => swapLanguage(() => setLang(option.lang))}
-                >
-                  {text(option.label)}
-                </button>
-              </Fragment>
-            ))}
-          </div>
-          <span className="nav__mail" lang={copyLang("nav.mail")}>
-            {text("nav.mail")}
-          </span>
-        </div>
+        <span className="nav__mail" lang={copyLang("nav.mail")}>
+          {text("nav.mail")}
+        </span>
       </Reveal>
       <div className="nav__rule" aria-hidden="true" />
     </header>

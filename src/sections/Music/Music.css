@@ -111,6 +111,18 @@
   margin: 0;
 }
 
+/* docx item 5: the two lead-ins open their band, so their first line carries the emphasis —
+   the key weight in the page's own ink, and one size up on the résumé's. The block classes do
+   the selecting: copy and markup stay as they were. */
+.music__intro > p:first-child {
+  color: var(--c-ink);
+  font-weight: var(--fw-key);
+}
+
+.music__intro--resume > p:first-child {
+  font-size: var(--fs-14);
+}
+
 /* The résumé pair starts as far from the grid above as the table starts from it (32px), and
    its second line is the muted tail — the same key/value emphasis the section already uses. */
 .music__intro--resume {

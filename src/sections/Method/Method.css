@@ -11,15 +11,6 @@
   padding: var(--pad-section-y) var(--gutter-x);
 }
 
-.method [data-role="K"] {
-  margin: 0;
-  font-family: var(--ff-mono);
-  font-size: var(--fs-12);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-eyebrow);
-  color: var(--c-blue);
-}
-
 .method__title {
   margin: 0;
   font-family: var(--ff-sans-en);

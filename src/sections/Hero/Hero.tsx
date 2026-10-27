@@ -25,9 +25,6 @@ export function Hero() {
       <div className="hero__grid">
         {/* Entrance tiers (motion spec §2 hero): 标题 0 → 副标 1 → 键值 3. */}
         <Reveal once className="hero__left" delay={0}>
-          <p className="hero__eyebrow" lang={copyLang("hero.eyebrow")}>
-            {text("hero.eyebrow")}
-          </p>
           <h1 id="hero-title" className="hero__title">
             {/* One title, one element (single-side rendering, BLUEPRINT §6.4): the display
                 line in English, the Chinese main title in Chinese — the other side never
@@ -64,9 +61,16 @@ export function Hero() {
         </div>
       </div>
       <div className="hero__btns">
-        {/* The CV button was removed by user ruling: there is no CV PDF and no page for it to
-            open, so the row now carries the one real control. The label key `hero.btn1` stays in
-            both dictionaries, registered as a dead key in docs/CHROME.md §4. */}
+        {/* The CV is the page's own file: it opens in a tab of its own, out of this document. */}
+        <a
+          className="hero__btn hero__btn--solid motion-hover"
+          href="./media/cv.pdf"
+          target="_blank"
+          rel="noopener noreferrer"
+          lang={copyLang("hero.btn1")}
+        >
+          {text("hero.btn1")}
+        </a>
         {/* A real mail link: the address is the dictionary's mail slot — the same entry
             the page's JSON-LD carries (BLUEPRINT §5.1). */}
         <a

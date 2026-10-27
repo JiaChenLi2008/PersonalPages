@@ -28,12 +28,15 @@
  *      same scroll, an image the fast pass outran being brought into view once — a lazy
  *      image inside a closed slot is never requested at all
  *
- * at 1440 only, the two interactive pieces are exercised for real:
+ * at 1440 only, the reveal is exercised for real and the deleted switcher is held out:
  *
  *   8. the board reveal flips aria-expanded true → false over two clicks and the
  *      panel it controls gains height while open
- *   9. the language toggle rewrites <html lang> and the tab title, persists ?lang=,
- *      and a second click restores the previous language
+ *   9. docx-1027 第 6 条 deletes the ZH/EN switcher, so the page must not carry one
+ *      again: no `button[aria-pressed]` and no `#nav .nav__lang` in the rendered page.
+ *      A switcher that comes back fails here, and that failure is the cue to revoke
+ *      this reverse assertion and restore the toggle test it replaced (git history:
+ *      <html lang> + title + ?lang= on click, second click restores)
  *
  * Output: matrix=<w>×<langs> cells_checked=<n> overflow_cells=0 missing_blocks=0
  * offenders=0 clips_checked=<n> clips_closed=0 images_checked=<n> images_unloaded=0,
@@ -468,28 +471,19 @@ if (!revealBefore) {
   if (open.after <= open.before) fail(`1440: reveal panel did not grow on open (${open.before}px → ${open.after}px)`);
 }
 
-const toggles = await evalJs(`document.querySelectorAll("button[aria-pressed]").length`);
-if (!toggles) {
-  fail("1440: no button[aria-pressed] language toggle in the rendered page");
-} else {
-  const SNAP = `({ lang: document.documentElement.lang, title: document.title, nav1: (document.querySelector("#nav a") || {}).textContent, search: location.search })`;
-  const before = await evalJs(SNAP);
-  const clickOther = `(() => {
-    const t = [...document.querySelectorAll("button[aria-pressed]")].find((b) => b.getAttribute("aria-pressed") === "false");
-    if (!t) return { err: "no unpressed toggle button" };
-    t.click();
-    return new Promise((r) => setTimeout(() => r(${SNAP}), 700));
-  })()`;
-  const switched = await evalJs(clickOther);
-  const restored = await evalJs(clickOther);
-  if (switched.err) fail(`1440: ${switched.err}`);
-  else {
-    if (switched.lang === before.lang) fail(`1440: toggle click left <html lang> at ${before.lang}`);
-    if (switched.title === before.title) fail("1440: toggle click left the tab title unchanged");
-    if (!/lang=/.test(switched.search || "")) fail(`1440: toggle click did not persist ?lang= in the URL (search=${JSON.stringify(switched.search)})`);
-    if (restored.lang !== before.lang || restored.nav1 !== before.nav1)
-      fail(`1440: second toggle click did not restore ${before.lang}/${before.nav1} (got ${restored.lang}/${restored.nav1})`);
-  }
+/* docx-1027 第 6 条 撤下了 ZH/EN 切换器（`nav.lang.zh` / `nav.lang.en` 已从字典删除，Nav 里也没有
+   切换控件），所以原「1440 必须有 aria-pressed 语言按钮」这条判据反过来：切换器不得回归。若它
+   真的回来，先撤销本反向断言、取回 git 历史里的两击 toggle 测试，再放行 —— 不在这里默认跳过。 */
+const switcher = await evalJs(`({
+  pressed: document.querySelectorAll("button[aria-pressed]").length,
+  navLang: document.querySelectorAll("#nav .nav__lang").length,
+})`);
+if (switcher.pressed !== 0 || switcher.navLang !== 0) {
+  fail(
+    `1440: the docx-1027 第 6 条 language switcher is back in the rendered page ` +
+      `(button[aria-pressed]=${switcher.pressed}, #nav .nav__lang=${switcher.navLang}); ` +
+      "revoke this reverse assertion and restore the toggle test",
+  );
 }
 
 /* ---------- report + teardown ---------- */

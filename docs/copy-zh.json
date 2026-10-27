@@ -1,13 +1,13 @@
 {
   "nav.brand.name": {
-    "text": "嘉宸",
-    "src": "design-system.md#Nav",
-    "lang": "zh-Hans"
+    "text": "(Jay) Li Jiachen",
+    "src": "docx-1027-brief.md#段[13]",
+    "lang": "en"
   },
   "nav.brand.cn": {
-    "text": "嘉宸",
-    "src": "design-system.md#Nav",
-    "lang": "zh-Hans"
+    "text": "(Jay) Li Jiachen",
+    "src": "docx-1027-brief.md#段[13]",
+    "lang": "en"
   },
   "nav.mail": {
     "text": "jay_20080924@sina.com",
@@ -74,21 +74,6 @@
     "chrome": true,
     "lang": "en"
   },
-  "nav.lang.zh": {
-    "text": "中",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
-  "nav.lang.en": {
-    "text": "EN",
-    "chrome": true,
-    "lang": "en"
-  },
-  "hero.eyebrow": {
-    "text": "申请者 / 2027 秋 / 01",
-    "src": "design-system.md#Hero",
-    "lang": "zh-Hans"
-  },
   "hero.h1": {
     "text": "人生，\n尽在焦点。",
     "src": "design-system.md#Hero",
@@ -143,26 +128,6 @@
     "text": "邮件 ↗",
     "src": "design-system.md#Hero",
     "lang": "zh-Hans"
-  },
-  "photoband.figcap": {
-    "text": "图 01 — 实验台 / 21:9 图版",
-    "src": "design-system.md#PhotoBand",
-    "lang": "zh-Hans"
-  },
-  "photoband.altnote": {
-    "text": "替代文本：实验室研究场景 · WebP · 懒加载 · 固定宽高比",
-    "src": "design-system.md#PhotoBand",
-    "lang": "zh-Hans"
-  },
-  "index.head.eyebrow": {
-    "text": "索引 / 四个一级板块",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
-  "index.head.range": {
-    "text": "01 — 04 · 2024—2026",
-    "chrome": true,
-    "lang": "en"
   },
   "index.row1.title": {
     "text": "学术成果",
@@ -303,16 +268,6 @@
     "text": "https://2025.igem.wiki/subcat-shanghai/",
     "src": "content-brief.md#段[41]",
     "lang": "en"
-  },
-  "scholarly.figcap2": {
-    "text": "图 02 — iGEM",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
-  "scholarly.figcap3": {
-    "text": "图 03 — HIR",
-    "chrome": true,
-    "lang": "zh-Hans"
   },
   "scholarly-jhu.title": {
     "text": "约翰斯·霍普金斯大学夏校——解剖学与生理学课程",
@@ -504,11 +459,6 @@
     "src": "hir-essay.md#p1",
     "lang": "zh-Hans"
   },
-  "scholarly.meta": {
-    "text": "HIR · 哈佛国际评论",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
   "scholarly.linkPdf": {
     "text": "阅读全文 PDF ↗",
     "chrome": true,
@@ -584,50 +534,60 @@
     "src": "uirpen#Index.04 律动时刻.Body.D",
     "lang": "zh-Hans"
   },
-  "method.eyebrow": {
-    "text": "方法",
-    "src": "design-system.md#Columns",
-    "lang": "zh-Hans"
-  },
   "method.title": {
-    "text": "观察。重复。\n协作。",
-    "src": "design-system.md#Columns",
-    "lang": "zh-Hans"
+    "text": "INVESTIGATE.\nEXPRESS.\nSERVE.",
+    "src": "docx-1027-brief.md#段[6]",
+    "lang": "en"
   },
   "method.col1.title": {
-    "text": "观察",
-    "src": "design-system.md#Columns",
-    "lang": "zh-Hans"
+    "text": "Investigate",
+    "src": "docx-1027-brief.md#段[7]",
+    "lang": "en"
   },
   "method.col1.body": {
-    "text": "在显微镜下，也在球场上：先看清，再下结论。",
-    "src": "uirpen#Columns.Cols.观察.D",
-    "lang": "zh-Hans"
+    "text": "I explore the unknown—because science isn't just about results; it's about asking the right questions first.",
+    "src": "docx-1027-brief.md#段[8]",
+    "lang": "en"
   },
   "method.col2.title": {
-    "text": "重复",
-    "src": "design-system.md#Columns",
-    "lang": "zh-Hans"
+    "text": "Express",
+    "src": "docx-1027-brief.md#段[9]",
+    "lang": "en"
   },
   "method.col2.body": {
-    "text": "节拍与实验都靠重复：把一件小事做到可重现。",
-    "src": "uirpen#Columns.Cols.重复.D",
-    "lang": "zh-Hans"
+    "text": "Whether behind a drum kit or in a research lab, I create and express to make an impact. Ultimately, I believe our contribution is defined by the influence we create.",
+    "src": "docx-1027-brief.md#段[10]",
+    "lang": "en"
   },
   "method.col3.title": {
-    "text": "协作",
-    "src": "design-system.md#Columns",
-    "lang": "zh-Hans"
+    "text": "Serve",
+    "src": "docx-1027-brief.md#段[11]",
+    "lang": "en"
   },
   "method.col3.body": {
-    "text": "团队是我的第二实验室：信任比技术更难练。",
-    "src": "uirpen#Columns.Cols.协作.D",
-    "lang": "zh-Hans"
+    "text": "To serve is to turn knowledge into purpose. Whether in research or community care, my ultimate goal is to create lasting value for others.",
+    "src": "docx-1027-brief.md#段[12]",
+    "lang": "en"
   },
-  "values.label": {
-    "text": "价值",
-    "src": "design-system.md#Values",
-    "lang": "zh-Hans"
+  "values.label1": {
+    "text": "Unravel",
+    "src": "docx-1027-brief.md#段[2]",
+    "lang": "en"
+  },
+  "values.label2": {
+    "text": "Craft",
+    "src": "docx-1027-brief.md#段[3]",
+    "lang": "en"
+  },
+  "values.label3": {
+    "text": "Innovate",
+    "src": "docx-1027-brief.md#段[4]",
+    "lang": "en"
+  },
+  "values.label4": {
+    "text": "Connect",
+    "src": "docx-1027-brief.md#段[5]",
+    "lang": "en"
   },
   "values.card1": {
     "text": "生命",
@@ -658,11 +618,6 @@
     "text": "jay_20080924@sina.com",
     "src": "design-system.md#Footer",
     "lang": "en"
-  },
-  "footer.legal": {
-    "text": "© 2026 嘉宸\n生物学 / 医学 / 音乐 / 体育",
-    "src": "design-system.md#Footer",
-    "lang": "zh-Hans"
   },
   "scholarly-igem.fig1.alt": {
     "text": "实验台：戴手套的手在打开的笔记本旁装填凝胶。",
@@ -1104,35 +1059,10 @@
     "chrome": true,
     "lang": "zh-Hans"
   },
-  "elder.guide.head.hospital": {
-    "text": "医院",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
-  "elder.guide.head.checkin": {
-    "text": "签到方式",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
-  "elder.guide.head.tests": {
-    "text": "其他检查",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
-  "elder.guide.head.tips": {
-    "text": "避坑提示",
-    "chrome": true,
-    "lang": "zh-Hans"
-  },
   "elder.guide.title": {
-    "text": "上海就医导航",
-    "src": "docx-1023-brief.md#段[8]",
-    "lang": "zh-Hans"
-  },
-  "elder.guide.body": {
-    "text": "这是我们整理的就医流程指南——不必再在医院里绕来绕去。打开看看，也把你自己的避坑经验分享给我们！",
-    "src": "docx-1023-brief.md#段[9]",
-    "lang": "zh-Hans"
+    "text": "Shanghai Hospital Visit Guide: A Practical Walkthrough",
+    "src": "docx-1027-brief.md#段[1]",
+    "lang": "en"
   },
   "elder.guide.r01.name": {
     "text": "仁济医院",

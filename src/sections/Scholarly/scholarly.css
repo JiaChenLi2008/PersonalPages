@@ -317,13 +317,6 @@
   height: 100%;
 }
 
-.scholarly__cap {
-  color: var(--c-muted);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  letter-spacing: var(--ls-label);
-}
-
 /* ---- 01.2 JHU `EYW9F` + 01.3 Immunotherapy `H1VYtj` + 01.4 HIR `FMu2N` ----
    The reveal pair: the trigger is a real <button> (Enter/Space and focus for
    free), wired by src/lib/useRevealPanel.ts. The answer panel is that hook's
@@ -544,14 +537,6 @@
   font-size: 18px;
   font-weight: var(--fw-title);
   line-height: 1.5;
-}
-
-.scholarly__meta {
-  color: var(--c-muted);
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-figcap);
 }
 
 .scholarly__link {

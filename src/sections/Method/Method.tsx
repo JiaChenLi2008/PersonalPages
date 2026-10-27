@@ -39,10 +39,6 @@ export function Method() {
 
   return (
     <section id="method" data-section="method" aria-labelledby="method-title" className="method">
-      <p className="method__eyebrow" data-role="K">
-        {t("method.eyebrow")}
-      </p>
-
       <Reveal>
         <h2 id="method-title" className="method__title" data-role="T">
           {t("method.title")}

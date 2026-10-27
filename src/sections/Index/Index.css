@@ -8,42 +8,18 @@
 }
 
 .index__head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: var(--sp-8);
   padding-block-end: var(--pad-index-head);
 }
 
-/* docx page 1, segment [5] ("a bit bigger, colour is fine"): the section title owns a line of
-   its own above the mono eyebrow/range pair (`flex-basis: 100%` wraps it there), bigger
-   than the row titles' --fs-34 and in the accent blue. */
+/* docx page 1, segment [5] ("a bit bigger, colour is fine"): the section title owns the head,
+   bigger than the row titles' --fs-34 and in the accent blue. */
 .index__works {
-  flex: 1 0 100%;
   margin: 0;
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-48);
   font-weight: var(--fw-black);
   line-height: var(--lh-display-2);
   color: var(--c-blue);
-}
-
-.index [data-role="L"] {
-  margin: 0;
-  font-family: var(--ff-mono);
-  font-size: var(--fs-12);
-  font-weight: var(--fw-normal);
-  letter-spacing: var(--ls-eyebrow);
-  color: var(--c-ink);
-}
-
-.index [data-role="R"] {
-  margin: 0;
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  color: var(--c-muted);
 }
 
 .index__rows {

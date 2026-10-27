@@ -2,7 +2,8 @@
 """从 docs/copy-{zh,en}.json 生成 public/media/shanghai-hospitals.xlsx（纯标准库）。
 
 两份 sheet：中文（序号 | 医院 | 签到方式 | 其他检查 | 避坑提示）与 English（No. | Hospital |
-Check-in | Other tests | Tips），各 12 行，行值与表头文本一律取自字典，不在本文件里手抄。
+Check-in | Other tests | Tips），各 12 行，行值取字典 text，表头与序号是本文件的字面量（页内
+表格已撤，表头不再是字典键），不在本文件里手抄行值。
 
 用法：python3 tools/build-hospitals-xlsx.py [--write|--check]
   --write（默认）重算并落盘；--check 重算后与磁盘文件逐字节比较，不等 rc=1 并打印首个
@@ -19,15 +20,21 @@ ROOT = Path(__file__).resolve().parent.parent
 DOCS = ROOT / "docs"
 OUTPUT = ROOT / "public" / "media" / "shanghai-hospitals.xlsx"
 
-# (sheet 名, 字典侧, 序号列表头)。字典里没有「序号 / No.」这一列的键，故这两处是字面量。
+# (sheet 名, 字典侧, 序号列表头)。序号与四个表头都不是字典键（docx-1027 第 4 条撤掉页内
+# 表格后，elder.guide.head.* 已从字典删除），故这些字面量由本文件持有；行值仍逐字取字典。
 SHEETS = (("中文", "zh", "序号"), ("English", "en", "No."))
 ROW_IDS = tuple(f"r{index:02d}" for index in range(1, 13))
-# (行键后缀, 表头字典键, 列宽)。表头键的 name 列叫 hospital，故两列名不同名。
+# {字典侧: (医院, 签到方式, 其他检查, 避坑提示)}。
+HEADERS = {
+    "zh": ("医院", "签到方式", "其他检查", "避坑提示"),
+    "en": ("Hospital", "Check-in", "Other tests", "Tips"),
+}
+# (行键后缀, 列宽)。
 COLUMNS = (
-    ("name", "elder.guide.head.hospital", 26),
-    ("checkin", "elder.guide.head.checkin", 52),
-    ("tests", "elder.guide.head.tests", 30),
-    ("tips", "elder.guide.head.tips", 56),
+    ("name", 26),
+    ("checkin", 52),
+    ("tests", 30),
+    ("tips", 56),
 )
 SERIAL_WIDTH = 6
 SHEET_NAME_OF = {locale: name for name, locale, _ in SHEETS}
@@ -51,12 +58,12 @@ def load_copy(locale):
 
 
 def sheet_table(locale):
-    """(表头 5 列, 12 行 × 5 列)；序号列由行号生成，其余四列逐字取字典 text。"""
+    """(表头 5 列, 12 行 × 5 列)；序号与表头是本文件的字面量，四个行值逐字取字典 text。"""
     copy = load_copy(locale)
     serial_header = next(head for _, loc, head in SHEETS if loc == locale)
-    header = [serial_header] + [copy[head_key]["text"] for _, head_key, _ in COLUMNS]
+    header = [serial_header, *HEADERS[locale]]
     rows = [
-        [str(index)] + [copy[f"elder.guide.{row_id}.{suffix}"]["text"] for suffix, _, _ in COLUMNS]
+        [str(index)] + [copy[f"elder.guide.{row_id}.{suffix}"]["text"] for suffix, _ in COLUMNS]
         for index, row_id in enumerate(ROW_IDS, start=1)
     ]
     return header, rows
@@ -90,7 +97,7 @@ def row_xml(row_index, values, style):
 
 def sheet_xml(locale):
     header, rows = sheet_table(locale)
-    widths = [SERIAL_WIDTH] + [width for _, _, width in COLUMNS]
+    widths = [SERIAL_WIDTH] + [width for _, width in COLUMNS]
     cols = "".join(
         f'<col min="{index}" max="{index}" width="{width}" customWidth="1"/>'
         for index, width in enumerate(widths, start=1)

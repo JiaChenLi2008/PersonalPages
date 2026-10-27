@@ -10,7 +10,7 @@
 
 比对归一化口径：设计稿文本与字典比对时仅折叠大小写与空白。设计稿把 `Scholarly Pursuits`/`Sound & Soul` 等稿件英文名以全大写渲染（`SCHOLARLY PURSUITS`/`SOUND & SOUL`），属 text-transform 渲染样式；字典保留稿件原文大小写，不改写。
 
-## 1. chrome 清单（34 条）
+## 1. chrome 清单（23 条；空号是 docx-1027 撤除项，见本节末）
 
 | # | 字典键 | text | lang | 设计位置 | 判定 |
 |---|---|---|---|---|---|
@@ -18,43 +18,36 @@
 | 2 | `nav.item2.no` | 2 | `en` | Nav · Link 2 | 导航序号 |
 | 3 | `nav.item3.no` | 3 | `en` | Nav · Link 3 | 导航序号 |
 | 4 | `nav.item4.no` | 4 | `en` | Nav · Link 4 | 导航序号 |
-| 5 | `index.head.eyebrow` | INDEX / 四个一级板块 | `zh-Hans` | Index · Head | 索引页眉标注 |
-| 6 | `index.head.range` | 01 — 04 · 2024—2026 | `en` | Index · Head | 索引范围标注 |
 | 7 | `index.row1.no` | 01 | `en` | Index · 行1 | 行序号 |
 | 8 | `index.row2.no` | 02 | `en` | Index · 行2 | 行序号 |
 | 9 | `index.row3.no` | 03 | `en` | Index · 行3 | 行序号 |
 | 10 | `index.row4.no` | 04 | `en` | Index · 行4 | 行序号 |
 | 11 | `scholarly.kicker` | 01 / 学术成果 | `zh-Hans` | 01 学术成果 · Section · Head | 板块 kicker |
 | 12 | `scholarly-igem.no` | 01.1 | `en` | 01 学术成果 · Section · SubHead | 子板块编号 |
-| 13 | `scholarly.figcap2` | `FIG. 02 — iGEM`（zh：`图 02 — iGEM`） | `en` | 01 学术成果 · Section · Cap | 图注（board 串） |
-| 14 | `scholarly.figcap3` | `FIG. 03 — HIR`（zh：`图 03 — HIR`） | `en` | 01 学术成果 · Section · Cap | 图注（board 串） |
 | 15 | `scholarly-jhu.no` | 01.2 | `en` | 01 学术成果 · Section · SubHead | 子板块编号 |
 | 16 | `scholarly.revealTap` | TAP TO REVEAL | `en` | 01 学术成果 · Section · Hint | 交互提示 |
 | 17 | `scholarly-immuno.no` | 01.3 | `en` | 01 学术成果 · Section · SubHead | 子板块编号 |
 | 18 | `scholarly.revealSwipe` | SWIPE → REVEAL | `en` | 01 学术成果 · Section · Hint | 交互提示 |
 | 18a | `scholarly.revealClick` | Click to reveal. | `en` | 01 学术成果 · Section · Hint | 交互提示（docx-2026-10 段[6]，JHU 三问各一） |
 | 19 | `scholarly-hir.no` | 01.4 | `en` | 01 学术成果 · Section · SubHead | 子板块编号 |
-| 20 | `scholarly.meta` | HIR · Harvard International Review | `en` | 01 学术成果 · Section · Meta | 出处标签 |
 | 21 | `scholarly.linkPdf` | READ FULL PDF ↗ | `en` | 01 学术成果 · Section · Link | 链接文案 |
 | 22 | `elder.kicker` | 02 / 助老活动 | `zh-Hans` | 02 助老活动 · Section · Head | 板块 kicker |
 | 23 | `music.kicker` | 03 / 音乐时光 | `zh-Hans` | 03 音乐时光 · Section · Head | 板块 kicker |
 | 24 | `sport.kicker` | 04 / 律动时刻 | `zh-Hans` | 04 律动时刻 · Section · Head | 板块 kicker |
-| 25 | `nav.lang.zh` | 中 | `zh-Hans` | Nav · Row · Lang | 语言切换件选项 |
-| 26 | `nav.lang.en` | EN | `en` | Nav · Row · Lang | 语言切换件选项 |
 | 27 | `elder.guide.meta` | `SHANGHAI HOSPITAL GUIDE · XLSX`（zh：`上海就医指南 · Excel 表格`） | `en` | 02 助老活动 · Section · Guide · Meta | 文件出处标签（docx-1023 第 10 条的 XLSX 下载件） |
 | 28 | `elder.guide.download` | `DOWNLOAD XLSX ↗`（zh：`下载 XLSX ↗`） | `en` | 02 助老活动 · Section · Guide · Link | 下载文案 |
-| 29 | `elder.guide.head.hospital` | `Hospital`（zh：`医院`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
-| 30 | `elder.guide.head.checkin` | `Check-in`（zh：`签到方式`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
-| 31 | `elder.guide.head.tests` | `Other tests`（zh：`其他检查`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
-| 32 | `elder.guide.head.tips` | `Tips`（zh：`避坑提示`） | `en` | 02 助老活动 · Section · Guide · Table head | 表格表头 |
 | 33 | `photo.zoom` | `Click to view larger`（zh：`点击放大`） | `en` | 03 音乐时光 / 04 律动时刻 · Section · 照片墙按钮 | docx-1023 第 5 条：照片可点开放大，交互提示 |
 
-本表 34 条 = 冻版设计稿上逐节点可查的 26 条 chrome 键 + docx-2026-10 段[6] 新增的 `scholarly.revealClick` + docx-1023 第 10 条新增的 6 条指南 chrome 键（meta、download、4 个表头：表格列名与下载件标签由站点固定给，不属底稿原文，故记 chrome）+ docx-1023 第 5 条新增的照片墙交互提示 `photo.zoom`（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 40 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 除 `scholarly.revealClick`（docx-2026-10 段[6]，docx 原文 + 按「中英都上」定的中文）与上表 27–32 行的 6 条指南 chrome 键（docx-1023 第 10 条的下载件标签与表头，中英两串由用户给定）与 33 行的 `photo.zoom`（docx-1023 第 5 条的照片墙交互提示，中英两串由本 lane 按 chrome 键流程新增）外，全部取自冻版设计稿对应节点，未改写、未翻译。
+本表 23 条 = 冻版设计稿上逐节点可查的 19 条 chrome 键 + docx-2026-10 段[6] 新增的 `scholarly.revealClick` + docx-1023 第 10 条新增的 2 条指南 chrome 键（`elder.guide.meta`、`elder.guide.download`：下载件标签由站点固定给，不属底稿原文，故记 chrome）+ docx-1023 第 5 条新增的照片墙交互提示 `photo.zoom`（D2 收口撤除 `scholarly.imagePending`、`elder.contentPending` 两行：两者占位文本已无渲染者，字典条目一并删除，见 §4）。字典另有 6 条图片 alt 键（`scholarly-igem.fig1.alt`、`scholarly-igem.fig2.alt`、`scholarly-hir.fig.alt`、`elder.fig.alt`、`music.fig.alt`、`sport.fig.alt`，图片接线 lane 增补，未入本表）；`node docs/verify-copy.mjs` 实测 `chrome 29 条`，无一含 `src`（规则⑦逐条断言）。chrome 的 `text` 除 `scholarly.revealClick`（docx-2026-10 段[6]，docx 原文 + 按「中英都上」定的中文）与上表 27–28 行的 2 条指南下载件标签（docx-1023 第 10 条，中英两串由用户给定）与 33 行的 `photo.zoom`（docx-1023 第 5 条的照片墙交互提示，中英两串由本 lane 按 chrome 键流程新增）外，全部取自冻版设计稿对应节点，未改写、未翻译。
+
+**docx-1027 收口**（第 3 条删微标、第 4 条页内表格只留 xlsx 下载卡、第 6 条撤 ZH/EN 切换器）：上表删 11 行，空号不再补 —— 5/6/13/14/20 是随微标全删撤掉的 `index.head.eyebrow`、`index.head.range`、`scholarly.figcap2`、`scholarly.figcap3`、`scholarly.meta`（页面不再有 mono 小标）；25/26 是随切换器撤掉的 `nav.lang.zh`、`nav.lang.en`（站点锁英文）；29–32 是随页内 12 行表撤掉的 `elder.guide.head.hospital/checkin/tests/tips`（表头改由 `tools/build-hospitals-xlsx.py` 持字面量；行值仍取 48 个 `elder.guide.rNN.*` 数据键，`tools/verify-hospitals-xlsx.py` 照旧逐字对照）。
 
 对齐复核：设计稿 142 个非 ※ 文本节点去重为 105 串，与字典 `text` 集合的差集为空（101 串逐字命中、1 串由两条 CTA 首尾相接构成、3 串为稿件编号前缀被拆为独立节点的片段）；字典 138 键（en=zh），其中 src-traced 106 条、chrome 32 条（docx-2026-10 轮后 chrome 33 条，见下）。
 **docx-2026-10 轮之后的现状**：字典 **189 键**（en=zh；src-traced **156** 条 + chrome **33** 条：docx-2026-10 段[6] 的 `scholarly.revealClick` 为接线 lane 按 chrome 键流程新增并登记于 §1）；冻版设计稿上 5 串已被本轮新文案整句取代（`scholarly-hir.title` 与 Index 四行小字 `index.row1.body` … `index.row4.body`），故与 `ui.pen` 的差集**不再为空**——`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐（`tools/fidelity-scholarly.mjs` 因此 rc=1，见 `docs/GATES.md` §2 docx-2026-10 轮 ④）。
 
-**docx-1023 轮追加**：字典 **281 键**（en=zh；`node docs/verify-copy.mjs` 实测 src-traced **241** 条 + chrome **40** 条）。本轮新增 chrome 7 条已入上表 27–33 行（照片墙的 `photo.zoom` 见 33 行）；新增 src-traced 55 条（`elder.guide.title` / `.body`、`elder.guide.r01…r12` 各 4 字段共 48 条、`music.intro.p1…p3`、`music.resume.intro1/2`）溯源 `docx-1023-brief.md`；替换 3 条（`scholarly.revealSwipe` 改 `tap to reveal`、`music.body`、`sport.lead`，后两者见 §4）。
+**docx-1023 轮追加**：字典 **281 键**（en=zh；`node docs/verify-copy.mjs` 实测 src-traced **241** 条 + chrome **40** 条）。本轮新增 chrome 7 条已入上表 27–28 与 33 行（照片墙的 `photo.zoom` 见 33 行）；新增 src-traced 55 条（`elder.guide.title` / `.body`、`elder.guide.r01…r12` 各 4 字段共 48 条、`music.intro.p1…p3`、`music.resume.intro1/2`）溯源 `docx-1023-brief.md`；替换 3 条（`scholarly.revealSwipe` 改 `tap to reveal`、`music.body`、`sport.lead`，后两者见 §4）。
+
+**docx-1027 轮之后的现状**：字典 **267 键**（en=zh；`node docs/verify-copy.mjs` 实测 src-traced **238** 条 + chrome **29** 条，见上）。281 − 11（chrome，§1 空号）− 7（非 chrome：`hero.eyebrow`、`method.eyebrow`、`photoband.figcap`、`photoband.altnote`、`footer.legal`、`values.label` → 改为 `values.label1…4` 四条、`elder.guide.body`）+ 4 = 267。`elder.guide.r01…r12` 的 48 个行键保留：页面不渲染它们，由 `tools/build-hospitals-xlsx.py` 写入 xlsx、`tools/verify-hospitals-xlsx.py` 对照，故 `tools/verify-copy-wiring.mjs` 按「数据源」豁免，不算死键（§4）。
 
 ## 2. ※ 注解清单（7 条，不入典、不渲染）
 
@@ -85,7 +78,7 @@
 
 ## 4. 死键登记（2 条：字典有，src 无字面量引用）
 
-本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=5 of 188 dictionary keys`（字典 188 键、`referenced=183`、`via_literal_call=85`、`via_key_literal=98`）。其中 1 个是下表登记的 `sport.body`，另 4 个是 `docx-2026-10` 轮之后仍待 Index / Scholarly lane 接线的键（`index.head.title`、`scholarly-hir.lead1/2/3`）——它们是**待接线缺口，不是死键**，故不在本节登记，也不在 `UNREFERENCED` 白名单里（门禁仍会点名它们：该 4 条属其它 lane 的收口范围）。
+本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=49 of 267 dictionary keys (data_source=48)`（`referenced=218`、`via_literal_call=89`、`via_key_literal=129`）。49 个里 48 个是 docx-1027 撤掉页内表格后的 xlsx 底稿键（`elder.guide.r01…r12` 的 name/checkin/tests/tips，出处见 §1 末），门禁按 `DATA_SOURCE` 数据源豁免、不算死键；余下 1 个是下表登记的 `sport.body`。
 
 D2 收口把本节清空，五个原死键逐条处置如下。
 
