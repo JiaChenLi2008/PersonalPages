@@ -54,6 +54,12 @@
       "h": 2133,
       "w": 3200
     },
+    "docx-1028-image3.jpeg": {
+      "bytes": 116185,
+      "format": "JPEG",
+      "h": 1280,
+      "w": 1300
+    },
     "docx-image17.png": {
       "bytes": 1260305,
       "format": "PNG",
@@ -240,6 +246,28 @@
     "quality": 82,
     "src": "docx-image17.png",
     "w": 720
+  },
+  "hero-portrait-640.jpg": {
+    "aspect": 1.0,
+    "bytes": 44860,
+    "crop": "1x1",
+    "format": "jpg",
+    "h": 640,
+    "note": "Hero 右栏人像；docx-1028 附 image3.jpeg（1300×1280）取 y40 起 1240×1240 方框（顶部去掉 40px 壁面留白，底边贴原图下沿）再缩到 640×640",
+    "quality": 85,
+    "src": "docx-1028-image3.jpeg",
+    "w": 640
+  },
+  "hero-portrait-640.webp": {
+    "aspect": 1.0,
+    "bytes": 21318,
+    "crop": "1x1",
+    "format": "webp",
+    "h": 640,
+    "note": "Hero 右栏人像；docx-1028 附 image3.jpeg（1300×1280）取 y40 起 1240×1240 方框（顶部去掉 40px 壁面留白，底边贴原图下沿）再缩到 640×640",
+    "quality": 82,
+    "src": "docx-1028-image3.jpeg",
+    "w": 640
   },
   "hir-fig-2688.jpg": {
     "aspect": 3.2,

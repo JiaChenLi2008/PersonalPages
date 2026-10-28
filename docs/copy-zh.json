@@ -89,6 +89,26 @@
     "src": "uirpen#Hero.Grid.Right.D",
     "lang": "zh-Hans"
   },
+  "hero.line1": {
+    "text": "A future biologist with a sociological lens.",
+    "src": "docx-1028-brief.md#段[6]",
+    "lang": "en"
+  },
+  "hero.line2": {
+    "text": "A percussionist who speaks 12 instruments.",
+    "src": "docx-1028-brief.md#段[7]",
+    "lang": "en"
+  },
+  "hero.line3": {
+    "text": "A teammate who plays to grow, not just to win.",
+    "src": "docx-1028-brief.md#段[8]",
+    "lang": "en"
+  },
+  "hero.line4": {
+    "text": "Keep scrolling, and let's make some connections",
+    "src": "docx-1028-brief.md#段[9]",
+    "lang": "en"
+  },
   "hero.key.subject": {
     "text": "学科",
     "src": "design-system.md#Hero",
@@ -494,6 +514,21 @@
     "src": "uirpen#02 助老活动 · Section.Body.Col.KV 形式.V",
     "lang": "zh-Hans"
   },
+  "elder.essay.p1": {
+    "text": "As the eldest grandchild, I’ve been taking my grandparents to the hospital since high school. And let me tell you—it’s no walk in the park!",
+    "src": "docx-1028-brief.md#段[10]",
+    "lang": "en"
+  },
+  "elder.essay.p2": {
+    "text": "From confusing online booking systems that are tough for seniors to navigate, to the dizzying hospital procedures once you arrive, it’s clear they need extra help.",
+    "src": "docx-1028-brief.md#段[11]",
+    "lang": "en"
+  },
+  "elder.essay.p3": {
+    "text": "So, I compiled all the tips and workflows I’ve learned over the past 3 years into a guide. Feel free to use it if you need it!",
+    "src": "docx-1028-brief.md#段[12]",
+    "lang": "en"
+  },
   "music.title": {
     "text": "音乐时光",
     "src": "uirpen#Index.03 音乐时光.Body.Top.T",
@@ -570,44 +605,44 @@
     "lang": "en"
   },
   "values.label1": {
-    "text": "Unravel",
-    "src": "docx-1027-brief.md#段[2]",
+    "text": "VALUE",
+    "src": "docx-1028-brief.md#段[5]",
     "lang": "en"
   },
   "values.label2": {
-    "text": "Craft",
-    "src": "docx-1027-brief.md#段[3]",
+    "text": "VALUE",
+    "src": "docx-1028-brief.md#段[5]",
     "lang": "en"
   },
   "values.label3": {
-    "text": "Innovate",
-    "src": "docx-1027-brief.md#段[4]",
+    "text": "VALUE",
+    "src": "docx-1028-brief.md#段[5]",
     "lang": "en"
   },
   "values.label4": {
-    "text": "Connect",
-    "src": "docx-1027-brief.md#段[5]",
+    "text": "VALUE",
+    "src": "docx-1028-brief.md#段[5]",
     "lang": "en"
   },
   "values.card1": {
-    "text": "生命",
-    "src": "design-system.md#Values",
-    "lang": "zh-Hans"
+    "text": "Unravel",
+    "src": "docx-1028-brief.md#段[1]",
+    "lang": "en"
   },
   "values.card2": {
-    "text": "民生健康",
-    "src": "design-system.md#Values",
-    "lang": "zh-Hans"
+    "text": "Craft",
+    "src": "docx-1028-brief.md#段[2]",
+    "lang": "en"
   },
   "values.card3": {
-    "text": "尊严",
-    "src": "design-system.md#Values",
-    "lang": "zh-Hans"
+    "text": "Innovate",
+    "src": "docx-1028-brief.md#段[3]",
+    "lang": "en"
   },
   "values.card4": {
-    "text": "智慧",
-    "src": "design-system.md#Values",
-    "lang": "zh-Hans"
+    "text": "Connect",
+    "src": "docx-1028-brief.md#段[4]",
+    "lang": "en"
   },
   "footer.cta": {
     "text": "聊聊吧。",
