@@ -174,6 +174,12 @@
       "h": 710,
       "w": 1265
     },
+    "elder-fig-20261028.jpeg": {
+      "bytes": 494202,
+      "format": "JPEG",
+      "h": 695,
+      "w": 1600
+    },
     "image1.jpeg": {
       "bytes": 5480434,
       "format": "JPEG",
@@ -225,26 +231,26 @@
   },
   "elder-fig-720.jpg": {
     "aspect": 1.3333,
-    "bytes": 138796,
+    "bytes": 153540,
     "crop": "4x3",
     "format": "jpg",
     "h": 540,
     "nodeId": "Uh3XX",
-    "note": "Elder 右图；docx image17.png 4:3 中裁",
+    "note": "Elder 右图；2026-10-28 用户供图 1600×695 取左缘 924×693（4:3，保住两人面部）缩至 720×540",
     "quality": 85,
-    "src": "docx-image17.png",
+    "src": "elder-fig-20261028.jpeg",
     "w": 720
   },
   "elder-fig-720.webp": {
     "aspect": 1.3333,
-    "bytes": 124604,
+    "bytes": 143386,
     "crop": "4x3",
     "format": "webp",
     "h": 540,
     "nodeId": "Uh3XX",
-    "note": "Elder 右图；docx image17.png 4:3 中裁",
+    "note": "Elder 右图；2026-10-28 用户供图 1600×695 取左缘 924×693（4:3，保住两人面部）缩至 720×540",
     "quality": 82,
-    "src": "docx-image17.png",
+    "src": "elder-fig-20261028.jpeg",
     "w": 720
   },
   "hero-portrait-640.jpg": {
