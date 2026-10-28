@@ -49,12 +49,16 @@
   letter-spacing: var(--ls-none);
 }
 
-/* docx-1028 条目3: square portrait left, four intro lines right, top-aligned. The column's
-   14px gap is the board's own Right gap. */
+/* 车道 F（方案 A 大图单列）: the portrait stands above the four intro lines and is centred
+   in the column; the lines keep the column's full width and their left edges align. The
+   stacking gap is --sp-16 (user's ruling): the board's Right gap 14 spaced the lines from
+   the key-value block docx-1028 条目2 deleted, and is registered as respecified in
+   tools/fidelity-nav-hero-photoband.mjs (RESPECIFIED_BY_BRIEF). */
 .hero__right {
   display: flex;
-  align-items: flex-start;
-  gap: var(--sp-14);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-16);
   width: var(--col-hero-right);
 }
 
@@ -64,13 +68,19 @@
 
 .hero__portrait-media {
   display: block;
-  width: 120px;
+  width: 220px;
 }
 
 .hero__portrait-media img {
   display: block;
   max-width: 100%;
   height: auto;
+}
+
+/* The stack's second row: the four lines take the whole column (360px), so every line
+   starts at the same left edge and each one fits on a single line. */
+.hero__lines {
+  width: 100%;
 }
 
 /* The four lines replace the board's D block and keep its type: 15/1.95/--c-ink-body. */
@@ -83,18 +93,9 @@
   color: var(--c-ink-body);
 }
 
-/* Staggered indentation, one step per line (0/8/16/24, the spacing tokens); the last line
-   takes the serif italic the brief asks for as the block's one flourish. */
-.hero__line--2 {
-  margin-left: var(--sp-8);
-}
-
-.hero__line--3 {
-  margin-left: var(--sp-16);
-}
-
+/* The last line takes the serif italic the brief asks for as the block's one flourish;
+   the staggered indentation it used to carry is gone with the single-column layout. */
 .hero__line--4 {
-  margin-left: var(--sp-24);
   font-family: Georgia, "Times New Roman", serif;
   font-style: italic;
 }
@@ -157,16 +158,19 @@
     padding: var(--pad-hero-t900);
   }
 
-  /* One column: the portrait and its four lines move under the display block; the image
-     goes above the text. */
+  /* One column: the portrait and its four lines move under the display block, still
+     stacked and full width, with a smaller portrait. */
   .hero__grid {
     flex-direction: column;
     align-items: stretch;
   }
 
   .hero__right {
-    flex-direction: column;
     width: auto;
+  }
+
+  .hero__portrait-media {
+    width: 180px;
   }
 
   .hero__title-en {

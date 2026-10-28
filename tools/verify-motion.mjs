@@ -92,6 +92,7 @@ const ANIMATED_HOOKS = [
   ".reveal",
   ".motion-slide",
   ".motion-clip",
+  ".motion-type",
   ".motion-parallax",
   ".motion-hover",
   ".motion-answer",
@@ -144,12 +145,23 @@ const BUDGET_MS = 800;
  *
  * The docx asks for photographs that "依次滚动播放" (Music 页面6) and a scrolling wall
  * (Sport 页面7); a loop that restarts every 800ms would not read as a wall.
+ *
+ * `.motion-type` is the second registration and the only one that is not a loop: a line
+ * typed character by character needs 30ms a character to read as typing, which is 1200ms
+ * for a 40-character line — one pass cannot type four lines inside 800ms. The entry is
+ * held to the per-line duration it registers, so a second long animation in motion.css
+ * still fails.
  */
 const AMBIENT_ANIMATIONS = [
   {
     file: "src/components/PhotoStrip/PhotoStrip.css",
     name: "photo-strip-cycle",
     duration: "48s",
+  },
+  {
+    file: "src/styles/motion.css",
+    name: "motion-type",
+    duration: "1200ms",
   },
 ];
 

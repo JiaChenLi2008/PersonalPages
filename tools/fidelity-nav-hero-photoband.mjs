@@ -84,10 +84,14 @@ const SUPPLEMENTS = {
   hero: {
     padding: { values: [32, 24], why: "§3.1 --pad-hero tiers" },
     fontSize: { values: [98, 74, 60, 26, 20, 18], why: "§3.2 --fs-118 / --fs-30 tiers" },
-    gap: { values: [12, 24], why: "§2.11 button gap; §3.3 grid gap at ≤1200px" },
+    gap: {
+      values: [12, 16, 24],
+      why: "§2.11 button gap; §3.3 grid gap at ≤1200px; 车道 F 右栏纵向间距 --sp-16",
+    },
     width: {
-      values: [304, 120],
-      why: "§3.3 --col-hero-right at ≤1200px; 120px square portrait (docx-1028 条目3, brief 版式口径: 方图在左)",
+      values: [304, 220, 180, 100],
+      why:
+        "§3.3 --col-hero-right at ≤1200px; 车道 F 方案 A 人像 220 / ≤900 180，四行块 fill 右栏 (100%)",
     },
   },
   photoband: {
@@ -147,6 +151,23 @@ const MOVED_OUT_OF_HERO = [
     value: "#D8D4CC",
     to: "the colour of those four rules",
     anchor: HERO_KV_ANCHOR,
+  },
+];
+
+/**
+ * 车道 F（方案 A 大图单列）：用户把 Hero 右栏改成「人像在上、四行在下」的纵向堆叠，列间距定为
+ * --sp-16。冻版板上 TSfsg Right 的 gap 14 还在，但它隔开的是 D 文本与 docx-1028 条目2 已删的键值行：
+ * 它不是 REMOVED_BY_DOCX 的槽位（节点仍在），也不能靠 SUPPLEMENTS 放行（那张表只给声明方向加值），
+ * 于是登记在这里。两端都判：board 值 14 一旦回到 Hero 的声明（旧版式回来），或替代值 16 消失
+ * （间距没落地），本次运行都红。
+ */
+const RESPECIFIED_BY_BRIEF = [
+  {
+    nodes: ["TSfsg"],
+    group: "gap",
+    value: 14,
+    instead: 16,
+    why: "车道 F 方案 A: 右栏纵向堆叠，间距 --sp-16",
   },
 ];
 
@@ -360,6 +381,7 @@ if (heroKvBack) {
   }
 }
 const movedOut = new Set();
+const respecifiedOut = new Set();
 
 console.log(`pen=${penFile} bytes=${penBytes.length} sha256=${digest.slice(0, 16)}`);
 
@@ -395,6 +417,21 @@ for (const section of SECTIONS) {
         if (registration !== undefined) {
           movedOut.add(registration);
           movedCount += 1;
+          continue;
+        }
+        const respecified =
+          section.name === "hero"
+            ? RESPECIFIED_BY_BRIEF.find((entry) => entry.group === group && entry.value === value)
+            : undefined;
+        if (respecified !== undefined) {
+          respecifiedOut.add(respecified);
+          if (!(declared[group]?.values.has(respecified.instead) ?? false)) {
+            problems.push(
+              `respecified-by-brief ${respecified.nodes.join("/")}: ${section.dir} declares no ` +
+                `${group}=${respecified.instead} (${respecified.why}); the board's ${value} is withheld only ` +
+                `for the value that replaced it`,
+            );
+          }
           continue;
         }
         missing += 1;
@@ -439,6 +476,17 @@ if (!heroKvBack) {
           "from the board; the registration withholds nothing, revoke it",
       );
     }
+  }
+}
+
+/* The same rule for a value the user re-specified: once the board value is declared again,
+   the old layout is back and the registration has to travel with it. */
+for (const entry of RESPECIFIED_BY_BRIEF) {
+  if (!respecifiedOut.has(entry)) {
+    problems.push(
+      `respecified-by-brief ${entry.nodes.join("/")}: ${entry.group}=${entry.value} is declared, so the ` +
+        "registration withholds nothing; revoke it and restore the board value",
+    );
   }
 }
 
@@ -588,7 +636,7 @@ for (const problem of problems) console.error(problem);
    the count it does not trade so all three summaries carry both numbers. */
 console.log(
   `checked=${checked} missing=${missingTotal} out_of_range=${outOfRangeTotal} structure=${structureTotal} ` +
-    `removed=${removedTotal} moved=${movedTotal} superseded=0`,
+    `removed=${removedTotal} moved=${movedTotal} respecified=${respecifiedOut.size} superseded=0`,
 );
 
 process.exit(problems.length > 0 ? 1 : 0);

@@ -1,8 +1,9 @@
 /* Shared motion layer: the one place this site animates.
-   Six hooks live here — entrance (.reveal), section/index number slide-in
-   (.motion-slide), image mask sweep (.motion-clip), PhotoBand parallax
-   (.motion-parallax), pointer micro-motion (.motion-hover) and the reveal
-   skeleton (useRevealPanel.ts + [data-reveal-panel]).
+   Seven hooks live here — entrance (.reveal), section/index number slide-in
+   (.motion-slide), image mask sweep (.motion-clip), photo-band parallax
+   (.motion-parallax), pointer micro-motion (.motion-hover), the hero's per-line
+   typewriter (.motion-type) and the reveal skeleton (useRevealPanel.ts +
+   [data-reveal-panel]).
    Every timing value comes from the motion tokens in tokens.css; no component
    animates on its own outside this file. Frozen spec:
    .agents/briefs/motion-spec-frozen.md
@@ -63,6 +64,39 @@
 
 .motion-clip.is-in {
   clip-path: inset(0 0 0 0);
+}
+
+/* ---- Typewriter: each child line reveals character by character, one line after the
+   last (车道 F 方案 A: the hero's four intro lines). Only the clip edge moves, so the
+   text node stays whole and on one line, a screen reader reads the sentence in one
+   piece, and nothing is hidden until useInView adds `.is-in` — without JS the hook
+   never arms and the lines are plain text. 40 steps at 30ms is 1200ms a line; the
+   delays below run the four lines one after the other. */
+
+.motion-type.is-in > * {
+  animation: motion-type 1200ms steps(40, end) both;
+}
+
+.motion-type.is-in > *:nth-child(2) {
+  animation-delay: 1200ms;
+}
+
+.motion-type.is-in > *:nth-child(3) {
+  animation-delay: 2400ms;
+}
+
+.motion-type.is-in > *:nth-child(4) {
+  animation-delay: 3600ms;
+}
+
+@keyframes motion-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+
+  to {
+    clip-path: inset(0 0 0 0);
+  }
 }
 
 /* ---- PhotoBand parallax (travel = --parallax-factor × the element height) ----
@@ -208,6 +242,11 @@
   .motion-clip {
     clip-path: none;
     transition: none;
+  }
+
+  .motion-type > * {
+    animation: none;
+    clip-path: none;
   }
 
   .motion-parallax {

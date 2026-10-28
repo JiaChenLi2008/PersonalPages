@@ -32,9 +32,10 @@ export function Hero() {
           </h1>
         </Reveal>
         <div className="hero__right">
-          {/* docx-1028 条目3: the square portrait stands left of the four intro lines. It is
-              a decorative image — the title already names the person — so the box stays out
-              of the accessibility tree and the `<img>` carries the empty alt. */}
+          {/* docx-1028 条目3 + 车道 F 方案 A: the square portrait sits above the four intro
+              lines, centred in the column. It is a decorative image — the title already names
+              the person — so the box stays out of the accessibility tree and the `<img>`
+              carries the empty alt. */}
           <Reveal once className="hero__portrait" delay={1}>
             <picture className="hero__portrait-media" aria-hidden="true">
               <source type="image/webp" srcSet="./media/hero-portrait-640.webp" />
@@ -48,10 +49,10 @@ export function Hero() {
               />
             </picture>
           </Reveal>
-          <Reveal once className="hero__lines" delay={3}>
+          <Reveal once className="hero__lines motion-type" delay={3}>
             <p className="hero__line" lang={copyLang("hero.line1")}>{text("hero.line1")}</p>
-            <p className="hero__line hero__line--2" lang={copyLang("hero.line2")}>{text("hero.line2")}</p>
-            <p className="hero__line hero__line--3" lang={copyLang("hero.line3")}>{text("hero.line3")}</p>
+            <p className="hero__line" lang={copyLang("hero.line2")}>{text("hero.line2")}</p>
+            <p className="hero__line" lang={copyLang("hero.line3")}>{text("hero.line3")}</p>
             <p className="hero__line hero__line--4" lang={copyLang("hero.line4")}>{text("hero.line4")}</p>
           </Reveal>
         </div>
