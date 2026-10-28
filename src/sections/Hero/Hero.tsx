@@ -1,17 +1,11 @@
-import { Fragment } from "react";
 import { useLocale } from "../../i18n";
 import { useCopy, type CopyKey } from "../../i18n/copy";
 import { Reveal } from "../../components/primitives/Reveal";
+import { Photo } from "../../components/Photo/Photo";
 import "./Hero.css";
 
-/** The three key-value rows of `Hero.Grid.Right`, in ui.pen order. */
-const ROWS = [
-  { key: "hero.key.subject", value: "hero.val.subject" },
-  { key: "hero.key.instrument", value: "hero.val.instrument" },
-  { key: "hero.key.sport", value: "hero.val.sport" },
-] as const satisfies readonly { key: CopyKey; value: CopyKey }[];
-
-/** Hero: the page's single h1 in the left column, key-value column and two CTAs (ui.pen ZBhBS). */
+/** Hero: the page's single h1 in the left column, the portrait with its four intro lines on
+    the right, and two CTAs (ui.pen ZBhBS). */
 export function Hero() {
   const { text, langOf } = useCopy();
   const { locale } = useLocale();
@@ -23,7 +17,7 @@ export function Hero() {
   return (
     <section id="hero" data-section="hero" className="hero" aria-labelledby="hero-title">
       <div className="hero__grid">
-        {/* Entrance tiers (motion spec §2 hero): 标题 0 → 副标 1 → 键值 3. */}
+        {/* Entrance tiers (motion spec §2 hero): 标题 0 → 人像 1 → 四行 3. */}
         <Reveal once className="hero__left" delay={0}>
           <h1 id="hero-title" className="hero__title">
             {/* One title, one element (single-side rendering, BLUEPRINT §6.4): the display
@@ -38,25 +32,27 @@ export function Hero() {
           </h1>
         </Reveal>
         <div className="hero__right">
-          <Reveal once as="p" className="hero__summary" delay={1}>
-            {text("hero.summary")}
+          {/* docx-1028 条目3: the square portrait stands left of the four intro lines. It is
+              a decorative image — the title already names the person — so the box stays out
+              of the accessibility tree and the `<img>` carries the empty alt. */}
+          <Reveal once className="hero__portrait" delay={1}>
+            <picture className="hero__portrait-media" aria-hidden="true">
+              <source type="image/webp" srcSet="./media/hero-portrait-640.webp" />
+              <Photo
+                src="./media/hero-portrait-640.jpg"
+                alt=""
+                width={640}
+                height={640}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
           </Reveal>
-          {/* The rules travel with the key-value rows: they are one block on screen. */}
-          <Reveal once className="hero__kvgroup" delay={3}>
-            {ROWS.map((row) => (
-              <Fragment key={row.key}>
-                <div className="hero__rule" aria-hidden="true" />
-                <div className="hero__kv">
-                  <span className="hero__kv-key" lang={copyLang(row.key)}>
-                    {text(row.key)}
-                  </span>
-                  <span className="hero__kv-value" lang={copyLang(row.value)}>
-                    {text(row.value)}
-                  </span>
-                </div>
-              </Fragment>
-            ))}
-            <div className="hero__rule" aria-hidden="true" />
+          <Reveal once className="hero__lines" delay={3}>
+            <p className="hero__line" lang={copyLang("hero.line1")}>{text("hero.line1")}</p>
+            <p className="hero__line hero__line--2" lang={copyLang("hero.line2")}>{text("hero.line2")}</p>
+            <p className="hero__line hero__line--3" lang={copyLang("hero.line3")}>{text("hero.line3")}</p>
+            <p className="hero__line hero__line--4" lang={copyLang("hero.line4")}>{text("hero.line4")}</p>
           </Reveal>
         </div>
       </div>

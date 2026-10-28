@@ -35,6 +35,10 @@
  * become a permanent exemption. The nav's motion assertion counts the links that are left
  * (device ④ still applies to them) instead of the language buttons this docx removed.
  *
+ * docx-1028 条目2 deletes the hero's key-value block. Its six keys stay in both dictionaries
+ * (Music and the Sport gate still read them), so its four leftover board coverages cannot
+ * go through REMOVED_BY_DOCX; MOVED_OUT_OF_HERO holds them to the deleted DOM instead.
+ *
  * Usage: node tools/fidelity-nav-hero-photoband.mjs
  *        (exit 0 = aligned; exit 1 = missing / out-of-range / structure problem,
  *         each printed with its file and line)
@@ -81,7 +85,10 @@ const SUPPLEMENTS = {
     padding: { values: [32, 24], why: "§3.1 --pad-hero tiers" },
     fontSize: { values: [98, 74, 60, 26, 20, 18], why: "§3.2 --fs-118 / --fs-30 tiers" },
     gap: { values: [12, 24], why: "§2.11 button gap; §3.3 grid gap at ≤1200px" },
-    width: { values: [304], why: "§3.3 --col-hero-right at ≤1200px" },
+    width: {
+      values: [304, 120],
+      why: "§3.3 --col-hero-right at ≤1200px; 120px square portrait (docx-1028 条目3, brief 版式口径: 方图在左)",
+    },
   },
   photoband: {
     height: { values: [464, 352, 232, 150], why: "§3.3 band height tiers; 150% is the photo's parallax overhang" },
@@ -99,6 +106,49 @@ const REMOVED_BY_DOCX = {
   Rkenm: { keys: ["hero.eyebrow"], docx: "docx-1027 第 3 / 7 条" },
   a6tTUe: { keys: ["photoband.figcap", "photoband.altnote"], docx: "docx-1027 第 3 条" },
 };
+
+/* docx-1028 条目2 deletes the hero key-value block — the three K/V rows and the four rules
+   that framed them. Its six keys stay in both dictionaries: src/sections/Music/Music.tsx:150-154
+   renders Music's own row from hero.key.instrument / hero.val.instrument, and
+   tools/verify-music-sport-dom.mjs:650-653 reads hero.val.sport. That reuse is why the block
+   cannot go through REMOVED_BY_DOCX: tools/fidelity-docx-removal.mjs holds a registration only
+   while its keys are gone from both dictionaries and from src/, so this block's entry would be
+   stale by construction. The four board coverages it leaves behind are registered here
+   instead, each held to the deleted DOM's own absence (HERO_KV_ANCHOR): the moment Hero.tsx
+   renders any of those classes again, the run fails and names the node.
+   shortcut: the keys still carry `hero.*` names while their consumer is Music; renaming them
+   has to travel with Music in one batch. */
+const HERO_KV_ANCHOR = "no hero__kvgroup / hero__kv* / hero__rule class in Hero.tsx";
+const MOVED_OUT_OF_HERO = [
+  {
+    nodes: ["P0JC5", "BHCh5", "Fuv92"],
+    group: "fontSize",
+    value: 11,
+    to: "the K labels of the deleted key-value rows",
+    anchor: HERO_KV_ANCHOR,
+  },
+  {
+    nodes: ["P0JC5", "BHCh5", "Fuv92"],
+    group: "color",
+    value: "#6E6E6E",
+    to: "the muted colour of those K labels",
+    anchor: HERO_KV_ANCHOR,
+  },
+  {
+    nodes: ["FHyYV", "cY5ig", "CmuIH", "L36e2d"],
+    group: "height",
+    value: 1,
+    to: "the four hairline rules that framed the rows",
+    anchor: HERO_KV_ANCHOR,
+  },
+  {
+    nodes: ["FHyYV", "cY5ig", "CmuIH", "L36e2d"],
+    group: "color",
+    value: "#D8D4CC",
+    to: "the colour of those four rules",
+    anchor: HERO_KV_ANCHOR,
+  },
+];
 
 /** Design field -> assertion group. */
 const DESIGN_FIELDS = [
@@ -293,6 +343,23 @@ const { active: removedNodes, stale: staleRegistrations } = judgeRemovedByDocx(R
 const problems = [...staleRegistrations];
 let checked = 0;
 let removedTotal = 0;
+let movedTotal = 0;
+
+/* The deleted key-value block's anchor: Hero.tsx must not bring any of its classes back. */
+const heroKvMatch = source("src/sections/Hero/Hero.tsx").match(
+  /\bhero__(?:kvgroup|kv|kv-key|kv-value|rule)\b/,
+);
+const heroKvBack = heroKvMatch !== null;
+if (heroKvBack) {
+  for (const entry of MOVED_OUT_OF_HERO) {
+    problems.push(
+      `moved-out-of-hero ${entry.nodes.join("/")}: ${entry.group}=${entry.value} is registered as ` +
+        `deleted with the key-value block (docx-1028 条目2), but Hero.tsx carries ${heroKvMatch[0]} ` +
+        `again (anchor: ${entry.anchor}); revoke the registration and restore the assertion`,
+    );
+  }
+}
+const movedOut = new Set();
 
 console.log(`pen=${penFile} bytes=${penBytes.length} sha256=${digest.slice(0, 16)}`);
 
@@ -310,6 +377,7 @@ for (const section of SECTIONS) {
 
   let missing = 0;
   let outOfRange = 0;
+  let movedCount = 0;
 
   for (const message of unresolved) {
     problems.push(`unresolved token: ${message}`);
@@ -320,6 +388,15 @@ for (const section of SECTIONS) {
     for (const value of [...values].sort((a, b) => (a > b ? 1 : -1))) {
       checked += 1;
       if (!(declared[group]?.values.has(value) ?? false)) {
+        const registration =
+          section.name === "hero" && !heroKvBack
+            ? MOVED_OUT_OF_HERO.find((entry) => entry.group === group && entry.value === value)
+            : undefined;
+        if (registration !== undefined) {
+          movedOut.add(registration);
+          movedCount += 1;
+          continue;
+        }
         missing += 1;
         problems.push(`missing ${section.name} ${group}=${value} (no declaration in ${section.dir})`);
       }
@@ -346,9 +423,23 @@ for (const section of SECTIONS) {
   const designCount = Object.values(design).reduce((total, values) => total + values.size, 0);
   const removedCount = Object.values(removedDesign).reduce((total, values) => total + values.size, 0);
   removedTotal += removedCount;
+  movedTotal += movedCount;
   console.log(
-    `${section.name}: node=${section.node} design=${designCount} removed=${removedCount} missing=${missing} out_of_range=${outOfRange}`,
+    `${section.name}: node=${section.node} design=${designCount} removed=${removedCount} moved=${movedCount} missing=${missing} out_of_range=${outOfRange}`,
   );
+}
+
+/* A registration that withholds nothing is another way to widen the gate silently: every
+   MOVED_OUT_OF_HERO entry must have matched a board value that no declaration covers. */
+if (!heroKvBack) {
+  for (const entry of MOVED_OUT_OF_HERO) {
+    if (!movedOut.has(entry)) {
+      problems.push(
+        `moved-out-of-hero ${entry.nodes.join("/")}: ${entry.group}=${entry.value} is declared or absent ` +
+          "from the board; the registration withholds nothing, revoke it",
+      );
+    }
+  }
 }
 
 /* ---- the S1 wiring the design file cannot carry: photo slot, single-side text, timings ----
@@ -497,7 +588,7 @@ for (const problem of problems) console.error(problem);
    the count it does not trade so all three summaries carry both numbers. */
 console.log(
   `checked=${checked} missing=${missingTotal} out_of_range=${outOfRangeTotal} structure=${structureTotal} ` +
-    `removed=${removedTotal} superseded=0`,
+    `removed=${removedTotal} moved=${movedTotal} superseded=0`,
 );
 
 process.exit(problems.length > 0 ? 1 : 0);

@@ -64,11 +64,12 @@ const BLOCK_IDS = ["nav", "hero", "photoband", "index", "scholarly", "elder", "m
 
 /* Expected probe scale, per cell. The ten `.motion-clip` slots are photo-band's photo (1),
    scholarly's six figure slots (3 JHU puzzles + 2 iGEM + 1 HIR) and elder/music/sport's
-   three section figures (3); the fourteen `<img>` are the ten photos inside those slots plus
-   Index's four thumbnails. Both are asserted before the per-element loops: over an empty
-   probe result those loops pass vacuously, so a probe that measured nothing must fail here. */
+   three section figures (3); the fifteen `<img>` are the ten photos inside those slots plus
+   Hero's portrait and Index's four thumbnails. Both are asserted before the per-element
+   loops: over an empty probe result those loops pass vacuously, so a probe that measured
+   nothing must fail here. */
 const EXPECTED_CLIPS = 10;
-const MIN_IMAGES_PER_CELL = 14;
+const MIN_IMAGES_PER_CELL = 15;
 
 const failures = [];
 const fail = (message) => failures.push(message);

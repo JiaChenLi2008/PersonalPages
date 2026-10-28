@@ -1,5 +1,5 @@
-/* Hero (ui.pen ZBhBS): display column left, key-value column right, CTAs below the grid.
-   Values are the node's own, via tokens.css (BLUEPRINT §2.3). */
+/* Hero (ui.pen ZBhBS): display column left, the portrait with its four intro lines on the
+   right, CTAs below the grid. Values are the node's own, via tokens.css (BLUEPRINT §2.3). */
 
 .hero {
   display: flex;
@@ -49,21 +49,32 @@
   letter-spacing: var(--ls-none);
 }
 
+/* docx-1028 条目3: square portrait left, four intro lines right, top-aligned. The column's
+   14px gap is the board's own Right gap. */
 .hero__right {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
   gap: var(--sp-14);
   width: var(--col-hero-right);
 }
 
-/* The three key-value rows and their rules enter as one block (spec §2 hero, tier 3). */
-.hero__kvgroup {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-14);
+.hero__portrait {
+  flex: 0 0 auto;
 }
 
-.hero__summary {
+.hero__portrait-media {
+  display: block;
+  width: 120px;
+}
+
+.hero__portrait-media img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* The four lines replace the board's D block and keep its type: 15/1.95/--c-ink-body. */
+.hero__line {
   margin: 0;
   font-family: var(--ff-sans-cn);
   font-size: var(--fs-15);
@@ -72,29 +83,20 @@
   color: var(--c-ink-body);
 }
 
-.hero__rule {
-  height: var(--rule-h);
-  background: var(--c-rule);
+/* Staggered indentation, one step per line (0/8/16/24, the spacing tokens); the last line
+   takes the serif italic the brief asks for as the block's one flourish. */
+.hero__line--2 {
+  margin-left: var(--sp-8);
 }
 
-.hero__kv {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.hero__line--3 {
+  margin-left: var(--sp-16);
 }
 
-.hero__kv-key {
-  font-family: var(--ff-mono);
-  font-size: var(--fs-11);
-  font-weight: var(--fw-normal);
-  color: var(--c-muted);
-}
-
-.hero__kv-value {
-  font-family: var(--ff-sans-cn);
-  font-size: var(--fs-13);
-  font-weight: var(--fw-normal);
-  color: var(--c-ink);
+.hero__line--4 {
+  margin-left: var(--sp-24);
+  font-family: Georgia, "Times New Roman", serif;
+  font-style: italic;
 }
 
 .hero__btns {
@@ -155,13 +157,15 @@
     padding: var(--pad-hero-t900);
   }
 
-  /* One column: the key-value block moves under the display block. */
+  /* One column: the portrait and its four lines move under the display block; the image
+     goes above the text. */
   .hero__grid {
     flex-direction: column;
     align-items: stretch;
   }
 
   .hero__right {
+    flex-direction: column;
     width: auto;
   }
 
