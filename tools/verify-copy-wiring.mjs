@@ -93,6 +93,19 @@ const UNREFERENCED = [
      label stays in both dictionaries so the button can come back in one line once a CV exists;
      nothing renders it. docs/CHROME.md §4 carries the same entry. */
   "hero.btn1",
+  /* docx-1028 条目2 deletes the hero key-value block, so the subject pair has no renderer:
+     `hero.key.subject` / `hero.val.subject` are the board's historical K/V slots. The sport
+     pair is dead the same way, but `tools/verify-music-sport-dom.mjs:650-653` reads
+     `hero.val.sport` straight from the dictionary and `src/sections/Sport/Sport.css:73`
+     names both. All four stay in both dictionaries so the block can be restored in one line.
+     Retire each pair together — delete both keys and drop the matching MOVED_OUT_OF_HERO
+     rows in tools/fidelity-nav-hero-photoband.mjs — once Music and Sport move to their own
+     keys; that table anchors the deleted Hero DOM, so it must not outlive the keys.
+     docs/CHROME.md §4 carries the same entry. */
+  "hero.key.subject",
+  "hero.val.subject",
+  "hero.key.sport",
+  "hero.val.sport",
 ];
 
 /* Keys that are a data source rather than page copy: src/ renders none of them, but

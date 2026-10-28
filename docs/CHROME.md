@@ -76,9 +76,9 @@
 
 复核方法：同 viewport 量 `document.documentElement.scrollHeight`，与稿面全高 7433 相减；面板贡献逐块点开 `[aria-expanded="false"]` 后重测增量。
 
-## 4. 死键登记（2 条：字典有，src 无字面量引用）
+## 4. 死键登记（6 条：字典有，src 无字面量引用）
 
-本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=49 of 267 dictionary keys (data_source=48)`（`referenced=218`、`via_literal_call=89`、`via_key_literal=129`）。49 个里 48 个是 docx-1027 撤掉页内表格后的 xlsx 底稿键（`elder.guide.r01…r12` 的 name/checkin/tests/tips，出处见 §1 末），门禁按 `DATA_SOURCE` 数据源豁免、不算死键；余下 1 个是下表登记的 `sport.body`。
+本节供 `tools/verify-copy-wiring.mjs` 的未引用键白名单（`UNREFERENCED`）与人工复核对齐：白名单之外的未引用键是接线缺口（门禁 rc=1）；本节只登记现状，不含待办。实测口径：`node tools/verify-copy-wiring.mjs` 第二行 `unreferenced=53 of 274 dictionary keys (data_source=48)`（`referenced=221`、`via_literal_call=95`、`via_key_literal=126`）。53 个里 48 个是 docx-1027 撤掉页内表格后的 xlsx 底稿键（`elder.guide.r01…r12` 的 name/checkin/tests/tips，出处见 §1 末），门禁按 `DATA_SOURCE` 数据源豁免、不算死键；余下 5 个是下表登记的 `sport.body` 与 `hero.key.subject` / `hero.val.subject` / `hero.key.sport` / `hero.val.sport`。
 
 D2 收口把本节清空，五个原死键逐条处置如下。
 
@@ -89,10 +89,12 @@ D2 收口把本节清空，五个原死键逐条处置如下。
 | 3 | `elder.contentPending`（`Community volunteering` / `社区志愿服务`） | 删除（两字典一致） | `src/sections/Elder/**` 不消费该键；02 节内容由 `elder.pull` / `elder.kv.*` 承担，该键与 `elder.kv.v` 同文同 src、纯重复条目，不得接成渲染文案；§1 原第 24 行随之撤除 |
 | 4 | `sport.body`（`Football and badminton. …` / `足球与羽毛球。…`） | **保留键，不再渲染**（docx-2026-10 页面7 以 `sport.lead` 替换） | 用户裁决「新段替换旧句」：`sport.lead` 占据原 `sport.body` 在 pull 块的位置，旧句不上页面。键在两份字典里留着，将来改主意时一行即可恢复；`tools/verify-copy-wiring.mjs` 的 `UNREFERENCED` 已同步加入该键，否则 `unreferenced key is not registered as dead` 会 rc=1 |
 | 5 | `hero.btn1`（`VIEW CV ↗` / `查看简历 ↗`） | **保留键，不再渲染**（用户裁定去掉「查看简历」按钮） | 无 CV PDF，也就没有可打开的目标：`Hero.tsx` 的 `Btns` 行现在只承载实邮箱链接（`hero.btn2`），`.hero__btn--solid` 随之退役。键在两份字典里留着，将来有 CV 时一行即可恢复；`UNREFERENCED` 与 `MIN_LITERAL_CALLS`（77 → 76）同步改在本轮 |
+| 6 | `hero.key.subject`、`hero.val.subject` | **保留键，不再渲染**（docx-1028 条目2 删 Hero 自述块与三行键值） | 两键是 board 的历史 KEY/VALUE 槽位；Hero 的键值块已删，站内无渲染者。键留在两份字典里，将来恢复块时一行可取。退役条件：Sport/Music 两处若改用自有键，须整对删除，并在 `tools/fidelity-nav-hero-photoband.mjs` 的 `MOVED_OUT_OF_HERO` 表同步（该表以 Hero DOM 缺失为锚，登记失效会红） |
+| 7 | `hero.key.sport`、`hero.val.sport` | **保留键，不再渲染**（docx-1028 条目2 删 Hero 键值块；Sport 行已由 docx-1023 条目9 撤除） | 同上，board 的历史 KEY/VALUE 槽位；`tools/verify-music-sport-dom.mjs:650-653` 直接读字典断言 `hero.val.sport` 的文本不得回到 `#sport`，`src/sections/Sport/Sport.css:73` 注释指名两键。退役条件同第 6 行：Sport/Music 改用自有键后整对删除，并在 `MOVED_OUT_OF_HERO` 同步 |
 
 **docx-1023 的 board 串替换（非死键，不入上表）**：`music.body` 与 `sport.lead` 的 board 原串已被本轮整句取代——`music.body` 的 `src` 由 `uirpen#Index.03 音乐时光.Body.D` 改指 `docx-1023-brief.md#段[1]`，`sport.lead` 的由 `docx-2026-10-brief.md#段[26]` 改指 `docx-1023-brief.md#段[7]`；两键照旧渲染，故不在本节死键表内。`ui.pen` 音乐节正文仍留着 `music.body` 的旧 board 串（`ui.pen` 不在本 lane 可改路径内，接线 lane 更新设计稿后重新对齐，见 §1 差集说明）。
 
-白名单本身不改（本 lane 不动 `tools/verify-copy-wiring.mjs`）：其上 7 个名字现全部落在「已由字面串到达」（`scholarly.title.zh` 走 `Scholarly.tsx` 的 `text()` 调用，另三个见上表第 1 行）或「已随字典删除」（`scholarly-jhu.hint`、`scholarly-hir.card.file`、`elder.body`，前序 lane 已删）两侧，故 `unreferenced=0`。
+本 lane 只在 `UNREFERENCED` 白名单追加第 6、7 行的 4 个 Hero 键，既有条目与 `MIN_REFERENCED` / `MIN_LITERAL_CALLS` 判据未动；登记后 `node tools/verify-copy-wiring.mjs` rc=0。原白名单里 7 个旧名字仍全部落在「已由字面串到达」（`scholarly.title.zh` 走 `Scholarly.tsx` 的 `text()` 调用，另三个见上表第 1 行）或「已随字典删除」（`scholarly-jhu.hint`、`scholarly-hir.card.file`、`elder.body`，前序 lane 已删）两侧。
 
 另有两处 board↔字典的窄豁免登记在 `tools/fidelity-scholarly.mjs`（该门的总体归一化口径不变，`normalise` 对其余键仍只折叠大小写与空白）：`scholarly-igem.title` / `scholarly-jhu.q1` / `scholarly-jhu.q2` 三键的 board 串用全角标点、站点 EN 串按「EN 模式禁 CJK」用半角，故这三键折叠标点后比对；`scholarly-hir.title` 在 board 上是单节点混排（`HIR writing contest-哈佛国际评论学术写作竞赛`），站点按语言分侧，故该键按「board 串的两半分别落在对应侧的值里」比对（docx-2026-10 轮后该键换成纯英文原文＋中文译文，board 串两半不再命中任一侧，此豁免随之失效，见 `docs/GATES.md` §2）。
 

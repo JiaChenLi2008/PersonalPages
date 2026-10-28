@@ -464,7 +464,7 @@ HIR 第三节 lead 改绿字、四节名条去右侧重复标题且 kicker 14px/
 
 ### 3 `tools/verify-music-sport-dom.mjs`：Sport KV 不存在 + 节头单 span
 
-- 新增：`#sport` 内不得有 `.sport__kv`，也不得出现 `hero.val.sport` 的文本（键留给 Hero）；
+- 新增：`#sport` 内不得有 `.sport__kv`，也不得出现 `hero.val.sport` 的文本（Hero 已删该块，键转由 Music/Sport 消费：`hero.val.sport` 由本门禁读字典、`hero.key.sport` 见 `src/sections/Sport/Sport.css:73`；board 槽位的去向登记在 `tools/fidelity-nav-hero-photoband.mjs` 的 `MOVED_OUT_OF_HERO`，见 docx-1028 条目2）；
   Music/Sport 的 `h2.*__head` 内只能有一个 `<span>`（kicker），且不得有 `*__title-en` 类。
 - **正例**：rc=0（既有 PASS 行逐字未改）。
 - **应拒负例**：把 Sport KV 块加回 → rc=1，
