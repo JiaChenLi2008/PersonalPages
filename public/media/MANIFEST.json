@@ -174,10 +174,11 @@
       "h": 710,
       "w": 1265
     },
-    "elder-fig-20261028.jpeg": {
+    "hir-fig-20261028.jpeg": {
       "bytes": 494202,
       "format": "JPEG",
       "h": 695,
+      "sha256": "85f116b09f0cb4033890ec91bd3906fa121e2c180ab6febd0d6331472797e799",
       "w": 1600
     },
     "image1.jpeg": {
@@ -231,26 +232,26 @@
   },
   "elder-fig-720.jpg": {
     "aspect": 1.3333,
-    "bytes": 153540,
+    "bytes": 138796,
     "crop": "4x3",
     "format": "jpg",
     "h": 540,
     "nodeId": "Uh3XX",
-    "note": "Elder 右图；2026-10-28 用户供图 1600×695 取左缘 924×693（4:3，保住两人面部）缩至 720×540",
+    "note": "Elder 右图；docx image17.png 4:3 中裁",
     "quality": 85,
-    "src": "elder-fig-20261028.jpeg",
+    "src": "docx-image17.png",
     "w": 720
   },
   "elder-fig-720.webp": {
     "aspect": 1.3333,
-    "bytes": 143386,
+    "bytes": 124604,
     "crop": "4x3",
     "format": "webp",
     "h": 540,
     "nodeId": "Uh3XX",
-    "note": "Elder 右图；2026-10-28 用户供图 1600×695 取左缘 924×693（4:3，保住两人面部）缩至 720×540",
+    "note": "Elder 右图；docx image17.png 4:3 中裁",
     "quality": 82,
-    "src": "elder-fig-20261028.jpeg",
+    "src": "docx-image17.png",
     "w": 720
   },
   "hero-portrait-640.jpg": {
@@ -275,29 +276,29 @@
     "src": "docx-1028-image3.jpeg",
     "w": 640
   },
-  "hir-fig-2688.jpg": {
+  "hir-fig-1600.jpg": {
     "aspect": 3.2,
-    "bytes": 298557,
+    "bytes": 120969,
     "crop": "16x5",
     "format": "jpg",
-    "h": 840,
+    "h": 500,
     "nodeId": "T0FU1",
-    "note": "全幅宽图（白名单上限 320 KB）：docx-1027 换新照，源 5712×3213 取 y1428 起贴底 16:5 带再缩到 2688×840；树叶纹理密，320 KB 下 jpg 止于 q24",
-    "quality": 24,
-    "src": "微信图片_20261026191733_141_815.jpg",
-    "w": 2688
+    "note": "全幅宽图（白名单上限 320 KB）：2026-10-28 用户供图 1600×695 取贴底 16:5 带 1600×500（保住两人全身），按源原生宽定格，q32",
+    "quality": 32,
+    "src": "hir-fig-20261028.jpeg",
+    "w": 1600
   },
-  "hir-fig-2688.webp": {
+  "hir-fig-1600.webp": {
     "aspect": 3.2,
-    "bytes": 313570,
+    "bytes": 164386,
     "crop": "16x5",
     "format": "webp",
-    "h": 840,
+    "h": 500,
     "nodeId": "T0FU1",
-    "note": "全幅宽图（白名单上限 320 KB）：docx-1027 换新照，同 jpg 的 16:5 贴底裁切；320 KB 下 webp 止于 q18",
-    "quality": 18,
-    "src": "微信图片_20261026191733_141_815.jpg",
-    "w": 2688
+    "note": "全幅宽图（白名单上限 320 KB）：同 jpg 的 16:5 贴底裁切，q34",
+    "quality": 34,
+    "src": "hir-fig-20261028.jpeg",
+    "w": 1600
   },
   "igem-fig1-720.jpg": {
     "aspect": 1.3333,

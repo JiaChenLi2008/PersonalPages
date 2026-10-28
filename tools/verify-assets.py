@@ -24,7 +24,7 @@ FIELD_TYPES = {
 DERIVED = {
     "igem-fig1-720": ("u2okj", 720, 540),
     "igem-fig2-720": ("I2wlYa", 720, 540),
-    "hir-fig-2688": ("T0FU1", 2688, 840),
+    "hir-fig-1600": ("T0FU1", 1600, 500),
     "music-fig-720": ("vVdM9", 720, 540),
     "sport-fig-720": ("rWg3m", 720, 540),
     "elder-fig-720": ("Uh3XX", 720, 540),
@@ -35,10 +35,10 @@ DERIVED = {
 }
 DERIVED_MAX_BYTES = 250 * 1024
 # 全幅宽图（通栏、无左右留白，像素最密）单文件上限放宽到 320 KB，**只对下列白名单**生效；
-# 其余图位一律仍判 250 KB。hir-fig-2688 受限旧值只能压到 q23（画质偏软），故按此上限
-# 重编为 jpg q32 / webp q36；photoband-2880（另一张全幅宽图）同样上限，现文件远低于此值。
+# 其余图位一律仍判 250 KB。hir-fig-1600 按 2026-10-28 供图的原生宽定格（q32/q34，实测远低于上限）；
+# photoband-2880（另一张全幅宽图）同样上限，现文件远低于此值。
 FULL_BLEED_MAX_BYTES = 320 * 1024
-FULL_BLEED = {"hir-fig-2688", "photoband-2880"}
+FULL_BLEED = {"hir-fig-1600", "photoband-2880"}
 BLANK_STDDEV_SUM = 5  # RGB 三通道标准差之和 <= 此值即为空白/占位图
 SOURCE_ORIGINALS = {"image1.jpeg", "image2.jpeg", "image3.jpeg"}
 NON_DERIVED = {

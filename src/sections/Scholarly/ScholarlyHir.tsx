@@ -56,16 +56,16 @@ export function ScholarlyHir() {
       <Rule variant="hairline" />
 
       <div className="scholarly__body scholarly__body--hir motion-reveal-group">
-        {/* The figure does not open: its file is ui.pen's own 2688×840 asset and the zip holds
-            no master for it (BLUEPRINT §6.3 keeps the box decorative). */}
+        {/* The figure does not open: the box stays decorative (BLUEPRINT §6.3) and its file
+            is a 1600×500 crop of the 2026-10-28 user photo, not a zip master. */}
         <div className="scholarly__media scholarly__media--hir">
           <Reveal className="scholarly__clip motion-clip">
             <Photo
               className="scholarly__photo"
-              src="./media/hir-fig-2688.webp"
+              src="./media/hir-fig-1600.webp"
               alt={text("scholarly-hir.fig.alt")}
-              width={2688}
-              height={840}
+              width={1600}
+              height={500}
               loading="lazy"
               decoding="async"
             />

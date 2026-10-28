@@ -733,12 +733,12 @@ for (const name of PHOTOS) {
 
 /* The three slots the image-wiring lane filled (`.agents/briefs/image-wiring-map.md`
    §2.3–§2.5): each is a MANIFEST derivative of the board's own media node — 720×540 for
-   the two 4:3 iGEM figures, 2688×840 for the 16:5 HIR figure — rendered at that native
+   the two 4:3 iGEM figures, 1600×500 for the 16:5 HIR figure — rendered at that native
    size with the alt key T3b added for the slot. */
 const FIGURES = [
   { file: "igem-fig1-720.webp", node: "u2okj", width: 720, height: 540, altKey: "scholarly-igem.fig1.alt" },
   { file: "igem-fig2-720.webp", node: "I2wlYa", width: 720, height: 540, altKey: "scholarly-igem.fig2.alt" },
-  { file: "hir-fig-2688.webp", node: "T0FU1", width: 2688, height: 840, altKey: "scholarly-hir.fig.alt" },
+  { file: "hir-fig-1600.webp", node: "T0FU1", width: 1600, height: 500, altKey: "scholarly-hir.fig.alt" },
 ];
 for (const figure of FIGURES) {
   checked += 1;
