@@ -14,8 +14,8 @@
  * Asserted, at 1440px in the default language:
  *
  *   1. every node whose declared stack starts with a Latin design family
- *      (.hero__title-en, .footer [data-role="T"] for Inter; .hero__eyebrow,
- *      .scholarly__onum for IBM Plex Mono) is painted by that family with
+ *      (.hero__title-en, .footer [data-role="T"] for Inter; .scholarly__onum
+ *      for IBM Plex Mono) is painted by that family with
  *      isCustomFont true — i.e. the woff2 really was fetched and used, not a fallback
  *   2. the CJK nodes (.hero__title-cn, .scholarly__qtext) are painted by a system CJK
  *      family with isCustomFont false, never by Inter or IBM Plex Mono
@@ -52,7 +52,8 @@ const CDP_HTTP = process.env.CDP || "http://127.0.0.1:9222";
 /** Latin nodes: the family the design declares first, and the selectors gated on it. */
 const LATIN_NODES = [
   { family: "Inter", selectors: [".hero__title-en", '.footer [data-role="T"]'] },
-  { family: "IBM Plex Mono", selectors: [".hero__eyebrow", ".scholarly__onum"] },
+  /** `.hero__eyebrow` 由 docx-1027 删除，抽样随之退役（docx-1028 收官）。 */
+  { family: "IBM Plex Mono", selectors: [".scholarly__onum"] },
 ];
 /** CJK nodes: must stay on a system CJK face, never on the two Latin families. */
 const CJK_SELECTORS = [".scholarly__qtext"];
