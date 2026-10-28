@@ -400,7 +400,6 @@ const GEOMETRY = [
   { node: "t95cb", property: "gap", selector: ".scholarly__question--hir", declaration: "gap: var(--sp-10);" },
   { node: "ac84L", property: "gap", selector: ".scholarly__question--hir", declaration: "gap: var(--sp-10);" },
   { node: "mphJ7", property: "gap", selector: ".scholarly__question--hir", declaration: "gap: var(--sp-10);" },
-  { node: "T0FU1", property: "height", selector: ".scholarly__media--hir", declaration: "height: 420px;" },
   { node: "k7ToY", property: "padding", selector: ".scholarly__panel--hir", declaration: "padding: var(--sp-16) var(--sp-18);" },
   { node: "aNRvK", property: "gap", selector: ".scholarly__pull", declaration: "gap: var(--sp-10);" },
   { node: "aNRvK", property: "padding", selector: ".scholarly__pull", declaration: "padding: 6px 0;" },
@@ -526,15 +525,19 @@ for (const ratio of RATIOS) {
 }
 const hirMedia = pen("T0FU1");
 if (hirMedia !== undefined) {
+  /* The board freezes `T0FU1` at 1344×420 (16:5), but the 2026-10-28 user ruling shows the
+     photo whole: the slot now takes the file's native 1600×695 ratio instead of a fixed
+     design height. The check moves with the ruling — exact ratio in the CSS, and a fixed
+     height that would crop the frame again is itself a failure. */
   checked += 1;
-  const declaredHeight = declaration(declarationsOf(".scholarly__media--hir"), "height");
-  assertNumbers("[ratio] T0FU1 height", hirMedia.height, declaredHeight ?? "");
-  const fullWidth = BOARD_WIDTH - 2 * framePaddingX;
-  if (Math.abs(fullWidth / hirMedia.height - 21 / 9) > 0.01) {
-    console.log(
-      `note: ${hirMedia.id} is named 21:9 but its frozen box is ${fullWidth}×${hirMedia.height} ` +
-        `= ${(fullWidth / hirMedia.height).toFixed(3)}:1 — the section builds the box (BLUEPRINT §5 #8).`,
-    );
+  const hirCss = declarationsOf(".scholarly__media--hir");
+  const hirRatio = declaration(hirCss, "aspect-ratio");
+  if (hirRatio !== "1600 / 695") {
+    fail(`[ratio] .scholarly__media--hir aspect-ratio ${JSON.stringify(hirRatio)} != 1600 / 695`);
+  }
+  const hirHeight = declaration(hirCss, "height");
+  if (hirHeight !== null) {
+    fail(`[ratio] .scholarly__media--hir pins height ${JSON.stringify(hirHeight)}; the whole 1600×695 frame must show`);
   }
 }
 
@@ -733,12 +736,12 @@ for (const name of PHOTOS) {
 
 /* The three slots the image-wiring lane filled (`.agents/briefs/image-wiring-map.md`
    §2.3–§2.5): each is a MANIFEST derivative of the board's own media node — 720×540 for
-   the two 4:3 iGEM figures, 1600×500 for the 16:5 HIR figure — rendered at that native
+   the two 4:3 iGEM figures, 1600×695 for the full-frame HIR figure — rendered at that native
    size with the alt key T3b added for the slot. */
 const FIGURES = [
   { file: "igem-fig1-720.webp", node: "u2okj", width: 720, height: 540, altKey: "scholarly-igem.fig1.alt" },
   { file: "igem-fig2-720.webp", node: "I2wlYa", width: 720, height: 540, altKey: "scholarly-igem.fig2.alt" },
-  { file: "hir-fig-1600.webp", node: "T0FU1", width: 1600, height: 500, altKey: "scholarly-hir.fig.alt" },
+  { file: "hir-fig-1600x695.webp", node: "T0FU1", width: 1600, height: 695, altKey: "scholarly-hir.fig.alt" },
 ];
 for (const figure of FIGURES) {
   checked += 1;

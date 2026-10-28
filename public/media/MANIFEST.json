@@ -276,27 +276,27 @@
     "src": "docx-1028-image3.jpeg",
     "w": 640
   },
-  "hir-fig-1600.jpg": {
-    "aspect": 3.2,
-    "bytes": 120969,
-    "crop": "16x5",
+  "hir-fig-1600x695.jpg": {
+    "aspect": 2.3022,
+    "bytes": 317849,
+    "crop": null,
     "format": "jpg",
-    "h": 500,
+    "h": 695,
     "nodeId": "T0FU1",
-    "note": "全幅宽图（白名单上限 320 KB）：2026-10-28 用户供图 1600×695 取贴底 16:5 带 1600×500（保住两人全身），按源原生宽定格，q32",
-    "quality": 32,
+    "note": "全幅宽图（白名单上限 320 KB）：2026-10-28 用户供图 1600×695 原幅不裁切（用户裁定），q69",
+    "quality": 69,
     "src": "hir-fig-20261028.jpeg",
     "w": 1600
   },
-  "hir-fig-1600.webp": {
-    "aspect": 3.2,
-    "bytes": 164386,
-    "crop": "16x5",
+  "hir-fig-1600x695.webp": {
+    "aspect": 2.3022,
+    "bytes": 322982,
+    "crop": null,
     "format": "webp",
-    "h": 500,
+    "h": 695,
     "nodeId": "T0FU1",
-    "note": "全幅宽图（白名单上限 320 KB）：同 jpg 的 16:5 贴底裁切，q34",
-    "quality": 34,
+    "note": "全幅宽图（白名单上限 320 KB）：同 jpg 的 1600×695 全幅，q61",
+    "quality": 61,
     "src": "hir-fig-20261028.jpeg",
     "w": 1600
   },
