@@ -527,7 +527,7 @@ if (JSON.stringify(langAttrs) !== JSON.stringify(["en"])) {
 const FIGURES = [
   { src: "media/igem-fig1-720.webp", width: 720, height: 540, altKey: "scholarly-igem.fig1.alt" },
   { src: "media/igem-fig2-720.webp", width: 720, height: 540, altKey: "scholarly-igem.fig2.alt" },
-  { src: "media/hir-fig-1600x695.webp", width: 1600, height: 695, altKey: "scholarly-hir.fig.alt" },
+  { src: "media/hir-fig-1600x400.webp", width: 1600, height: 400, altKey: "scholarly-hir.fig.alt" },
 ];
 const photos = tagsOf("img");
 if (photos.length !== FIGURES.length + 3) {

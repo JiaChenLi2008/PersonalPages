@@ -20,11 +20,11 @@ FIELD_TYPES = {
 }
 # ui.pen 图位派生图：base -> (nodeId, 目标宽, 目标高)。
 # crop 标签按设计框实测比例命名（FvW5q 框 1440x560=18:7）；节点名虽写 21:9，实际宽高比不是 21:9，
-# 故不落在 ⑦ 的 21x9 比例判据上。HIR（T0FU1）自 2026-10-28 用户裁定起用原幅不裁切，crop 记 null。
+# 故不落在 ⑦ 的 21x9 比例判据上。HIR（T0FU1）自 2026-10-28 用户裁定起取原幅 y275–675 全幅裁切，crop 记所得比例 4x1。
 DERIVED = {
     "igem-fig1-720": ("u2okj", 720, 540),
     "igem-fig2-720": ("I2wlYa", 720, 540),
-    "hir-fig-1600x695": ("T0FU1", 1600, 695),
+    "hir-fig-1600x400": ("T0FU1", 1600, 400),
     "music-fig-720": ("vVdM9", 720, 540),
     "sport-fig-720": ("rWg3m", 720, 540),
     "elder-fig-720": ("Uh3XX", 720, 540),
@@ -35,10 +35,10 @@ DERIVED = {
 }
 DERIVED_MAX_BYTES = 250 * 1024
 # 全幅宽图（通栏、无左右留白，像素最密）单文件上限放宽到 320 KB，**只对下列白名单**生效；
-# 其余图位一律仍判 250 KB。hir-fig-1600x695 按 2026-10-28 供图原幅 1600×695 不裁切，q61/q69 实测贴近 320 KB 上限；
+# 其余图位一律仍判 250 KB。hir-fig-1600x400 按 2026-10-28 供图 1600×695 原幅裁切（下部留 20、上部裁 275）得 1600×400，q91 实测贴近 320 KB 上限；
 # photoband-2880（另一张全幅宽图）同样上限，现文件远低于此值。
 FULL_BLEED_MAX_BYTES = 320 * 1024
-FULL_BLEED = {"hir-fig-1600x695", "photoband-2880"}
+FULL_BLEED = {"hir-fig-1600x400", "photoband-2880"}
 BLANK_STDDEV_SUM = 5  # RGB 三通道标准差之和 <= 此值即为空白/占位图
 SOURCE_ORIGINALS = {"image1.jpeg", "image2.jpeg", "image3.jpeg"}
 NON_DERIVED = {

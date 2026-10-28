@@ -526,18 +526,19 @@ for (const ratio of RATIOS) {
 const hirMedia = pen("T0FU1");
 if (hirMedia !== undefined) {
   /* The board freezes `T0FU1` at 1344×420 (16:5), but the 2026-10-28 user ruling shows the
-     photo whole: the slot now takes the file's native 1600×695 ratio instead of a fixed
-     design height. The check moves with the ruling — exact ratio in the CSS, and a fixed
-     height that would crop the frame again is itself a failure. */
+     photo whole in a 1600×400 (4:1) frame — the file is already cut to that frame (下部留 20、
+     上部裁 275), so the slot takes its exact 1600/400 ratio instead of a design height. The
+     check moves with the ruling — exact ratio in the CSS, and a fixed height that would crop
+     the file again is itself a failure. */
   checked += 1;
   const hirCss = declarationsOf(".scholarly__media--hir");
   const hirRatio = declaration(hirCss, "aspect-ratio");
-  if (hirRatio !== "1600 / 695") {
-    fail(`[ratio] .scholarly__media--hir aspect-ratio ${JSON.stringify(hirRatio)} != 1600 / 695`);
+  if (hirRatio !== "1600 / 400") {
+    fail(`[ratio] .scholarly__media--hir aspect-ratio ${JSON.stringify(hirRatio)} != 1600 / 400`);
   }
   const hirHeight = declaration(hirCss, "height");
   if (hirHeight !== null) {
-    fail(`[ratio] .scholarly__media--hir pins height ${JSON.stringify(hirHeight)}; the whole 1600×695 frame must show`);
+    fail(`[ratio] .scholarly__media--hir pins height ${JSON.stringify(hirHeight)}; the whole 1600×400 frame must show`);
   }
 }
 
@@ -736,12 +737,12 @@ for (const name of PHOTOS) {
 
 /* The three slots the image-wiring lane filled (`.agents/briefs/image-wiring-map.md`
    §2.3–§2.5): each is a MANIFEST derivative of the board's own media node — 720×540 for
-   the two 4:3 iGEM figures, 1600×695 for the full-frame HIR figure — rendered at that native
-   size with the alt key T3b added for the slot. */
+   the two 4:3 iGEM figures, 1600×400 for the cropped full-frame HIR figure — rendered at that
+   native size with the alt key T3b added for the slot. */
 const FIGURES = [
   { file: "igem-fig1-720.webp", node: "u2okj", width: 720, height: 540, altKey: "scholarly-igem.fig1.alt" },
   { file: "igem-fig2-720.webp", node: "I2wlYa", width: 720, height: 540, altKey: "scholarly-igem.fig2.alt" },
-  { file: "hir-fig-1600x695.webp", node: "T0FU1", width: 1600, height: 695, altKey: "scholarly-hir.fig.alt" },
+  { file: "hir-fig-1600x400.webp", node: "T0FU1", width: 1600, height: 400, altKey: "scholarly-hir.fig.alt" },
 ];
 for (const figure of FIGURES) {
   checked += 1;

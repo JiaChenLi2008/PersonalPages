@@ -57,15 +57,16 @@ export function ScholarlyHir() {
 
       <div className="scholarly__body scholarly__body--hir motion-reveal-group">
         {/* The figure does not open: the box stays decorative (BLUEPRINT §6.3) and its file
-            is the full 1600×695 frame of the 2026-10-28 user photo, not a zip master. */}
+            is the whole 1600×400 frame of the 2026-10-28 user photo (cropped y275–675 of the
+            1600×695 original), not a zip master. */}
         <div className="scholarly__media scholarly__media--hir">
           <Reveal className="scholarly__clip motion-clip">
             <Photo
               className="scholarly__photo"
-              src="./media/hir-fig-1600x695.webp"
+              src="./media/hir-fig-1600x400.webp"
               alt={text("scholarly-hir.fig.alt")}
               width={1600}
-              height={695}
+              height={400}
               loading="lazy"
               decoding="async"
             />

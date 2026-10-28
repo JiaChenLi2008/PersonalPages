@@ -2,7 +2,7 @@
    Every value below is the frozen design value at the 1440 board: colours only
    through styles/tokens.css vars, sizes through a token whenever one carries the
    same value (32px gap -> var(--sp-32)) and literally when tokens.css has none
-   (20px, 26px, 6px, font-size 18px, line-height 1.8/1.6/1.5, the HIR slot's 1600/695 ratio).
+   (20px, 26px, 6px, font-size 18px, line-height 1.8/1.6/1.5, the HIR slot's 1600/400 ratio).
    Nothing is rounded and nothing is approximated. */
 
 .scholarly {
@@ -295,9 +295,10 @@
 }
 
 /* `T0FU1` is named 21:9 and frozen at 1344×420; the 2026-10-28 user ruling replaces that
-   box with the photo's native 1600×695 ratio, so the whole frame shows without cropping. */
+   box with the photo's own 1600×400 frame (20px kept below, 275px cut above), so the whole
+   file shows without further cropping. */
 .scholarly__media--hir {
-  aspect-ratio: 1600 / 695;
+  aspect-ratio: 1600 / 400;
 }
 
 .scholarly__photo {
