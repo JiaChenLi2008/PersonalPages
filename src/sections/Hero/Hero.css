@@ -6,12 +6,17 @@
   flex-direction: column;
   gap: var(--sp-28);
   padding: var(--pad-hero);
+  /* 首屏修整: the buttons moved into the left column, so the section's bottom pad takes
+     the 40 the board gave the old CTA row down to 24 — 40px of empty band under the
+     portrait otherwise. The top pad stays 56. */
+  padding-bottom: var(--sp-24);
 }
 
 .hero__grid {
   display: flex;
   gap: var(--sp-32);
-  align-items: flex-end;
+  /* flex-end hung the title 193px below the grid's top; the columns start at the top. */
+  align-items: flex-start;
 }
 
 .hero__left {
@@ -60,6 +65,9 @@
   align-items: center;
   gap: var(--sp-16);
   width: var(--col-hero-right);
+  /* The display line's glyphs start ~15px below its box top; --sp-16 puts the portrait's
+     top edge on that same visual line. */
+  margin-top: var(--sp-16);
 }
 
 .hero__portrait {

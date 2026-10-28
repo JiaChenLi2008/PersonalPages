@@ -30,6 +30,29 @@ export function Hero() {
               {page === "zh-Hans" ? text("hero.h1cn") : text("hero.h1")}
             </span>
           </h1>
+          {/* 首屏修整: the CTAs sit under the title, not on a full-width row below the grid —
+              they belong to the left column's own stack. */}
+          <div className="hero__btns">
+            {/* The CV is the page's own file: it opens in a tab of its own, out of this document. */}
+            <a
+              className="hero__btn hero__btn--solid motion-hover"
+              href="./media/cv.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              lang={copyLang("hero.btn1")}
+            >
+              {text("hero.btn1")}
+            </a>
+            {/* A real mail link: the address is the dictionary's mail slot — the same entry
+                the page's JSON-LD carries (BLUEPRINT §5.1). */}
+            <a
+              className="hero__btn hero__btn--ghost motion-hover"
+              href={`mailto:${text("nav.mail")}`}
+              lang={copyLang("hero.btn2")}
+            >
+              {text("hero.btn2")}
+            </a>
+          </div>
         </Reveal>
         <div className="hero__right">
           {/* docx-1028 条目3 + 车道 F 方案 A: the square portrait sits above the four intro
@@ -56,27 +79,6 @@ export function Hero() {
             <p className="hero__line hero__line--4" lang={copyLang("hero.line4")}>{text("hero.line4")}</p>
           </Reveal>
         </div>
-      </div>
-      <div className="hero__btns">
-        {/* The CV is the page's own file: it opens in a tab of its own, out of this document. */}
-        <a
-          className="hero__btn hero__btn--solid motion-hover"
-          href="./media/cv.pdf"
-          target="_blank"
-          rel="noopener noreferrer"
-          lang={copyLang("hero.btn1")}
-        >
-          {text("hero.btn1")}
-        </a>
-        {/* A real mail link: the address is the dictionary's mail slot — the same entry
-            the page's JSON-LD carries (BLUEPRINT §5.1). */}
-        <a
-          className="hero__btn hero__btn--ghost motion-hover"
-          href={`mailto:${text("nav.mail")}`}
-          lang={copyLang("hero.btn2")}
-        >
-          {text("hero.btn2")}
-        </a>
       </div>
     </section>
   );
