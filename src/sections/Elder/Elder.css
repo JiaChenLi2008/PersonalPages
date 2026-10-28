@@ -93,6 +93,25 @@
   font-weight: var(--fw-normal);
 }
 
+/* docx-1028 段[10]…[12]: three paragraphs close the column and fill the stretch the
+   FORM row left empty. 13px on 1.7 is the section's own board pair (the KV value's
+   size, the pull quote's leading); 60ch holds the line at a reading length while the
+   column stays as wide as the body row. */
+.elder__essay {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-10);
+  max-width: 60ch;
+  color: var(--c-ink-body);
+  font-family: var(--ff-sans-cn);
+  font-size: var(--fs-13);
+  line-height: var(--lh-running);
+}
+
+.elder__essay p {
+  margin: 0;
+}
+
 .elder__fig {
   display: flex;
   flex: none;
@@ -126,7 +145,7 @@
 /* ---- docx-1023 §10: the hospital guide ---- */
 /* The block starts a step below the body and holds the download card alone. */
 .elder__guide {
-  margin-top: var(--sp-32);
+  margin-top: var(--sp-16);
 }
 
 /* Two columns, text left and the download link right (scholarly__docCard's shape, whose own

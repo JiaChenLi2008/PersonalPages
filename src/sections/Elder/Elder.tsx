@@ -40,6 +40,19 @@ export function Elder() {
               {text("elder.kv.v")}
             </dd>
           </dl>
+          {/* docx-1028 段[10]…[12]: the three paragraphs that fill the column's empty
+              stretch above the guide card. */}
+          <div className="elder__essay">
+            <p lang={langOf("elder.essay.p1")}>
+              {text("elder.essay.p1")}
+            </p>
+            <p lang={langOf("elder.essay.p2")}>
+              {text("elder.essay.p2")}
+            </p>
+            <p lang={langOf("elder.essay.p3")}>
+              {text("elder.essay.p3")}
+            </p>
+          </div>
         </Reveal>
         {/* The figure sweeps in under its clip-path mask one tier behind the text column.
             A clipped element has no visible area, so the 15% observer default could never
